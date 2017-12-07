@@ -60,6 +60,8 @@ Sub sub_ExportModulesSourceCodeToFolder()
 Next_mod:
         Next
     Next
+    
+    MsgBox "Done"
 End Sub
 
 '*************************************************************************
@@ -172,6 +174,8 @@ End Function
 Function fGetTmpSheetInWorkbookWhenNotExistsCreateIt(shtTmp As Worksheet, Optional wb As Workbook) As Boolean
     Dim sTmp As String
     Dim response As VbMsgBoxResult
+    
+    If wb Is Nothing Then Set wb = ThisWorkbook
     
     sTmp = "tmpOutput"
     

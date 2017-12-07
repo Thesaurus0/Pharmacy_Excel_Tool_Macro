@@ -114,7 +114,6 @@ Function fValidateDuplicateKeysForConfigBlock(arrConfigData(), arrColsIndex(), a
     Set dict = Nothing
 End Function
 
-
 Function fReadConfigBlockToArrayValidated(asTag As String, rngToFindIn As Range, arrColsName _
                                 , Optional arrKeyCols _
                                 , Optional ByRef lConfigStartRow As Long _

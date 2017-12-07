@@ -1,8 +1,18 @@
-Attribute VB_Name = "M1_ImportFiles"
+Attribute VB_Name = "M1_ImportSalesFiles"
 Option Explicit
 Option Base 1
    
 Dim arrSalesCompanys()
+
+Public gsCompanyID As String
+
+Sub subMain_ImportSalesInfoFiles()
+   ' On Error GoTo error_handling
+    gsCompanyID = "GY"
+    
+    arrSalesCompanys = fReadConfigCompanyList
+error_handling:
+End Sub
 
 Function fImportAllSalesInfoFiles()
     Dim i As Integer
@@ -23,35 +33,6 @@ Function fImportSalesInfoFileForComapnay(asCompanyID As String, asCompanyName As
     
 End Function
 
-Function fReadConfigCompanyList() As Variant
-    Dim asTag As String
-    Dim arrColsName()
-    Dim arrKeyColsForValidation()
-    Dim rngToFindIn As Range
-    Dim arrConfigData()
-    Dim lConfigStartRow As Long
-    Dim lConfigStartCol As Long
-    Dim lConfigEndRow As Long
-    Dim lConfigHeaderAtRow As Long
-                                
-    asTag = "[Sales Company List]"
-    arrColsName = Array("Company ID", "Company Name")
-    arrKeyColsForValidation = Array(1)
-     
-    arrConfigData = fReadConfigBlockToArrayValidated(asTag:=asTag, rngToFindIn:=shtMainConf.Cells _
-                                , arrColsName:=arrColsName _
-                                , lConfigStartRow:=lConfigStartRow _
-                                , lConfigStartCol:=lConfigStartCol _
-                                , lConfigEndRow:=lConfigEndRow _
-                                , lOutConfigHeaderAtRow:=lConfigHeaderAtRow _
-                                , abNoDataConfigThenError:=True _
-                                , arrKeyCols:=arrKeyColsForValidation _
-                                , bNetValues:=True _
-                                )
-    fReadConfigCompanyList = arrConfigData
-    Erase arrColsName
-    Erase arrConfigData
-End Function
 
 Function fValidationAndSetToConfigSheet()
     arrSalesCompanys = fReadConfigCompanyList()

@@ -466,7 +466,7 @@ Function fDeleteFile(sFilePath As String)
     End If
 End Function
 
-Function fArrayRowIsBlankHasNoData(arr(), alRow As Long) As Boolean
+Function fArrayRowIsBlankHasNoData(arr, alRow As Long) As Boolean
     Dim bOut As Boolean
     Dim lEachCol As Long
     
@@ -607,7 +607,7 @@ Function fValidateDuplicateInArray(arrParam, arrKeyColsOrSingle _
                         , Optional bAllowBlank As Boolean = False _
                         , Optional shtAt As Worksheet _
                         , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
-                        , Optional arrColNames)
+                        , Optional sMsgColHeader As String)
 'arrKeyColsOrSingle : should be start from 1, since two dimension array is starting from 1
     If fArrayIsEmptyOrNoData(arrParam) Then Exit Function
     
@@ -618,17 +618,17 @@ Function fValidateDuplicateInArray(arrParam, arrKeyColsOrSingle _
     End If
     
     If IsArray(arrKeyColsOrSingle) Then
-        Call fValidateDuplicateInArrayForMultipleCols(arrParam:=arrParam, arrKeyColsOrSingle:=arrKeyColsOrSingle _
+        Call fValidateDuplicateInArrayForMultipleCols(arrParam:=arrParam, arrKeyCols:=arrKeyColsOrSingle _
                                                     , bAllowBlank:=bAllowBlank _
                                                     , shtAt:=shtAt _
                                                     , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
-                                                    , arrColNames:=arrColNames)
+                                                    , sMsgColHeader:=sMsgColHeader)
     Else
-        Call fValidateDuplicateInArrayForSingleCol(arrParam:=arrParam, arrKeyColsOrSingle:=arrKeyColsOrSingle _
+        Call fValidateDuplicateInArrayForSingleCol(arrParam:=arrParam, lKeyCol:=CLng(arrKeyColsOrSingle) _
                                                     , bAllowBlank:=bAllowBlank _
                                                     , shtAt:=shtAt _
                                                     , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
-                                                    , arrColNames:=arrColNames)
+                                                    , sMsgColHeader:=sMsgColHeader)
     End If
 End Function
 
@@ -636,7 +636,7 @@ Function fValidateDuplicateInArrayForMultipleCols(arrParam, arrKeyCols _
                         , Optional bAllowBlank As Boolean = False _
                         , Optional shtAt As Worksheet _
                         , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
-                        , Optional arrColNames)
+                        , Optional sMsgColHeader As String)
 'MultipleCols: means MultipleCols composed as key
 'for MultipleCols that is individually, please refer to function fValidateDuplicateInArrayIndividually
     Const DELI = " " & DELIMITER & " "
@@ -650,15 +650,19 @@ Function fValidateDuplicateInArrayForMultipleCols(arrParam, arrKeyCols _
     Dim sPos As String
     Dim lActualRow As Long
     
-    sPos = vbCr & vbCr & "sheet     : " & shtAt.Name _
-         & vbCr & vbCr & "Row/Column: "
+    If Not fZero(sMsgColHeader) Then
+        sColLetterStr = sMsgColHeader
+    Else
+        For i = LBound(arrKeyCols) To UBound(arrKeyCols)
+            lEachCol = arrKeyCols(i)
+            sColLetterStr = sColLetterStr & " + " & fNum2Letter(lStartCol + lEachCol - 1)
+        Next
+        sColLetterStr = Right(sColLetterStr, Len(sColLetterStr) - 3)
+    End If
     
-    For i = LBound(arrKeyCols) To UBound(arrKeyCols)
-        lEachCol = arrKeyCols(i)
-        sColLetterStr = sColLetterStr & " + " & fNum2Letter(lStartCol + lEachCol)
-    Next
-    sColLetterStr = Right(sColLetterStr, Len(sColLetterStr) - 3)
-        
+    sPos = vbCr & vbCr & "sheet     : " & shtAt.Name _
+         & vbCr & vbCr & "Row, Column: " & " ACTUAL_ROW_NO, [" & sColLetterStr & "]"
+            
     Set dict = New Dictionary
     For lEachRow = LBound(arrParam, 1) To UBound(arrParam, 1)
         If fArrayRowIsBlankHasNoData(arrParam, lEachRow) Then GoTo next_row
@@ -673,7 +677,8 @@ Function fValidateDuplicateInArrayForMultipleCols(arrParam, arrKeyCols _
         
         If Not bAllowBlank Then
             If fZero(Replace(sKeyStr, DELI, "")) Then
-                sPos = sPos & lActualRow & " / " & sColLetterStr
+                'sPos = sPos & "[" & lActualRow & ", " & sColLetterStr & "]"
+                sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
                 fMsgRaiseErr "Keys [" & sKeyStr & "] is blank!" & sPos
             End If
         End If
@@ -681,7 +686,7 @@ Function fValidateDuplicateInArrayForMultipleCols(arrParam, arrKeyCols _
         sKeyStr = Right(sKeyStr, Len(sKeyStr) - Len(DELI))
         
         If dict.Exists(sKeyStr) Then
-            sPos = sPos & lActualRow & " / " & sColLetterStr
+            sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
             fMsgRaiseErr "Duplicate key [" & sKeyStr & " was found:" & sPos
         Else
             dict.Add sKeyStr, 0
@@ -696,7 +701,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
                                             , Optional bAllowBlank As Boolean = False _
                                             , Optional shtAt As Worksheet _
                                             , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
-                                            , Optional arrColNames)
+                                            , Optional sMsgColHeader As String)
     If lKeyCol <= 0 Then fMsgRaiseErr "Wrong param: lKeyCol"
     
     Dim lEachRow As Long
@@ -709,8 +714,11 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
     
     sPos = vbCr & vbCr & "sheet     : " & shtAt.Name _
          & vbCr & vbCr & "Row/Column: "
-    sColLetter = fNum2Letter(lStartCol + lKeyCol)
+    sColLetter = IIf(fZero(sMsgColHeader), fNum2Letter(lStartCol + lKeyCol - 1), sMsgColHeader)
         
+    sPos = vbCr & vbCr & "sheet     : " & shtAt.Name _
+         & vbCr & vbCr & "Row, Column: " & " ACTUAL_ROW_NO,  [" & sColLetter & "]"
+         
     Set dict = New Dictionary
     For lEachRow = LBound(arrParam, 1) To UBound(arrParam, 1)
         If fArrayRowIsBlankHasNoData(arrParam, lEachRow) Then GoTo next_row
@@ -721,14 +729,16 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
         
         If Not bAllowBlank Then
             If fZero(sKeyStr) Then
-                sPos = sPos & lActualRow & " / " & sColLetter
+                'sPos = sPos & lActualRow & " / " & sColLetter
+                sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
                 fMsgRaiseErr "Keys [" & sKeyStr & "] is blank!" & sPos
             End If
         End If
         
         If dict.Exists(sKeyStr) Then
-            sPos = sPos & lActualRow & " / " & sColLetterStr
-            fMsgRaiseErr "Duplicate key [" & sKeyStr & " was found " & sPos
+            'sPos = sPos & lActualRow & " / " & sColLetter
+            sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
+            fMsgRaiseErr "Duplicate key [" & sKeyStr & "] was found " & sPos
         Else
             dict.Add sKeyStr, 0
         End If
@@ -819,6 +829,7 @@ Function fAddNewSheet(asShtName As String, Optional wb As Workbook) As Worksheet
     If wb Is Nothing Then Set wb = ThisWorkbook
 
     Set shtOut = wb.Worksheets.Add(after:=wb.Worksheets(wb.Worksheets.Count))
+    shtOut.Name = asShtName
     shtOut.Activate
     ActiveWindow.DisplayGridlines = False
     
