@@ -332,11 +332,13 @@ Function fReadConfigInputFiles(Optional asReportID As String = "")
     Call fValidateBlankInArray(arrConfigData, InputFile.ReportID, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Report ID")
     Call fValidateBlankInArray(arrConfigData, InputFile.FileTag, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "File Tag")
     
-    Set gDictInputFiles = New Dictionary
-    
     Dim lEachRow As Long
     Dim lActualRow As Long
     Dim sRptNameStr As String
+    Dim sValueStr As String
+    Dim sFileTag As String
+    
+    Set gDictInputFiles = New Dictionary
     
     For lEachRow = LBound(arrConfigData, 1) To UBound(arrConfigData, 1)
         If fArrayRowIsBlankHasNoData(arrConfigData, lEachRow) Then GoTo next_row
@@ -346,11 +348,26 @@ Function fReadConfigInputFiles(Optional asReportID As String = "")
         
         lActualRow = lConfigHeaderAtRow + lEachRow
         
+        sFileTag = Trim(arrConfigData(lEachRow, InputFile.FileTag))
+        sValueStr = fComposeStrForInputFile(arrConfigData, lEachRow)
         
+        gDictInputFiles.Add sFileTag, sValueStr
+        Call fUpdateDictionaryItemValueForDelimitedElement(gDictInputFiles, sFileTag, InputFile.RowNo - InputFile.FileTag, lActualRow)
 next_row:
     Next
     
     Erase arrConfigData
+End Function
+
+Function fComposeStrForInputFile(arrConfigData, lEachRow As Long) As String
+    Dim sOut As String
+    Dim i As Integer
+    
+    For i = InputFile.FilePath To InputFile.PivotTableTag
+        sOut = sOut & DELIMITER & arrConfigData(lEachRow, i)
+    Next
+    
+    fComposeStrForInputFile = Right(sOut, Len(sOut) - 1)
 End Function
 
 Function fReadSysConfig_InputOutputTxt(Optional asReportID As String = "")

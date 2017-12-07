@@ -14,6 +14,7 @@ Sub subMain_ImportSalesInfoFiles()
     Call fValidationAndSetToConfigSheet
     
    ' On Error GoTo error_handling
+   gsRptID = "IMPORT_SALES_INFO"
     gsCompanyID = "GY"
     
     Call fReadConfigInputFiles
@@ -73,9 +74,9 @@ End Function
 Function fSetUserTicketToConfigSheetAndgDict()
     If shtMenu.ckb_GY Then
         Call fSetSpecifiedConfigCellValue(shtStaticData, "[Sales Company List]", "User Ticked", "Company ID=GY", "Y")
-        Call fUpdateItemValueForDelimitedElement(dictCompList, "GY", Company.Selected - Company.Report_ID, "Y")
+        Call fUpdateDictionaryItemValueForDelimitedElement(dictCompList, "GY", Company.Selected - Company.Report_ID, "Y")
     Else
         Call fSetSpecifiedConfigCellValue(shtStaticData, "[Sales Company List]", "User Ticked", "Company ID=GY", "N")
-        Call fUpdateItemValueForDelimitedElement(dictCompList, "GY", Company.Selected - Company.Report_ID, "Y")
+        Call fUpdateDictionaryItemValueForDelimitedElement(dictCompList, "GY", Company.Selected - Company.Report_ID, "Y")
     End If
 End Function

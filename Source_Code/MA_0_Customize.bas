@@ -7,5 +7,7 @@ Function fOverWriteGDictVariables_gDictInputfiles()
     
     sFile = Trim(shtMenu.Range("rngSalesFilePath_GY").Value)
     
+    Call fSetSpecifiedConfigCellValue(shtSysConf, "[Input Files]", "File Full Path", "File Tag=GY", sFile)
+    Call fUpdateDictionaryItemValueForDelimitedElement(gDictInputFiles, "GY", InputFile.FilePath - InputFile.FileTag, sFile)
     
 End Function

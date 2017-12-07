@@ -1107,11 +1107,11 @@ Function fSetArrayValue(ByRef arr, aIndex As Long, aValue)
     End If
 End Function
 
-Function fUpdateItemValueForDelimitedElement(ByRef dict As Dictionary, aKey, iElementIndex As Integer, aNewValue, Optional sDelimiter As String = DELIMITER)
+Function fUpdateDictionaryItemValueForDelimitedElement(ByRef dict As Dictionary, aKey, iElementIndex As Integer, aNewValue, Optional sDelimiter As String = DELIMITER)
     Dim arr
-    If iElementIndex <= 0 Then fErr "iElementIndex <= 0 to fUpdateItemValueForDelimitedElement"
+    If iElementIndex <= 0 Then fErr "iElementIndex <= 0 to fUpdateDictionaryItemValueForDelimitedElement"
     
-    If Not dict.Exists(aKey) Then fErr "aKey even does not exists in param dict to fUpdateItemValueForDelimitedElement"
+    If Not dict.Exists(aKey) Then fErr "aKey even does not exists in param dict to fUpdateDictionaryItemValueForDelimitedElement"
     
     arr = Split(dict(aKey), sDelimiter)
     
