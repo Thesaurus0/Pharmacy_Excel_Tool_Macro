@@ -88,7 +88,6 @@ Public Function fGetValidMaxCol(shtParam As Worksheet, Optional abCountInMergedC
     fGetValidMaxCol = lValidMaxColSaved
 End Function
 
-
 Function fGetValidMaxRowOfRange(rngParam As Range, Optional abCountInMergedCell As Boolean = False) As Long
      Dim lOut As Long
      
@@ -236,7 +235,7 @@ Function fRangeIsSingleCell(rngParam As Range) As Boolean
 End Function
 
 
-Function fMsgRaiseErr(Optional sMsg As String = "") As VbMsgBoxResult
+Function fErr(Optional sMsg As String = "") As VbMsgBoxResult
     If Len(Trim(sMsg)) > 0 Then fMsgBox "Error: " & vbCr & vbCr & sMsg, vbCritical
     
     err.Raise vbObjectError + ERROR_NUMBER, "", "Program is to be terminated."
@@ -329,7 +328,7 @@ Function fArrayHasBlankValue(ByRef arrParam) As Boolean
     
     iDimension = fGetArrayDimension(arrParam)
     If iDimension <= 0 Then GoTo exit_function
-    If iDimension >= 2 Then fMsgRaiseErr "2 dimensions is not supported."
+    If iDimension >= 2 Then fErr "2 dimensions is not supported."
     
     For lEachRow = LBound(arrParam, 1) To UBound(arrParam, 1)
         If Len(Trim(CStr(arrParam(lEachRow)))) <= 0 Then
@@ -352,7 +351,7 @@ Function fArrayHasDuplicateElement(ByRef arrParam) As Boolean
     
     iDimension = fGetArrayDimension(arrParam)
     If iDimension <= 0 Then GoTo exit_function
-    If iDimension >= 2 Then fMsgRaiseErr "2 dimensions is not supported."
+    If iDimension >= 2 Then fErr "2 dimensions is not supported."
     
     Dim dict As New Dictionary
     
@@ -382,7 +381,7 @@ Function fArrayIsEmptyOrNoData(ByRef arrParam) As Boolean
     
     iDimension = fGetArrayDimension(arrParam)
     If iDimension <= 0 Then GoTo exit_function
-    If iDimension >= 3 Then fMsgRaiseErr "3 dimensions is not supported."
+    If iDimension >= 3 Then fErr "3 dimensions is not supported."
     
     If iDimension = 1 Then
         For lEachRow = LBound(arrParam, 1) To UBound(arrParam, 1)
@@ -573,6 +572,57 @@ Function fNzero(sStr) As Boolean
     fNzero = (Len(Trim(sStr)) > 0)
 End Function
 
+Function fReadArray2DictionaryWithMultipleColsCombined(arrData, lKeyCol As Long, arrItemCols _
+                , Optional asDelimiter As String = "" _
+                , Optional IgnoreBlankKeys As Boolean = False _
+                , Optional WhenKeyDuplicateThenError As Boolean = True) As Dictionary
+    Dim dictOut As Dictionary
+    
+    If lKeyCol < 0 Then fErr "lKeyCol < 0 to fReadArray2DictionaryWithMultipleColsCombined"
+    
+    Set dictOut = New Dictionary
+    
+    If fArrayIsEmptyOrNoData(arrData) Then GoTo exit_fun
+    If fArrayIsEmptyOrNoData(arrItemCols) Then fErr "arrItemCols is empty."
+    If fArrayHasDuplicateElement(arrItemCols) Then fErr "arrItemCols has duplicate element."
+    
+    Dim i As Long
+    Dim sKey
+    Dim sValue As String
+    For i = LBound(arrData, 1) To UBound(arrData, 1)
+        If fArrayRowIsBlankHasNoData(arrData, i) Then GoTo next_row
+        
+        sKey = arrData(i, lKeyCol)
+        
+        If fZero(sKey) Then
+            If IgnoreBlankKeys Then GoTo next_row
+            fErr "Key column is blank, but program decides not allow blank, pls contact with IT support."
+        End If
+        
+        If dictOut.Exists(sKey) Then
+            If WhenKeyDuplicateThenError Then fErr "Duplicate Key was found : " & vbCr & "Key: " & sKey
+            GoTo next_row
+        End If
+        
+        sValue = ""
+        Dim j As Integer
+        For j = LBound(arrItemCols) To UBound(arrItemCols)
+            sValue = sValue & asDelimiter & Trim(arrData(i, arrItemCols(j)))
+        Next
+        
+        If fNzero(sValue) And fNzero(asDelimiter) Then
+            If Left(sValue, 1) = asDelimiter Then sValue = Right(sValue, Len(sValue) - 1)
+        End If
+        
+        dictOut.Add sKey, sValue
+next_row:
+    Next
+    
+exit_fun:
+    Set fReadArray2DictionaryWithMultipleColsCombined = dictOut
+    Set dictOut = Nothing
+End Function
+
 Function fRadArray2Dictionary(arrParam, lKeyCol As Long _
                             , Optional lItemCol As Long = 0 _
                             , Optional IgnoreBlankKeys As Boolean = False _
@@ -583,7 +633,7 @@ Function fRadArray2Dictionary(arrParam, lKeyCol As Long _
 '          0: get key only, not care the item value, 0 as default
 '         >0: the item is specified column
 '==========================================================================
-    If lItemCol < -1 Then fMsgRaiseErr "wrong param"
+    If lItemCol < -1 Then fErr "wrong param"
     
     Dim dictOut As Dictionary
     Set dictOut = New Dictionary
@@ -612,13 +662,13 @@ Function fValidateDuplicateInArray(arrParam, arrKeyColsOrSingle _
     If fArrayIsEmptyOrNoData(arrParam) Then Exit Function
     
     If IsArray(arrKeyColsOrSingle) Then
-        If fArrayIsEmptyOrNoData(arrKeyColsOrSingle) Then fMsgRaiseErr "Wrong param: arrKeyColsOrSingle"
+        If fArrayIsEmptyOrNoData(arrKeyColsOrSingle) Then fErr "Wrong param: arrKeyColsOrSingle"
     Else
-        If arrKeyColsOrSingle <= 0 Then fMsgRaiseErr "Wrong param: arrKeyColsOrSingle"
+        If arrKeyColsOrSingle <= 0 Then fErr "Wrong param: arrKeyColsOrSingle"
     End If
     
     If IsArray(arrKeyColsOrSingle) Then
-        Call fValidateDuplicateInArrayForMultipleCols(arrParam:=arrParam, arrKeyCols:=arrKeyColsOrSingle _
+        Call fValidateDuplicateInArrayForCombineCols(arrParam:=arrParam, arrKeyCols:=arrKeyColsOrSingle _
                                                     , bAllowBlank:=bAllowBlank _
                                                     , shtAt:=shtAt _
                                                     , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
@@ -632,7 +682,7 @@ Function fValidateDuplicateInArray(arrParam, arrKeyColsOrSingle _
     End If
 End Function
 
-Function fValidateDuplicateInArrayForMultipleCols(arrParam, arrKeyCols _
+Function fValidateDuplicateInArrayForCombineCols(arrParam, arrKeyCols _
                         , Optional bAllowBlank As Boolean = False _
                         , Optional shtAt As Worksheet _
                         , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
@@ -679,7 +729,7 @@ Function fValidateDuplicateInArrayForMultipleCols(arrParam, arrKeyCols _
             If fZero(Replace(sKeyStr, DELI, "")) Then
                 'sPos = sPos & "[" & lActualRow & ", " & sColLetterStr & "]"
                 sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
-                fMsgRaiseErr "Keys [" & sKeyStr & "] is blank!" & sPos
+                fErr "Keys [" & sKeyStr & "] is blank!" & sPos
             End If
         End If
         
@@ -687,7 +737,7 @@ Function fValidateDuplicateInArrayForMultipleCols(arrParam, arrKeyCols _
         
         If dict.Exists(sKeyStr) Then
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
-            fMsgRaiseErr "Duplicate key [" & sKeyStr & " was found:" & sPos
+            fErr "Duplicate key [" & sKeyStr & " was found:" & sPos
         Else
             dict.Add sKeyStr, 0
         End If
@@ -702,7 +752,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
                                             , Optional shtAt As Worksheet _
                                             , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
                                             , Optional sMsgColHeader As String)
-    If lKeyCol <= 0 Then fMsgRaiseErr "Wrong param: lKeyCol"
+    If lKeyCol <= 0 Then fErr "Wrong param: lKeyCol"
     
     Dim lEachRow As Long
     Dim i As Long
@@ -712,8 +762,6 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
     Dim sPos As String
     Dim lActualRow As Long
     
-    sPos = vbCr & vbCr & "sheet     : " & shtAt.Name _
-         & vbCr & vbCr & "Row/Column: "
     sColLetter = IIf(fZero(sMsgColHeader), fNum2Letter(lStartCol + lKeyCol - 1), sMsgColHeader)
         
     sPos = vbCr & vbCr & "sheet     : " & shtAt.Name _
@@ -731,14 +779,14 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
             If fZero(sKeyStr) Then
                 'sPos = sPos & lActualRow & " / " & sColLetter
                 sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
-                fMsgRaiseErr "Keys [" & sKeyStr & "] is blank!" & sPos
+                fErr "Keys [" & sKeyStr & "] is blank!" & sPos
             End If
         End If
         
         If dict.Exists(sKeyStr) Then
             'sPos = sPos & lActualRow & " / " & sColLetter
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
-            fMsgRaiseErr "Duplicate key [" & sKeyStr & "] was found " & sPos
+            fErr "Duplicate key [" & sKeyStr & "] was found " & sPos
         Else
             dict.Add sKeyStr, 0
         End If
@@ -757,9 +805,9 @@ Function fValidateDuplicateInArrayIndividually(arrParam, arrKeyColsOrSingle _
     If fArrayIsEmptyOrNoData(arrParam) Then Exit Function
     
     If IsArray(arrKeyColsOrSingle) Then
-        If fArrayIsEmptyOrNoData(arrKeyColsOrSingle) Then fMsgRaiseErr "Wrong param: arrKeyColsOrSingle"
+        If fArrayIsEmptyOrNoData(arrKeyColsOrSingle) Then fErr "Wrong param: arrKeyColsOrSingle"
     Else
-        If arrKeyColsOrSingle <= 0 Then fMsgRaiseErr "Wrong param: arrKeyColsOrSingle"
+        If arrKeyColsOrSingle <= 0 Then fErr "Wrong param: arrKeyColsOrSingle"
     End If
     
     If IsArray(arrKeyColsOrSingle) Then
@@ -876,3 +924,207 @@ Function fDeleteOldFilesInFolder(sFolder As String, lDays As Long)
     
 End Function
 
+
+Function fValidateBlankInArrayCombinedCols(arrParam, arrKeyColsOrSingle _
+                        , Optional shtAt As Worksheet _
+                        , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
+                        , Optional sMsgColHeader As String)
+'arrKeyColsOrSingle : should be start from 1, since two dimension array is starting from 1
+    If fArrayIsEmptyOrNoData(arrParam) Then Exit Function
+    
+    If IsArray(arrKeyColsOrSingle) Then
+        If fArrayIsEmptyOrNoData(arrKeyColsOrSingle) Then fErr "Wrong param: arrKeyColsOrSingle"
+    Else
+        If arrKeyColsOrSingle <= 0 Then fErr "Wrong param: arrKeyColsOrSingle"
+    End If
+    
+    If IsArray(arrKeyColsOrSingle) Then
+        Call fValidateBlankInArrayForCombineCols(arrParam:=arrParam, arrKeyCols:=arrKeyColsOrSingle _
+                                                    , shtAt:=shtAt _
+                                                    , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
+                                                    , sMsgColHeader:=sMsgColHeader)
+    Else
+        Call fValidateBlankInArrayForSingleCol(arrParam:=arrParam, lKeyCol:=CLng(arrKeyColsOrSingle) _
+                                                    , shtAt:=shtAt _
+                                                    , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
+                                                    , sMsgColHeader:=sMsgColHeader)
+    End If
+End Function
+
+'call the parent function: fValidateBlankInArrayCombinedCols, not to call this function
+Private Function fValidateBlankInArrayForCombineCols(arrParam, arrKeyCols _
+                        , Optional shtAt As Worksheet _
+                        , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
+                        , Optional sMsgColHeader As String)
+'MultipleCols: means MultipleCols composed as key
+'for MultipleCols that is individually, please refer to function fValidateBlankInArrayIndividually
+    Const DELI = " " & DELIMITER & " "
+    
+    Dim lEachRow As Long
+    Dim lEachCol As Long
+    Dim i As Long
+    Dim sKeyStr As String
+    Dim sColLetterStr As String
+    Dim sPos As String
+    Dim lActualRow As Long
+    
+    If Not fZero(sMsgColHeader) Then
+        sColLetterStr = sMsgColHeader
+    Else
+        For i = LBound(arrKeyCols) To UBound(arrKeyCols)
+            lEachCol = arrKeyCols(i)
+            sColLetterStr = sColLetterStr & " + " & fNum2Letter(lStartCol + lEachCol - 1)
+        Next
+        sColLetterStr = Right(sColLetterStr, Len(sColLetterStr) - 3)
+    End If
+    
+    sPos = vbCr & vbCr & "sheet     : " & shtAt.Name _
+         & vbCr & vbCr & "Row, Column: " & " ACTUAL_ROW_NO, [" & sColLetterStr & "]"
+    
+    For lEachRow = LBound(arrParam, 1) To UBound(arrParam, 1)
+        If fArrayRowIsBlankHasNoData(arrParam, lEachRow) Then GoTo next_row
+        
+        lActualRow = (lHeaderAtRow + lEachRow)
+        
+        sKeyStr = ""
+        For i = LBound(arrKeyCols) To UBound(arrKeyCols)
+            lEachCol = arrKeyCols(i)
+            sKeyStr = sKeyStr & CStr(arrParam(lEachRow, lEachCol))
+        Next
+        
+        If fZero(sKeyStr) Then
+            sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
+            fErr "Keys [" & sKeyStr & "] is blank!" & sPos
+        End If
+next_row:
+    Next
+End Function
+
+Function fValidateBlankInArrayForSingleCol(arrParam, lKeyCol As Long _
+                                            , Optional shtAt As Worksheet _
+                                            , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
+                                            , Optional sMsgColHeader As String)
+    If lKeyCol <= 0 Then fErr "Wrong param: lKeyCol"
+    
+    Dim lEachRow As Long
+    Dim i As Long
+    Dim sKeyStr As String
+    Dim sColLetter As String
+    Dim sPos As String
+    Dim lActualRow As Long
+    
+    sColLetter = IIf(fZero(sMsgColHeader), fNum2Letter(lStartCol + lKeyCol - 1), sMsgColHeader)
+        
+    sPos = vbCr & vbCr & "sheet     : " & shtAt.Name _
+         & vbCr & vbCr & "Row, Column: " & " ACTUAL_ROW_NO,  [" & sColLetter & "]"
+
+    For lEachRow = LBound(arrParam, 1) To UBound(arrParam, 1)
+        If fArrayRowIsBlankHasNoData(arrParam, lEachRow) Then GoTo next_row
+        
+        lActualRow = (lHeaderAtRow + lEachRow)
+        
+        sKeyStr = CStr(arrParam(lEachRow, lKeyCol))
+    
+        If fZero(sKeyStr) Then
+            sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
+            fErr "Keys [" & sKeyStr & "] is blank!" & sPos
+        End If
+next_row:
+    Next
+End Function
+
+Function fValidateBlankInArray(arrParam, arrKeyColsOrSingle _
+                        , Optional shtAt As Worksheet _
+                        , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
+                        , Optional sMsgColHeader As String)
+'arrKeyColsOrSingle : should be start from 1, since two dimension array is starting from 1
+    If fArrayIsEmptyOrNoData(arrParam) Then Exit Function
+    
+    If IsArray(arrKeyColsOrSingle) Then
+        If fArrayIsEmptyOrNoData(arrKeyColsOrSingle) Then fErr "Wrong param: arrKeyColsOrSingle"
+    Else
+        If arrKeyColsOrSingle <= 0 Then fErr "Wrong param: arrKeyColsOrSingle"
+    End If
+    
+    Dim i As Integer
+    If IsArray(arrKeyColsOrSingle) Then
+        For i = LBound(arrKeyColsOrSingle) To UBound(arrKeyColsOrSingle)
+            Call fValidateBlankInArrayForSingleCol(arrParam:=arrParam, lKeyCol:=CLng(arrKeyColsOrSingle) _
+                                                    , shtAt:=shtAt _
+                                                    , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
+                                                    , sMsgColHeader:=sMsgColHeader)
+        Next
+    Else
+        Call fValidateBlankInArrayForSingleCol(arrParam:=arrParam, lKeyCol:=CLng(arrKeyColsOrSingle) _
+                                                    , shtAt:=shtAt _
+                                                    , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
+                                                    , sMsgColHeader:=sMsgColHeader)
+    End If
+End Function
+
+
+Function fEnlargeAray(ByRef arr, Optional aPreserve As Boolean = True, Optional lIncrementNum As Integer = 1) As Long
+    fRedim arr, arrlen(arr) + 1, aPreserve
+End Function
+
+
+Function fEnlargeArayWithValue(ByRef arr, aValue, Optional aPreserve As Boolean = True, Optional lIncrementNum As Integer = 1) As Long
+    fRedim arr, ArrayLen(arr) + 1, aPreserve
+    arr(UBound(arr)) = aValue
+    fEnlargeArayWithValue = UBound(arr)
+End Function
+
+Function fRedim(ByRef arr, lNewUbound As Long, Optional aPreserve As Boolean = True)
+    If Base0(arr) Then
+        If aPreserve Then
+            ReDim Preserve arr(0 To lNewUbound - 1)
+        Else
+            ReDim arr(0 To lNewUbound - 1)
+        End If
+    Else
+        If aPreserve Then
+            ReDim Preserve arr(1 To lNewUbound)
+        Else
+            ReDim arr(1 To lNewUbound)
+        End If
+    End If
+End Function
+
+Function ArrayLen(ByRef arr) As Long
+     If fArrayIsEmpty(arr) Then fErr "Empty array is not allowed."
+     ArrayLen = UBound(arr) - LBound(arr) + 1
+End Function
+
+Function Base0(ByRef arr) As Boolean
+     Base0 = (LBound(arr) = 0)
+End Function
+
+Function fSetArrayValue(ByRef arr, aIndex As Long, aValue)
+    If Base0(arr) Then
+        arr(aIndex - 1) = aValue
+    Else
+        arr(aIndex) = aValue
+    End If
+End Function
+
+Function fUpdateItemValueForDelimitedElement(ByRef dict As Dictionary, aKey, iElementIndex As Integer, aNewValue, Optional sDelimiter As String = DELIMITER)
+    Dim arr
+    If iElementIndex <= 0 Then fErr "iElementIndex <= 0 to fUpdateItemValueForDelimitedElement"
+    
+    If Not dict.Exists(aKey) Then fErr "aKey even does not exists in param dict to fUpdateItemValueForDelimitedElement"
+    
+    arr = Split(dict(aKey), sDelimiter)
+    
+    If ArrayLen(arr) < iElementIndex Then
+        fRedim arr, CLng(iElementIndex), True
+    End If
+    
+    If Base0(arr) Then
+        arr(iElementIndex - 1) = aNewValue
+    Else
+        arr(iElementIndex) = aNewValue
+    End If
+    
+    dict(aKey) = Join(arr, sDelimiter)
+    Erase arr
+End Function

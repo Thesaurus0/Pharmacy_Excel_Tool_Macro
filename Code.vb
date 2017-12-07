@@ -1,6 +1,6 @@
 
 
-Function fValidateDuplicateInArray(arrParam, arrKeyColsOrSingle _
+Function fValidateBlankInArray(arrParam, arrKeyColsOrSingle _
                         , Optional bAllowBlank As Boolean = False _
                         , Optional shtAt As Worksheet _
                         , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
@@ -15,13 +15,13 @@ Function fValidateDuplicateInArray(arrParam, arrKeyColsOrSingle _
     End If
     
     If IsArray(arrKeyColsOrSingle) Then
-        Call fValidateDuplicateInArrayForMultipleCols(arrParam:=arrParam, arrKeyCols:=arrKeyColsOrSingle _
+        Call fValidateBlankInArrayForMultipleCols(arrParam:=arrParam, arrKeyCols:=arrKeyColsOrSingle _
                                                     , bAllowBlank:=bAllowBlank _
                                                     , shtAt:=shtAt _
                                                     , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
                                                     , sMsgColHeader:=sMsgColHeader)
     Else
-        Call fValidateDuplicateInArrayForSingleCol(arrParam:=arrParam, lKeyCol:=CLng(arrKeyColsOrSingle) _
+        Call fValidateBlankInArrayForSingleCol(arrParam:=arrParam, lKeyCol:=CLng(arrKeyColsOrSingle) _
                                                     , bAllowBlank:=bAllowBlank _
                                                     , shtAt:=shtAt _
                                                     , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
@@ -29,13 +29,13 @@ Function fValidateDuplicateInArray(arrParam, arrKeyColsOrSingle _
     End If
 End Function
 
-Function fValidateDuplicateInArrayForMultipleCols(arrParam, arrKeyCols _
+Function fValidateBlankInArrayForMultipleCols(arrParam, arrKeyCols _
                         , Optional bAllowBlank As Boolean = False _
                         , Optional shtAt As Worksheet _
                         , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
                         , Optional sMsgColHeader As String)
 'MultipleCols: means MultipleCols composed as key
-'for MultipleCols that is individually, please refer to function fValidateDuplicateInArrayIndividually
+'for MultipleCols that is individually, please refer to function fValidateBlankInArrayIndividually
     Const DELI = " " & DELIMITER & " "
     
     Dim lEachRow As Long
@@ -94,7 +94,7 @@ next_row:
     Set dict = Nothing
 End Function
 
-Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
+Function fValidateBlankInArrayForSingleCol(arrParam, lKeyCol As Long _
                                             , Optional bAllowBlank As Boolean = False _
                                             , Optional shtAt As Worksheet _
                                             , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
@@ -145,7 +145,7 @@ next_row:
     Set dict = Nothing
 End Function
 
-Function fValidateDuplicateInArrayIndividually(arrParam, arrKeyColsOrSingle _
+Function fValidateBlankInArrayIndividually(arrParam, arrKeyColsOrSingle _
                         , Optional bAllowBlank As Boolean = False _
                         , Optional shtAt As Worksheet _
                         , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
@@ -161,14 +161,14 @@ Function fValidateDuplicateInArrayIndividually(arrParam, arrKeyColsOrSingle _
     
     If IsArray(arrKeyColsOrSingle) Then
         For i = LBound(arrKeyColsOrSingle) To UBound(arrKeyColsOrSingle)
-            Call fValidateDuplicateInArrayForSingleCol(arrParam:=arrParam, arrKeyColsOrSingle:=arrKeyColsOrSingle _
+            Call fValidateBlankInArrayForSingleCol(arrParam:=arrParam, arrKeyColsOrSingle:=arrKeyColsOrSingle _
                                                     , bAllowBlank:=bAllowBlank _
                                                     , shtAt:=shtAt _
                                                     , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
                                                     , arrColNames:=arrColNames)
         Next
     Else
-        Call fValidateDuplicateInArrayForSingleCol(arrParam:=arrParam, arrKeyColsOrSingle:=arrKeyColsOrSingle _
+        Call fValidateBlankInArrayForSingleCol(arrParam:=arrParam, arrKeyColsOrSingle:=arrKeyColsOrSingle _
                                                     , bAllowBlank:=bAllowBlank _
                                                     , shtAt:=shtAt _
                                                     , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _

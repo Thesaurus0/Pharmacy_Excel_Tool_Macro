@@ -19,9 +19,9 @@ End Enum
 
 Function fFindAllColumnsIndexByColNames(rngToFindIn As Range, arrColsName, ByRef arrColsIndex() _
                                 , ByRef alHeaderAtRow As Long, Optional bReturnLetter As Boolean = False)
-    If fArrayIsEmptyOrNoData(arrColsName) Then fMsgRaiseErr "arrColsName is empty."
-    If fArrayHasDuplicateElement(arrColsName) Then fMsgRaiseErr "arrColsName has duplicate element."
-    If fArrayHasBlankValue(arrColsName) Then fMsgRaiseErr "arrColsName has blank element."
+    If fArrayIsEmptyOrNoData(arrColsName) Then fErr "arrColsName is empty."
+    If fArrayHasBlankValue(arrColsName) Then fErr "arrColsName has blank element." & vbCr & Join(arrColsName, vbCr)
+    If fArrayHasDuplicateElement(arrColsName) Then fErr "arrColsName has duplicate element."
     
     ReDim arrColsIndex(LBound(arrColsName) To UBound(arrColsName))
     
@@ -39,7 +39,7 @@ Function fFindAllColumnsIndexByColNames(rngToFindIn As Range, arrColsName, ByRef
         
         If lColAtRow <> 0 Then
             If lColAtRow <> rngFound.Row Then
-                fMsgRaiseErr "Columns are not at the same row."
+                fErr "Columns are not at the same row."
             End If
         Else
             lColAtRow = rngFound.Row
@@ -75,7 +75,7 @@ End Function
 '        Next
 '
 '        If dict.Exists(sKeyStr) Then
-'            fMsgRaiseErr "Duplicate key " & sKeyStr & " was found " & vbCr & "at row: " & (lHeaderAtRow + lEachRow) _
+'            fErr "Duplicate key " & sKeyStr & " was found " & vbCr & "at row: " & (lHeaderAtRow + lEachRow) _
 '                     & ", column: " & fNum2Letter((lStartCol + lEachCol))
 '        Else
 '            dict.Add sKeyStr, 0
@@ -104,7 +104,7 @@ Function fValidateDuplicateKeysForConfigBlock(arrConfigData(), arrColsIndex(), a
         Next
         
         If dict.Exists(sKeyStr) Then
-            fMsgRaiseErr "Duplicate key " & sKeyStr & " was found " & vbCr & "at row: " & (lHeaderAtRow + lEachRow) _
+            fErr "Duplicate key " & sKeyStr & " was found " & vbCr & "at row: " & (lHeaderAtRow + lEachRow) _
                      & ", column: " & fNum2Letter((lStartCol + lEachCol))
         Else
             dict.Add sKeyStr, 0
@@ -228,7 +228,7 @@ Function fReadConfigBlockToArray(asTag As String, rngToFindIn As Range, arrColsN
     
     If lConfigEndRow < lConfigStartRow + 1 Then
         If abNoDataConfigThenError Then
-            fMsgRaiseErr "No data is configured under tag " & asTag & " in sheet " & shtConfig.Name & vbCr _
+            fErr "No data is configured under tag " & asTag & " in sheet " & shtConfig.Name & vbCr _
                     & "You must leave at least one blank line after the tag."
         End If
     End If
@@ -297,7 +297,6 @@ Function fReadConfigInputFiles(Optional asReportID As String = "")
     
     Dim asTag As String
     Dim arrColsName()
-    Dim arrKeyColsForValidation()
     Dim rngToFindIn As Range
     Dim arrConfigData()
     Dim lConfigStartRow As Long
@@ -306,7 +305,7 @@ Function fReadConfigInputFiles(Optional asReportID As String = "")
     Dim lConfigHeaderAtRow As Long
                                 
     asTag = "[Input Files]"
-    ReDim arrColsName(InputFile.[_first] To InputFile.[_last] - 1)
+    ReDim arrColsName(InputFile.ReportID To InputFile.PivotTableTag)
     
     arrColsName(InputFile.ReportID) = "Report ID"
     arrColsName(InputFile.FileTag) = "File Tag"
@@ -317,21 +316,21 @@ Function fReadConfigInputFiles(Optional asReportID As String = "")
     arrColsName(InputFile.Env) = "DEV/UAT/PROD"
     arrColsName(InputFile.DefaultSheet) = "Which Sheet To Import"
     arrColsName(InputFile.PivotTableTag) = "Pivot Table Tag To Be Created From This Data Source"
-    'arrColsName(InputFile.RowNo) =
-
-    arrKeyColsForValidation = Array(1, 2)
      
-    arrConfigData = fReadConfigBlockToArrayValidated(asTag:=asTag, rngToFindIn:=shtMainConf.Cells _
+    arrConfigData = fReadConfigBlockToArrayNet(asTag:=asTag, rngToFindIn:=shtSysConf.Cells _
                                 , arrColsName:=arrColsName _
                                 , lConfigStartRow:=lConfigStartRow _
                                 , lConfigStartCol:=lConfigStartCol _
                                 , lConfigEndRow:=lConfigEndRow _
                                 , lOutConfigHeaderAtRow:=lConfigHeaderAtRow _
                                 , abNoDataConfigThenError:=True _
-                                , arrKeyCols:=arrKeyColsForValidation _
-                                , bNetValues:=True _
                                 )
     Erase arrColsName
+    
+    Call fValidateDuplicateInArray(arrConfigData, Array(InputFile.ReportID, InputFile.FileTag), False _
+        , shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Report ID + File Tag")
+    Call fValidateBlankInArray(arrConfigData, InputFile.ReportID, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Report ID")
+    Call fValidateBlankInArray(arrConfigData, InputFile.FileTag, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "File Tag")
     
     Set gDictInputFiles = New Dictionary
     
@@ -360,7 +359,7 @@ Function fReadSysConfig_InputOutputTxt(Optional asReportID As String = "")
 End Function
 
 Function fReadConfigWholeColsToDictionary(shtConfig As Worksheet, asTag As String, asKeyNotNullCol As String, asRtnCol As String) As Dictionary
-    If fZero(asTag) Or fZero(asKeyNotNullCol) Or fZero(asRtnCol) Then fMsgRaiseErr "Wrong param"
+    If fZero(asTag) Or fZero(asKeyNotNullCol) Or fZero(asRtnCol) Then fErr "Wrong param"
 
     Dim bRtnColIsKeyCol As Boolean
     bRtnColIsKeyCol = (Trim(asKeyNotNullCol) = Trim(asRtnCol))
@@ -412,3 +411,7 @@ Function fReadConfigWholeColsToArray(shtConfig As Worksheet, asTag As String, ar
     Erase arrConfigData
 End Function
 
+
+Function fOverWriteGDictWithUserInputOnMenuScreen()
+    Call fOverWriteGDictVariables_gDictInputfiles
+End Function

@@ -70,13 +70,13 @@ Sub AllUnitTest()
 '    Dim bbb()
 '    'bbb = fReadRangeDataToArray(Selection)
 
-    'Debug.Print fGetSpecifiedConfigCellAddress(shtMainConf, "[Input Files]", "File Full Path", "Company ID = PW")
+    'Debug.Print fGetSpecifiedConfigCellAddress(shtSysConf, "[Input Files]", "File Full Path", "Company ID = PW")
     'Debug.Print fGenRandomUniqueString
     'Debug.Assert fTrim(vbLf & " abcd " & vbCr) = "abcd"
     'Debug.Print fJoin(Selection.Value)
     
     Dim arr
-    arr = fReadConfigWholeColsToArray(shtMainConf, "[Sales Company List]", Array("Company ID", "Company Name"), Array(1))
+    arr = fReadConfigWholeColsToArray(shtSysConf, "[Sales Company List]", Array("Company ID", "Company Name"), Array(1))
     
     'Call fReadConfigInputFiles
 End Sub

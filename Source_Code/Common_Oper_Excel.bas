@@ -14,10 +14,10 @@ Function fOpenFileSelectDialogAndSetToSheetRange(rngAddrOrName As String _
     If Len(sFile) > 0 Then shtParam.Range(rngAddrOrName).Value = sFile
 End Function
 
-Function fFindInWorksheet(rngToFindIn As Excel.Range, sWhatToFind As String _
+Function fFindInWorksheet(rngToFindIn As Range, sWhatToFind As String _
                     , Optional abNotFoundThenError As Boolean = True _
                     , Optional abAllowMultiple As Boolean = False) As Range
-    If Len(Trim(sWhatToFind)) <= 0 Then fMsgRaiseErr "Wrong param sWhatToFind to fFindInWorksheet " & sWhatToFind
+    If Len(Trim(sWhatToFind)) <= 0 Then fErr "Wrong param sWhatToFind to fFindInWorksheet " & sWhatToFind
     
     Dim rngOut  As Range
     Dim rngFound As Range
@@ -36,7 +36,7 @@ Function fFindInWorksheet(rngToFindIn As Excel.Range, sWhatToFind As String _
     
     If rngFound Is Nothing Then
         If abNotFoundThenError Then
-            fMsgRaiseErr """" & sWhatToFind & """ cannot be found in sheet " & rngToFindIn.Parent.Name & "[" & rngToFindIn.Address & "], pls check your program."
+            fErr """" & sWhatToFind & """ cannot be found in sheet " & rngToFindIn.Parent.Name & "[" & rngToFindIn.Address & "], pls check your program."
         Else
             GoTo exit_function
         End If
@@ -61,7 +61,7 @@ Function fFindInWorksheet(rngToFindIn As Excel.Range, sWhatToFind As String _
             Loop
             
             If lFoundCnt > 1 Then
-                fMsgRaiseErr lFoundCnt & " copies of """ & sWhatToFind & """ were found in sheet " & rngToFindIn.Parent.Name & ", pls check your program."
+                fErr lFoundCnt & " copies of """ & sWhatToFind & """ were found in sheet " & rngToFindIn.Parent.Name & ", pls check your program."
             End If
         End If
     End If
@@ -95,37 +95,39 @@ Function fReadRangeDataToArray(rngParam As Range) As Variant
     Erase arrOUt
 End Function
 
-Function fSetSpecifiedConfigCellAddress(shtConfig As Worksheet, asTag As String, asRtnCol As String, asCriteria As String _
+Function fSetSpecifiedConfigCellValue(shtConfig As Worksheet, asTag As String, asRtnCol As String, asCriteria As String _
                                 , sValue As String _
-                                , Optional bAllowMultiple As Boolean = False _
+                                , Optional bDevUatProd As Boolean = False _
                                 )
     Dim sAddr As String
-    sAddr = fGetSpecifiedConfigCellAddress(shtConfig, asTag, asRtnCol, asCriteria, False)
+    sAddr = fGetSpecifiedConfigCellAddress(shtConfig, asTag, asRtnCol, asCriteria, False, bDevUatProd)
     shtConfig.Range(sAddr).Value = sValue
 End Function
 Function fGetSpecifiedConfigCellAddress(shtConfig As Worksheet, asTag As String, asRtnCol As String _
                                 , asCriteria As String _
                                 , Optional bAllowMultiple As Boolean = False _
+                                , Optional bDevUatProd As Boolean = False _
                                 )
-'                                , Optional bExternalAddress As Boolean = True _
-'                                , Optional bNoMatachedPromptError As Boolean = True
     'asCriteria: colA=Value01, colB=Value02
     Dim arrColNames()
     Dim arrColValues()
     Dim iRtnColIndex As Integer
-    Call fSplitDataCriteria(asCriteria, arrColNames, arrColValues)
-
-    ReDim Preserve arrColNames(LBound(arrColNames) To UBound(arrColNames) + 1)
-    arrColNames(UBound(arrColNames)) = asRtnCol
+    Dim iEnvColIndex As Integer
     
-    iRtnColIndex = UBound(arrColNames)
+    Call fSplitDataCriteria(asCriteria, arrColNames, arrColValues)
+    
+    iRtnColIndex = fEnlargeArayWithValue(arrColNames, asRtnCol)
+    
+    'DEV/UAT/PROD must be put at the end of arrColsName, since fFindMatchDataInArrayWithCriteria will read it.
+    If bDevUatProd Then
+        iEnvColIndex = fEnlargeArayWithValue(arrColNames, "DEV/UAT/PROD")
+    End If
     
     Dim lConfigStartRow As Long _
-                                , lConfigStartCol As Long _
-                                , lConfigEndRow As Long _
-                                , lOutConfigHeaderAtRow As Long _
-                                , abNoDataConfigThenError As Boolean _
-                                , bNetValues As Boolean
+        , lConfigStartCol As Long _
+        , lConfigEndRow As Long _
+        , lOutConfigHeaderAtRow As Long _
+        , bNetValues As Boolean
     Dim arrConfigData()
     Dim arrColsIndex()
 
@@ -136,15 +138,15 @@ Function fGetSpecifiedConfigCellAddress(shtConfig As Worksheet, asTag As String,
                                 , lConfigStartCol:=lConfigStartCol _
                                 , lConfigEndRow:=lConfigEndRow _
                                 , lOutConfigHeaderAtRow:=lOutConfigHeaderAtRow _
-                                , abNoDataConfigThenError:=abNoDataConfigThenError _
+                                , abNoDataConfigThenError:=True _
                                 )
     
     Dim lMatchRow As Long
     Dim sErr As String
-    lMatchRow = fFindMatchDataInArrayWithCriteria(arrConfigData, arrColsIndex, arrColValues, bAllowMultiple, sErr)
+    lMatchRow = fFindMatchDataInArrayWithCriteria(arrConfigData, arrColsIndex, arrColValues, bAllowMultiple, sErr, bDevUatProd)
     
     If lMatchRow < 0 Then
-        fMsgRaiseErr sErr & " with criteria " & vbCr & asCriteria
+        fErr sErr & " with criteria " & vbCr & asCriteria & vbCr & "gsEnv: " & gsEnv
     End If
     
     fGetSpecifiedConfigCellAddress = shtConfig.Cells(lOutConfigHeaderAtRow + lMatchRow, lConfigStartCol + arrColsIndex(iRtnColIndex) - 1).Address(external:=True)
@@ -153,6 +155,7 @@ End Function
 Function fFindMatchDataInArrayWithCriteria(arr(), arrColsIndex(), arrColValues() _
                                         , bAllowMultiple As Boolean _
                                         , ByRef asErrmsg As String _
+                                , Optional bDevUatProd As Boolean = False _
                                         ) As Long
 '-1:
 ' -2: more than 1 matched
@@ -163,12 +166,20 @@ Function fFindMatchDataInArrayWithCriteria(arr(), arrColsIndex(), arrColValues()
     Dim bAllColAreSame As Boolean
     Dim lMatchCnt As Long
     Dim lOut As Long
+    Dim sEachEnv As String
+    
+    If bDevUatProd And fZero(gsEnv) Then fErr "bDevUatProd is true but gsenv = blank"
     
     asErrmsg = ""
     lOut = -1
     lMatchCnt = 0
     For lEachRow = LBound(arr, 1) To UBound(arr, 1)
         If fArrayRowIsBlankHasNoData(arr, lEachRow) Then GoTo next_row
+        
+        If bDevUatProd Then
+            sEachEnv = arr(lEachRow, arrColsIndex(UBound(arrColsIndex)))
+            If Not (sEachEnv = gsEnv Or sEachEnv = "SHARED") Then GoTo next_row
+        End If
         
         bAllColAreSame = True
         For i = LBound(arrColValues) To UBound(arrColValues)
@@ -232,7 +243,7 @@ Function fWriteArray2Sheet(sht As Worksheet, arrData, Optional lStartRow As Long
     If fArrayIsEmptyOrNoData(arrData) Then Exit Function
     
     If fGetArrayDimension(arrData) <> 2 Then
-        fMsgRaiseErr "Wrong array to paste to sheet: fGetArrayDimension(arrData) <> 2"
+        fErr "Wrong array to paste to sheet: fGetArrayDimension(arrData) <> 2"
     End If
     
     sht.Cells(lStartRow, lStartCol).Resize(UBound(arrData, 1), UBound(arrData, 2)).Value = arrData
@@ -242,7 +253,7 @@ Function fAppendArray2Sheet(sht As Worksheet, arrData, Optional lStartCol As Lon
     If fArrayIsEmptyOrNoData(arrData) Then Exit Function
     
     If fGetArrayDimension(arrData) <> 2 Then
-        fMsgRaiseErr "Wrong array to paste to sheet: fGetArrayDimension(arrData) <> 2"
+        fErr "Wrong array to paste to sheet: fGetArrayDimension(arrData) <> 2"
     End If
     
     Dim lFromRow As Long

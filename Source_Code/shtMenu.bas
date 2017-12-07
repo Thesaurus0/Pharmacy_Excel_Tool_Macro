@@ -8,8 +8,8 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Private Sub btnBatchImportSaleInfoFiles_Click()
-    Call fValidationAndSetToConfigSheet
-    Call fImportAllSalesInfoFiles
+    'Call fImportAllSalesInfoFiles
+    Call subMain_ImportSalesInfoFiles
     
 End Sub
 

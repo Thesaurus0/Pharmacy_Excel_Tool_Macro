@@ -3,30 +3,6 @@ Option Explicit
 Option Base 1
 
 '======================================================================================================
-Sub sub_ListAllFunctionsOfThisWorkbook()
-    Dim shtOutput As Worksheet
-    If Not fGetTmpSheetInWorkbookWhenNotExistsCreateIt(shtOutput) Then Exit Sub
-    
-    Dim arrModules()
-    Dim arrFunctions()
-    
-    arrModules = fGetListAllModulesOfThisWorkbook()
-    arrFunctions = fGetListAllSubFunctionsInThisWorkbook(arrModules)
-    
-    Call fWriteArray2Sheet(shtOutput, arrFunctions)
-    
-    Erase arrModules: Erase arrFunctions
-    
-    shtOutput.Cells(1, 1) = "Type"
-    shtOutput.Cells(1, 2) = "Modules"
-    shtOutput.Cells(1, 3) = "Functions"
-    
-    Call fAutoFilterAutoFitSheet(shtOutput)
-    Call fFreezeSheet(shtOutput)
-    Call fSortDataInSheetSortSheetData(shtOutput, 3)
-    
-    Set shtOutput = Nothing
-End Sub
 
 Sub sub_ExportModulesSourceCodeToFolder()
     Dim sFolder As String
@@ -63,6 +39,32 @@ Next_mod:
     
     MsgBox "Done"
 End Sub
+
+Sub sub_ListAllFunctionsOfThisWorkbook()
+    Dim shtOutput As Worksheet
+    If Not fGetTmpSheetInWorkbookWhenNotExistsCreateIt(shtOutput) Then Exit Sub
+    
+    Dim arrModules()
+    Dim arrFunctions()
+    
+    arrModules = fGetListAllModulesOfThisWorkbook()
+    arrFunctions = fGetListAllSubFunctionsInThisWorkbook(arrModules)
+    
+    Call fWriteArray2Sheet(shtOutput, arrFunctions)
+    
+    Erase arrModules: Erase arrFunctions
+    
+    shtOutput.Cells(1, 1) = "Type"
+    shtOutput.Cells(1, 2) = "Modules"
+    shtOutput.Cells(1, 3) = "Functions"
+    
+    Call fAutoFilterAutoFitSheet(shtOutput)
+    Call fFreezeSheet(shtOutput)
+    Call fSortDataInSheetSortSheetData(shtOutput, 3)
+    
+    Set shtOutput = Nothing
+End Sub
+
 
 '*************************************************************************
 
@@ -156,7 +158,7 @@ End Function
 Function ProcKindString(procKind As VBIDE.vbext_ProcKind) As String
     Dim sOut As String
     
-    Select Case sOut
+    Select Case procKind
         Case VBIDE.vbext_pk_Get
             sOut = "Property Get"
         Case VBIDE.vbext_pk_Let
