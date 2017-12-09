@@ -14,7 +14,6 @@ End Enum
 Function fReadConfigCompanyList() As Dictionary
     Dim asTag As String
     Dim arrColsName()
-    Dim arrKeyColsForValidation()
     Dim rngToFindIn As Range
     Dim arrConfigData()
     Dim lConfigStartRow As Long

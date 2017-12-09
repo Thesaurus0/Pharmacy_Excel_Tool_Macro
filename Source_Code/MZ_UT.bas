@@ -3,20 +3,20 @@ Option Explicit
 Option Base 1
 
 Sub AllUnitTest()
- Dim asTag As String, rngToFindIn As Range _
-                                , arrConfigData() _
-                                , lConfigStartRow As Long _
-                                , lConfigStartCol As Long _
-                                , lConfigEndRow As Long _
-                                , lOutBlockHeaderAtRow As Long
-    Dim arrColsName()
-    Dim arrColsIndex()
-    Dim lConfigHeaderAtRow As Long
-
-    asTag = "[Input Files]"
-    arrColsName = Array("xxa", "Company ID", "Company Name")
-    
-    Set rngToFindIn = ActiveSheet.Cells
+'    Dim asTag As String, rngToFindIn As Range _
+'                                , arrConfigData() _
+'                                , lConfigStartRow As Long _
+'                                , lConfigStartCol As Long _
+'                                , lConfigEndRow As Long _
+'                                , lOutBlockHeaderAtRow As Long
+'    Dim arrColsName()
+'    Dim arrColsIndex()
+'    Dim lConfigHeaderAtRow As Long
+'
+'    asTag = "[Input Files]"
+'    arrColsName = Array("xxa", "Company ID", "Company Name")
+'
+'    Set rngToFindIn = ActiveSheet.Cells
 '
 'Call fReadConfigBlockToArray(asTag:=asTag, rngToFindIn:=activeshet.Cells, arrColsName:=arrColsName _
 '                                , arrConfigData:=arrConfigData _
@@ -75,10 +75,23 @@ Sub AllUnitTest()
     'Debug.Assert fTrim(vbLf & " abcd " & vbCr) = "abcd"
     'Debug.Print fJoin(Selection.Value)
     
-    Dim arr
-    arr = fReadConfigWholeColsToArray(shtSysConf, "[Sales Company List]", Array("Company ID", "Company Name"), Array(1))
+'    Dim arr
+'    arr = fReadConfigWholeColsToArray(shtSysConf, "[Sales Company List]", Array("Company ID", "Company Name"), Array(1))
     
     'Call fReadConfigInputFiles
+    
+    'Call ThisWorkbook.fReadConfigGetAllCommandBars
+    Dim sAddr As String
+    sAddr = Range("A12:Z34").Address(ReferenceStyle:=xlR1C1, external:=True)
+    sAddr = Range("A12:Z34").Address(external:=True)
+'    Debug.Print sAddr
+'    Debug.Print fReplaceConvertR1C1ToA1(sAddr)
+
+    Dim rng As Range
+    Set rng = fGetRangeFromExternalAddress(sAddr)
+    Debug.Print rng.Address
+    
+    'Debug.Print fGetFileExtension("abce\ef\a\c\aaa.txt")
 End Sub
 
 Sub testa()

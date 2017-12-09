@@ -125,7 +125,7 @@ Function fReadConfigBlockToArrayValidated(asTag As String, rngToFindIn As Range,
     'arrKeyCols:  array(1, 2, 3, 5), or unnecessary: array()
     Dim arrConfigData()
     Dim arrColsIndex()
-    Dim arrOUt()
+    Dim arrOut()
 
     Call fReadConfigBlockToArray(asTag:=asTag, rngToFindIn:=rngToFindIn, arrColsName:=arrColsName _
                                 , arrConfigData:=arrConfigData _
@@ -142,7 +142,7 @@ Function fReadConfigBlockToArrayValidated(asTag As String, rngToFindIn As Range,
     'Call fValidateDuplicateKeys(arrConfigData, arrColsIndex, arrKeyCols, lOutConfigHeaderAtRow, lConfigStartCol)
     
     If bNetValues Then
-        ReDim arrOUt(LBound(arrConfigData, 1) To UBound(arrConfigData, 1), 1 To UBound(arrColsIndex) - LBound(arrColsIndex) + 1)
+        ReDim arrOut(LBound(arrConfigData, 1) To UBound(arrConfigData, 1), 1 To UBound(arrColsIndex) - LBound(arrColsIndex) + 1)
         
         Dim lEachRow As Long
         Dim lEachCol As Long
@@ -152,7 +152,7 @@ Function fReadConfigBlockToArrayValidated(asTag As String, rngToFindIn As Range,
             'i = LBound(arrColsIndex) + 1
             i = LBound(arrColsIndex)
             For lEachCol = LBound(arrColsIndex) To UBound(arrColsIndex)
-                arrOUt(lEachRow, i) = arrConfigData(lEachRow, arrColsIndex(lEachCol))
+                arrOut(lEachRow, i) = arrConfigData(lEachRow, arrColsIndex(lEachCol))
                 i = i + 1
             Next
         Next
@@ -161,13 +161,13 @@ exit_fun:
     Erase arrColsIndex
     
     If bNetValues Then
-        fReadConfigBlockToArrayValidated = arrOUt
+        fReadConfigBlockToArrayValidated = arrOut
     Else
         fReadConfigBlockToArrayValidated = arrConfigData
     End If
     
     Erase arrConfigData
-    Erase arrOUt
+    Erase arrOut
 End Function
 Function fReadConfigBlockToArrayNet(asTag As String, rngToFindIn As Range, arrColsName() _
                                 , Optional ByRef lConfigStartRow As Long _
@@ -176,7 +176,7 @@ Function fReadConfigBlockToArrayNet(asTag As String, rngToFindIn As Range, arrCo
                                 , Optional ByRef lOutConfigHeaderAtRow As Long _
                                 , Optional abNoDataConfigThenError As Boolean = False _
                                 ) As Variant
-    Dim arrOUt()
+    Dim arrOut()
     Dim arrColsIndex()
     Dim arrConfigData()
 
@@ -191,7 +191,7 @@ Function fReadConfigBlockToArrayNet(asTag As String, rngToFindIn As Range, arrCo
                                 )
     If fArrayIsEmptyOrNoData(arrConfigData) Then GoTo exit_fun
     
-    ReDim arrOUt(LBound(arrConfigData, 1) To UBound(arrConfigData, 1), LBound(arrColsIndex) To UBound(arrColsIndex))
+    ReDim arrOut(LBound(arrConfigData, 1) To UBound(arrConfigData, 1), LBound(arrColsIndex) To UBound(arrColsIndex))
     
     Dim lEachRow As Long
     Dim lEachCol As Long
@@ -200,15 +200,15 @@ Function fReadConfigBlockToArrayNet(asTag As String, rngToFindIn As Range, arrCo
     For lEachRow = LBound(arrConfigData, 1) To UBound(arrConfigData, 1)
         i = LBound(arrColsIndex)
         For lEachCol = LBound(arrColsIndex) To UBound(arrColsIndex)
-            arrOUt(lEachRow, i) = arrConfigData(lEachRow, arrColsIndex(lEachCol))
+            arrOut(lEachRow, i) = arrConfigData(lEachRow, arrColsIndex(lEachCol))
             i = i + 1
         Next
     Next
 exit_fun:
     Erase arrColsIndex
     Erase arrConfigData
-    fReadConfigBlockToArrayNet = arrOUt
-    Erase arrOUt
+    fReadConfigBlockToArrayNet = arrOut
+    Erase arrOut
 End Function
 Function fReadConfigBlockToArray(asTag As String, rngToFindIn As Range, arrColsName _
                                 , ByRef arrConfigData() _
@@ -405,30 +405,149 @@ Function fReadConfigWholeColsToDictionary(shtConfig As Worksheet, asTag As Strin
                                 )
 End Function
 
-Function fReadConfigWholeColsToArray(shtConfig As Worksheet, asTag As String, arrFetchCols, Optional arrKeyColsForValidation) As Variant
+'
+Function fReadConfigWholeMultipleColsToArray(shtConfig As Worksheet, asTag As String, arrColsName) As Variant
 'arrKeyColsForValidation : Array(1, 2, 5)
+    Dim asTag As String
+    Dim arrColsName()
     Dim rngToFindIn As Range
     Dim arrConfigData()
     Dim lConfigStartRow As Long
     Dim lConfigStartCol As Long
     Dim lConfigEndRow As Long
     Dim lConfigHeaderAtRow As Long
-     
-    arrConfigData = fReadConfigBlockToArrayValidated(asTag:=asTag, rngToFindIn:=shtConfig.Cells _
-                                , arrColsName:=arrFetchCols _
+
+    arrConfigData = fReadConfigBlockToArrayNet(asTag:=asTag, rngToFindIn:=shtSysConf.Cells _
+                                , arrColsName:=arrColsName _
                                 , lConfigStartRow:=lConfigStartRow _
                                 , lConfigStartCol:=lConfigStartCol _
                                 , lConfigEndRow:=lConfigEndRow _
                                 , lOutConfigHeaderAtRow:=lConfigHeaderAtRow _
                                 , abNoDataConfigThenError:=True _
-                                , arrKeyCols:=arrKeyColsForValidation _
-                                , bNetValues:=True _
                                 )
-    fReadConfigWholeColsToArray = arrConfigData
+    Erase arrColsName
+    fReadConfigWholeMultipleColsToArray = arrConfigData
     Erase arrConfigData
 End Function
 
+'
+Function fGetReadConfigWholePairColsValueAsArray(shtConfig As Worksheet, asTag As String, arrFetchCols, Optional arrKeyColsForValidation) As Variant
+    Dim dict As Dictionary
+    Dim arrOut()
+    
+    Set dict = fGetReadConfigWholePairColsValueAsDictionary()
+    
+    Call fCopyDictionaryItems2Array(dict, arrOut)
+    
+    Set dict = Nothing
+    
+    fGetReadConfigWholePairColsValueAsArray = arrOut
+    Erase arrOut
+End Function
 
+Function fGetReadConfigWholePairColsValueAsDictionary(shtConfig As Worksheet, asTag As String _
+                    , asKeyNotNullCol As String, asRtnCol As String) As Dictionary
+    If fZero(asKeyNotNullCol) Or fZero(asRtnCol) Then fErr "Wrong param"
+    
+    Dim bRtnColIsKeyCol As Boolean
+    bRtnColIsKeyCol = (Trim(asKeyNotNullCol) = Trim(asRtnCol))
+    
+    Dim asTag As String
+    Dim arrColsName()
+    Dim rngToFindIn As Range
+    Dim arrConfigData()
+    Dim lConfigStartRow As Long
+    Dim lConfigStartCol As Long
+    Dim lConfigEndRow As Long
+    Dim lConfigHeaderAtRow As Long
+
+    ReDim arrColsName(1 To 2)
+    arrColsName(1) = Trim(asKeyNotNullCol)
+    arrColsName(2) = Trim(asRtnCol)
+     
+    arrConfigData = fReadConfigBlockToArrayNet(asTag:=asTag, rngToFindIn:=shtSysConf.Cells _
+                                , arrColsName:=arrColsName _
+                                , lConfigStartRow:=lConfigStartRow _
+                                , lConfigStartCol:=lConfigStartCol _
+                                , lConfigEndRow:=lConfigEndRow _
+                                , lOutConfigHeaderAtRow:=lConfigHeaderAtRow _
+                                , abNoDataConfigThenError:=True _
+                                )
+    Call fValidateDuplicateInArray(arrConfigData, 1, False, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, asKeyNotNullCol)
+    If Not bRtnColIsKeyCol Then
+        Call fValidateDuplicateInArray(arrConfigData, 2, False, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, asRtnCol)
+    End If
+    
+'    Call fValidateBlankInArray(arrConfigData, Company.Report_ID, shtstaticdata, lConfigHeaderAtRow, lConfigStartCol, "Company ID")
+
+    Set fReadConfigCompanyList = fReadArray2DictionaryWithMultipleColsCombined(arrConfigData, Company.Report_ID _
+            , Array(Company.ID, Company.Name, Company.Commission, Company.Selected), DELIMITER)
+    Erase arrColsName
+    Erase arrConfigData
+    
+End Function
+
+'Function fGetReadConfigWholeSingleColValueAsArray(shtConfig As Worksheet, asTag As String, arrFetchCols, Optional arrKeyColsForValidation) As Variant
+'    Dim dict As Dictionary
+'    Dim arrOut()
+'
+'    Set dict = fGetReadConfigWholeSingleColValueAsDictionary()
+'
+'    Call fCopyDictionaryItems2Array(dict, arrOut)
+'
+'    Set dict = Nothing
+'
+'    fGetReadConfigWholePairColsValueAsArray = arrOut
+'    Erase arrOut
+'End Function
+Function fGetReadConfigWholeSingleColValueAsArray(shtConfig As Worksheet, asTag As String _
+                    , asColName As String _
+                    , Optional IgnoreBlankKeys As Boolean = False _
+                    , Optional WhenKeyIsDuplicateError As Boolean = True) As Variant
+    If fZero(asColName) Then fErr "Wrong param"
+    
+    'Dim asTag As String
+    Dim arrColsName()
+    Dim rngToFindIn As Range
+    Dim arrConfigData()
+    Dim lConfigStartRow As Long
+    Dim lConfigStartCol As Long
+    Dim lConfigEndRow As Long
+    Dim lConfigHeaderAtRow As Long
+
+    ReDim arrColsName(1 To 1)
+    arrColsName(1) = Trim(asColName)
+
+    arrConfigData = fReadConfigBlockToArrayNet(asTag:=asTag, rngToFindIn:=shtConfig.Cells _
+                                , arrColsName:=arrColsName _
+                                , lConfigStartRow:=lConfigStartRow _
+                                , lConfigStartCol:=lConfigStartCol _
+                                , lConfigEndRow:=lConfigEndRow _
+                                , lOutConfigHeaderAtRow:=lConfigHeaderAtRow _
+                                , abNoDataConfigThenError:=True _
+                                )
+    Erase arrColsName
+    
+    If WhenKeyIsDuplicateError Then
+        Call fValidateDuplicateInArray(arrConfigData, 1, True, shtConfig, lConfigHeaderAtRow, lConfigStartCol, asColName)
+    End If
+
+    If Not IgnoreBlankKeys Then
+        Call fValidateBlankInArray(arrConfigData, 1, shtConfig, lConfigHeaderAtRow, lConfigStartCol, asColName)
+    End If
+
+    Dim dict As Dictionary
+    Set dict = fRadArray2DictionaryOnlyKeys(arrConfigData, 1, IgnoreBlankKeys, WhenKeyIsDuplicateError)
+    
+    Dim arrOut()
+    Call fCopyDictionaryKeys2Array(dict, arrOut)
+    
+    Erase arrConfigData
+    Set dict = Nothing
+    
+    fGetReadConfigWholeSingleColValueAsArray = arrOut
+End Function
 Function fOverWriteGDictWithUserInputOnMenuScreen()
     Call fOverWriteGDictVariables_gDictInputfiles
 End Function
+

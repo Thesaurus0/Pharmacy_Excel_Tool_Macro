@@ -289,32 +289,38 @@ Function fSelectFileDialog(Optional asDefaultFilePath As String = "" _
     Set fd = Nothing
 End Function
 
-
 Function fGetFileParentFolder(asFileFullPath As String) As String
-    Dim sOut As String
-    
-    Call fGetFileNamePart(asFileFullPath, sOut)
-    
-    fGetFileParentFolder = sOut
+    fGetFSO
+    fGetFileParentFolder = gFSO.GetParentFolderName(asFileFullPath)
 End Function
 
-Function fGetFileNamePart(asFileFullPath As String _
-                        , Optional ByRef sParentFolder As String _
-                        , Optional ByRef sFileBaseName As String _
-                        , Optional ByRef sFileExtension As String _
-                        , Optional ByRef sFileNetName As String) As String
-    If Len(Trim(asFileFullPath)) <= 0 Then Exit Function
-
-    Dim fso As FileSystemObject
-    Set fso = New FileSystemObject
-    
-    sParentFolder = fso.GetParentFolderName(asFileFullPath)
-    sFileBaseName = fso.GetFileName(asFileFullPath)
-    sFileExtension = fso.GetExtensionName(asFileFullPath)
-    sFileNetName = fso.GetBaseName(asFileFullPath)
-    
-    Set fso = Nothing
+Function fGetFileBaseName(asFileFullPath As String) As String
+    fGetFSO
+    fGetFileBaseName = gFSO.GetFileName(asFileFullPath)
 End Function
+Function fGetFileNetName(asFileFullPath As String) As String
+    fGetFSO
+    fGetFileNetName = gFSO.GetBaseName(asFileFullPath)
+End Function
+Function fGetFileExtension(asFileFullPath As String, Optional bDot As Boolean = False) As String
+    fGetFSO
+    fGetFileExtension = IIf(bDot, ".", "") & gFSO.GetExtensionName(asFileFullPath)
+End Function
+
+'Function fGetFileNamePart(asFileFullPath As String _
+'                        , Optional ByRef sParentFolder As String _
+'                        , Optional ByRef sFileBaseName As String _
+'                        , Optional ByRef sFileExtension As String _
+'                        , Optional ByRef sFileNetName As String) As String
+'    If Len(Trim(asFileFullPath)) <= 0 Then Exit Function
+'
+'    sParentFolder = fso.GetParentFolderName(asFileFullPath)
+'    sFileBaseName = fso.GetFileName(asFileFullPath)
+'    sFileExtension = fso.GetExtensionName(asFileFullPath)
+'    sFileNetName = fso.GetBaseName(asFileFullPath)
+'
+'    Set fso = Nothing
+'End Function
 
 Function fArrayHasBlankValue(ByRef arrParam) As Boolean
     Dim bOut As Boolean
@@ -448,7 +454,7 @@ End Function
 Function fNum2Letter(alNum As Long) As String
     fNum2Letter = Replace(Split(Columns(alNum).Address, ":")(1), "$", "")
 End Function
-Function fLetter2Num(alLetter As Long) As String
+Function fLetter2Num(alLetter As String) As String
     fLetter2Num = Columns(alLetter).Column
 End Function
 
@@ -623,7 +629,19 @@ exit_fun:
     Set dictOut = Nothing
 End Function
 
-Function fRadArray2Dictionary(arrParam, lKeyCol As Long _
+Function fRadArray2DictionaryOnlyKeys(arrParam, lKeyCol As Long _
+                            , Optional IgnoreBlankKeys As Boolean = False _
+                            , Optional WhenKeyIsDuplicateError As Boolean = True) As Dictionary
+'==========================================================================
+'lItemCol
+'         -1: the item is row number
+'          0: get key only, not care the item value, 0 as default
+'         >0: the item is specified column
+'==========================================================================
+    Set fRadArray2DictionaryOnlyKeys = fRadArray2Dictionary(arrParam, lKeyCol, 0, IgnoreBlankKeys, WhenKeyIsDuplicateError)
+End Function
+
+Private Function fRadArray2Dictionary(arrParam, lKeyCol As Long _
                             , Optional lItemCol As Long = 0 _
                             , Optional IgnoreBlankKeys As Boolean = False _
                             , Optional WhenKeyIsDuplicateError As Boolean = True) As Dictionary
@@ -633,11 +651,12 @@ Function fRadArray2Dictionary(arrParam, lKeyCol As Long _
 '          0: get key only, not care the item value, 0 as default
 '         >0: the item is specified column
 '==========================================================================
-    If lItemCol < -1 Then fErr "wrong param"
+    If lItemCol < -1 Or lKeyCol <= 0 Then fErr "wrong param"
     
     Dim dictOut As Dictionary
+    
     Set dictOut = New Dictionary
-    If fArrayIsEmptyOrNoData(arrParam) Then exit_fun
+    If fArrayIsEmptyOrNoData(arrParam) Then GoTo exit_fun
     
     Dim bGetKeyOnly As Boolean
     Dim bGetRowNo As Boolean
@@ -645,8 +664,42 @@ Function fRadArray2Dictionary(arrParam, lKeyCol As Long _
     bGetKeyOnly = (lItemCol = 0)
     bGetRowNo = (lItemCol = -1)
     
-    If fGetBase(arrParam) = 0 Then
-    End If
+    Dim i As Long
+    Dim sKey As String
+    Dim sValue As String
+    
+    For i = LBound(arrParam, 1) To UBound(arrParam, 1)
+        If fArrayRowIsBlankHasNoData(arrParam, i) Then GoTo next_row
+        
+        sKey = Trim(arrParam(i, lKeyCol))
+        
+        If Len(sKey) <= 0 Then
+            If Not IgnoreBlankKeys Then
+                fErr "Key col is blank, but you specified IgnoreBlankKeys = false" & vbCr & lKeyCol
+            Else
+                GoTo next_row
+            End If
+        End If
+        
+        If dictOut.Exists(sKey) Then
+            If WhenKeyIsDuplicateError Then
+                fErr "duplicate key was found:, but you specified IgnoreBlankKeys = false" & vbCr & lKeyCol & vbCr & sKey
+            Else
+                GoTo next_row
+            End If
+        End If
+        
+        If bGetRowNo Then
+            dictOut.Add sKey, i
+        Else
+            If bGetKeyOnly Then
+                dictOut.Add sKey, 0
+            Else
+                dictOut.Add sKey, arrParam(i, lItemCol)
+            End If
+        End If
+next_row:
+    Next
     
 exit_fun:
     Set fRadArray2Dictionary = dictOut
@@ -657,7 +710,7 @@ Function fValidateDuplicateInArray(arrParam, arrKeyColsOrSingle _
                         , Optional bAllowBlank As Boolean = False _
                         , Optional shtAt As Worksheet _
                         , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
-                        , Optional sMsgColHeader As String)
+                        , Optional ByVal sMsgColHeader As String)
 'arrKeyColsOrSingle : should be start from 1, since two dimension array is starting from 1
     If fArrayIsEmptyOrNoData(arrParam) Then Exit Function
     
@@ -779,7 +832,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
             If fZero(sKeyStr) Then
                 'sPos = sPos & lActualRow & " / " & sColLetter
                 sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
-                fErr "Keys [" & sKeyStr & "] is blank!" & sPos
+                fErr "Keys [" & sColLetter & "] is blank!" & sPos
             End If
         End If
         
@@ -1027,7 +1080,7 @@ Function fValidateBlankInArrayForSingleCol(arrParam, lKeyCol As Long _
     
         If fZero(sKeyStr) Then
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
-            fErr "Keys [" & sKeyStr & "] is blank!" & sPos
+            fErr "Keys [" & sColLetter & "] is blank!" & sPos
         End If
 next_row:
     Next
@@ -1036,7 +1089,7 @@ End Function
 Function fValidateBlankInArray(arrParam, arrKeyColsOrSingle _
                         , Optional shtAt As Worksheet _
                         , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
-                        , Optional sMsgColHeader As String)
+                        , Optional ByVal sMsgColHeader As String)
 'arrKeyColsOrSingle : should be start from 1, since two dimension array is starting from 1
     If fArrayIsEmptyOrNoData(arrParam) Then Exit Function
     
@@ -1127,4 +1180,123 @@ Function fUpdateDictionaryItemValueForDelimitedElement(ByRef dict As Dictionary,
     
     dict(aKey) = Join(arr, sDelimiter)
     Erase arr
+End Function
+
+Function fCopyDictionaryKeys2Array(dict As Dictionary, ByRef arrOut())
+    If dict.Count <= 0 Then
+        arrOut = Array()
+    End If
+    
+    ReDim arrOut(1 To dict.Count)
+    
+    Dim i As Long
+    
+    For i = 0 To dict.Count - 1
+        arrOut(i + 1) = dict.Keys(i)
+    Next
+End Function
+
+Function fEnableExcelOptionsAll()
+    Call fEnableOrDisableExcelOptionsAll(True)
+End Function
+
+Function fDisableExcelOptionsAll()
+    Call fEnableOrDisableExcelOptionsAll(False)
+End Function
+Function fEnableOrDisableExcelOptionsAll(bValue As Boolean)
+    Application.ScreenUpdating = bValue
+    Application.EnableEvents = bValue
+    Application.DisplayAlerts = bValue
+    Application.AskToUpdateLinks = bValue
+    ThisWorkbook.CheckCompatibility = bValue
+    
+    If bValue Then
+        Application.Calculation = xlCalculationAutomatic
+    Else
+        Application.Calculation = xlCalculationManual
+    End If
+End Function
+
+Function fGetRangeFromExternalAddress(asExternalAddr As String) As Range
+    If fZero(asExternalAddr) Then fErr "wrong param"
+    asExternalAddr = Trim(asExternalAddr)
+    
+    Dim lFileStart As Long
+    Dim lFileEnd As Long
+    Dim lShtEnd As Long
+    Dim sWbName As String
+    Dim sShtName As String
+    Dim sNetAddr As String
+    
+    lFileStart = InStr(asExternalAddr, "[")
+    lFileEnd = InStr(asExternalAddr, "]")
+    lShtEnd = InStr(asExternalAddr, "!")
+    
+    If lFileStart <= 0 Or lShtEnd <= 0 Then
+        fErr "the address passed does not have the excel file name part ot the sheet name part"
+    End If
+    
+    sWbName = Mid(asExternalAddr, lFileStart + 1, lFileEnd - lFileStart - 1)
+    sShtName = Mid(asExternalAddr, lFileEnd + 1, lShtEnd - lFileEnd - 1)
+    sNetAddr = Right(asExternalAddr, Len(asExternalAddr) - lShtEnd)
+    
+    sWbName = Replace(sWbName, "'", "")
+    sShtName = Replace(sShtName, "'", "")
+    sNetAddr = fReplaceConvertR1C1ToA1(sNetAddr)
+    
+    Dim wbOut As Workbook
+    If fExcelFileIsOpen(sWbName, wbOut) Then
+        Set fGetRangeFromExternalAddress = wbOut.Worksheets(sShtName).Range(sNetAddr)
+    Else
+        fErr "Excel file is not open, pls check your program."
+    End If
+    
+    Set wbOut = Nothing
+End Function
+
+Function fReplaceConvertR1C1ToA1(sR1C1Address As String) As String
+    fGetGRegExp
+    
+    Dim matchColl As VBScript_RegExp_55.MatchCollection
+    Dim match As VBScript_RegExp_55.match
+    
+    gRegExp.IgnoreCase = True
+    gRegExp.Pattern = "R(\d{1,})C(\d{1,})"
+    
+    Set matchColl = gRegExp.Execute(sR1C1Address)
+    
+    Dim sAddrNew As String
+    Dim lNextStart As Long
+    Dim sReplaced As String
+    
+    sAddrNew = ""
+    lNextStart = 1
+    
+    For Each match In matchColl
+        sReplaced = fNum2Letter(CLng(match.SubMatches(1))) & match.SubMatches(0)
+        
+        sAddrNew = sAddrNew & Mid(sR1C1Address, lNextStart, match.FirstIndex - lNextStart + 1)
+        sAddrNew = sAddrNew & sReplaced
+        
+        lNextStart = match.FirstIndex + match.Length + 1
+    Next
+    
+    If lNextStart <= Len(sR1C1Address) Then
+        sAddrNew = sAddrNew & Mid(sR1C1Address, lNextStart, Len(sR1C1Address) - lNextStart + 1)
+    End If
+    
+    Set match = Nothing
+    Set matchColl = Nothing
+    
+    fReplaceConvertR1C1ToA1 = IIf(fZero(sAddrNew), sR1C1Address, sAddrNew)
+End Function
+
+Function fGetGRegExp(Optional asPatten As String = "")
+    If gRegExp Is Nothing Then
+        Set gRegExp = New VBScript_RegExp_55.RegExp
+        gRegExp.IgnoreCase = True
+        gRegExp.Global = True
+    End If
+    
+    If fNzero(asPatten) Then gRegExp.Pattern = asPatten
 End Function

@@ -82,17 +82,17 @@ Function fReadRangeDatatoArrayByStartEndPos(shtParam As Worksheet, alStartRow As
 End Function
 
 Function fReadRangeDataToArray(rngParam As Range) As Variant
-    Dim arrOUt()
+    Dim arrOut()
     
     If fRangeIsSingleCell(rngParam) Then
-        ReDim arrOUt(1 To 1, 1 To 1)
-        arrOUt(1, 1) = rngParam.Value
+        ReDim arrOut(1 To 1, 1 To 1)
+        arrOut(1, 1) = rngParam.Value
     Else
-        arrOUt = rngParam.Value
+        arrOut = rngParam.Value
     End If
     
-    fReadRangeDataToArray = arrOUt
-    Erase arrOUt
+    fReadRangeDataToArray = arrOut
+    Erase arrOut
 End Function
 
 Function fSetSpecifiedConfigCellValue(shtConfig As Worksheet, asTag As String, asRtnCol As String, asCriteria As String _
@@ -102,6 +102,14 @@ Function fSetSpecifiedConfigCellValue(shtConfig As Worksheet, asTag As String, a
     Dim sAddr As String
     sAddr = fGetSpecifiedConfigCellAddress(shtConfig, asTag, asRtnCol, asCriteria, False, bDevUatProd)
     shtConfig.Range(sAddr).Value = sValue
+End Function
+Function fGetSpecifiedConfigCellValue(shtConfig As Worksheet, asTag As String, asRtnCol As String, asCriteria As String _
+                                , sValue As String _
+                                , Optional bDevUatProd As Boolean = False _
+                                )
+    Dim sAddr As String
+    sAddr = fGetSpecifiedConfigCellAddress(shtConfig, asTag, asRtnCol, asCriteria, False, bDevUatProd)
+    fGetSpecifiedConfigCellValue = shtConfig.Range(sAddr).Value
 End Function
 Function fGetSpecifiedConfigCellAddress(shtConfig As Worksheet, asTag As String, asRtnCol As String _
                                 , asCriteria As String _
@@ -288,6 +296,38 @@ Function fFreezeSheet(sht As Worksheet, Optional alSplitCol As Long = 0, Optiona
     ActiveWindow.SplitRow = alSplitRow
     ActiveWindow.FreezePanes = True
 End Function
+
+Function fExcelFileIsOpen(sExcelFileName As String, Optional wbOut As Workbook) As Boolean
+    On Error Resume Next
+    Set wbOut = Workbooks(fGetFileBaseName(sExcelFileName))
+    err.Clear
+    
+    fExcelFileIsOpen = (Not wbOut Is Nothing)
+End Function
+
+Function fRevmoeFilterForAllSheets(wb As Workbook, Optional ByVal asDegree As String = "SHOW_ALL_DATA")
+    Dim sht As Worksheet
+    
+    For Each sht In wb.Worksheets
+        Call fRemoveFilterForSheet(sht, asDegree)
+    Next
+End Function
+Function fRemoveFilterForSheet(sht As Worksheet, Optional ByVal asDegree As String = "SHOW_ALL_DATA")
+    asDegree = UCase(Trim(asDegree))
+    
+    If sht.FilterMode Then  'advanced filter
+        sht.ShowAllData
+    End If
+    
+    If sht.AutoFilterMode Then  'auto filter
+        If fZero(asDegree) Or asDegree = "SHOW_ALL_DATA" Then
+            sht.AutoFilter.ShowAllData
+        Else
+            sht.AutoFilterMode = False
+        End If
+    End If
+End Function
+
 
 Function fSortDataInSheetSortSheetData(sht As Worksheet, arrColsOrSingleCol, Optional arrAscendDescend)
 

@@ -11,3 +11,21 @@ Function fOverWriteGDictVariables_gDictInputfiles()
     Call fUpdateDictionaryItemValueForDelimitedElement(gDictInputFiles, "GY", InputFile.FilePath - InputFile.FileTag, sFile)
     
 End Function
+
+Function fSetIntialValueForShtMenuInitialize()
+    
+End Function
+
+Function fProgramInitialization()
+    err.Clear
+    gbNoData = False
+    gbBusinessError = False
+    
+    If fZero(gsEnv) Then gsEnv = fGetEnvFromSysConf
+    
+    Call fDisableExcelOptionsAll
+    
+    If fIsDev Then Application.ScreenUpdating = True
+    
+    Call fRevmoeFilterForAllSheets(ThisWorkbook)
+End Function

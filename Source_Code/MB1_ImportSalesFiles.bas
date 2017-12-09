@@ -7,14 +7,22 @@ Option Base 1
 Public gsCompanyID As String
 Dim dictCompList As Dictionary
 
+Sub subMain_Ribbon_ImportSalesInfoFiles()
+    shtMenu.Activate
+    Range("A63").Select
+End Sub
+
 Sub subMain_ImportSalesInfoFiles()
-    gsEnv = "DEV"
+    If Not fIsDev Then On Error GoTo error_handling
+    
+    fProgramInitialization
+    
+    gsRptID = "IMPORT_SALES_INFO"
     
     Set dictCompList = fReadConfigCompanyList
     Call fValidationAndSetToConfigSheet
     
    ' On Error GoTo error_handling
-   gsRptID = "IMPORT_SALES_INFO"
     gsCompanyID = "GY"
     
     Call fReadConfigInputFiles

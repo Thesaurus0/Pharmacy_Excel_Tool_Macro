@@ -5,10 +5,23 @@ Option Base 1
 Public Const ERROR_NUMBER = 1000
 Public Const DELIMITER = "|"
 Public gsEnv As String
+
+Public gbNoData As Boolean
+Public gbBusinessError As Boolean
 '=======================================
 Public gsRptID As String
 
 Public gDictInputFiles As Dictionary
 '=======================================
 Public gFSO As FileSystemObject
+Public gRegExp As VBScript_RegExp_55.RegExp
 
+
+Function fIsDev() As Boolean
+    If fZero(gsEnv) Then
+        gsEnv = fGetEnvFromSysConf
+        Debug.Print "gsenv is blank in fIsDev. re-call fGetEnvFromSysConf " & Now()
+    End If
+    
+    fIsDev = (gsEnv = "DEV")
+End Function

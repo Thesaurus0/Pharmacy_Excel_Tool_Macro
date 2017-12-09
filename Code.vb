@@ -1,4 +1,12 @@
 
+    Select Case sVariable
+        Case "CMDBAR"
+            
+        Case Else
+        
+    End Select
+    
+    
 
 Function fValidateBlankInArray(arrParam, arrKeyColsOrSingle _
                         , Optional bAllowBlank As Boolean = False _
