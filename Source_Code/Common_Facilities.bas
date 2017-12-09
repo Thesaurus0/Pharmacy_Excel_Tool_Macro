@@ -3,6 +3,18 @@ Option Explicit
 Option Base 1
 
 '======================================================================================================
+Sub Sub_ListActiveXControlOnActiveSheet()
+    Dim obj As Object
+    Dim sStr As String
+    
+    For Each obj In ActiveSheet.DrawingObjects
+        sStr = sStr & vbCr & obj.Name
+    Next
+     
+    Set obj = Nothing
+    
+    MsgBox sStr
+End Sub
 
 Sub sub_ExportModulesSourceCodeToFolder()
     Dim sFolder As String

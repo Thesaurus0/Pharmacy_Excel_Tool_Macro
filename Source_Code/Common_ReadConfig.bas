@@ -331,6 +331,8 @@ Function fReadConfigInputFiles(Optional asReportID As String = "")
         , shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Report ID + File Tag")
     Call fValidateBlankInArray(arrConfigData, InputFile.ReportID, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Report ID")
     Call fValidateBlankInArray(arrConfigData, InputFile.FileTag, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "File Tag")
+    Call fValidateBlankInArray(arrConfigData, InputFile.Source, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Source")
+    Call fValidateBlankInArray(arrConfigData, InputFile.Env, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "DEV/UAT/PROD")
     
     Dim lEachRow As Long
     Dim lActualRow As Long
@@ -547,7 +549,3 @@ Function fGetReadConfigWholeSingleColValueAsArray(shtConfig As Worksheet, asTag 
     
     fGetReadConfigWholeSingleColValueAsArray = arrOut
 End Function
-Function fOverWriteGDictWithUserInputOnMenuScreen()
-    Call fOverWriteGDictVariables_gDictInputfiles
-End Function
-

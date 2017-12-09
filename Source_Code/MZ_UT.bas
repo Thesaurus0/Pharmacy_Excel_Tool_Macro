@@ -116,10 +116,17 @@ Sub testa()
 '    Debug.Print LBound(cc, 1) & " - " & UBound(cc, 1)
 '    Debug.Print LBound(cc, 2) & " - " & UBound(cc, 2)
     
-    Const DELI = " " & DELIMITER & " "
-    Dim f
-    'f = aa(0)
-    'Debug.Print Join(aa(3), "")
-    Dim s As String
-    Debug.Print fArrayIsEmptyOrNoData(s)
+'    Const DELI = " " & DELIMITER & " "
+'    Dim f
+'    'f = aa(0)
+'    'Debug.Print Join(aa(3), "")
+'    Dim s As String
+'    Debug.Print fArrayIsEmptyOrNoData(s)
+    Dim a As String
+    
+    a = "c"
+    'Debug.Print Switch(a = "a", 1, a = "b", 2, a = "c", 3, a = "e", 4)
+    Debug.Print Switch("c", 3, "e", 4)
+    
 End Sub
+

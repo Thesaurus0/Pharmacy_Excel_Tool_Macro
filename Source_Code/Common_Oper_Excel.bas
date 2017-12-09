@@ -328,7 +328,37 @@ Function fRemoveFilterForSheet(sht As Worksheet, Optional ByVal asDegree As Stri
     End If
 End Function
 
-
+Function fActiveXControlExistsInSheet(sht As Worksheet, asControlName As String, ByRef objOut As Object) As Boolean
+    Dim bOut As Boolean
+    bOut = False
+    
+    On Error GoTo err_exit
+    Set objOut = CallByName(sht, asControlName, VbGet)
+    bOut = True
+    
+err_exit:
+    err.Clear
+    fActiveXControlExistsInSheet = bOut
+End Function
+Function fActiveXControlExistsInSheet2(sht As Worksheet, asControlName As String, ByRef objOut As Object) As Boolean
+    Dim obj As Object
+    Dim bOut As Boolean
+    bOut = False
+    
+    For Each obj In sht.DrawingObjects
+        If obj.Name = asControlName Then
+            Set objOut = obj
+            bOut = True
+            Exit For
+        End If
+    Next
+    
+err_exit:
+    Set obj = Nothing
+    fActiveXControlExistsInSheet2 = bOut
+End Function
+ 
+ 
 Function fSortDataInSheetSortSheetData(sht As Worksheet, arrColsOrSingleCol, Optional arrAscendDescend)
 
     

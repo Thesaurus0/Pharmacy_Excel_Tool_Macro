@@ -5,17 +5,12 @@ Option Base 1
 'Dim arrSalesCompanys()
 
 Public gsCompanyID As String
-Dim dictCompList As Dictionary
-
-Sub subMain_Ribbon_ImportSalesInfoFiles()
-    shtMenu.Activate
-    Range("A63").Select
-End Sub
+Public dictCompList As Dictionary
 
 Sub subMain_ImportSalesInfoFiles()
-    If Not fIsDev Then On Error GoTo error_handling
+    'If Not fIsDev Then On Error GoTo error_handling
     
-    fProgramInitialization
+    fInitialization
     
     gsRptID = "IMPORT_SALES_INFO"
     
@@ -23,13 +18,13 @@ Sub subMain_ImportSalesInfoFiles()
     Call fValidationAndSetToConfigSheet
     
    ' On Error GoTo error_handling
-    gsCompanyID = "GY"
+'    gsCompanyID = "GY"
     
     Call fReadConfigInputFiles
     
-    Call fSetUserTicketToConfigSheetAndgDict
-    
-    Call fOverWriteGDictWithUserInputOnMenuScreen
+    Call fSetBackToConfigSheetAndUpdategDict_UserTicket
+    Call fSetBackToConfigSheetAndUpdategDict_InputFiles
+     
     
 error_handling:
 End Sub
@@ -62,7 +57,9 @@ Function fValidationAndSetToConfigSheet()
     
     For i = 0 To dictCompList.Count - 1
         sEachCompanyID = dictCompList.Keys(i)
-        sFilePathRange = "rngSalesFilePath_" & sEachCompanyID
+        'sFilePathRange = "rngSalesFilePath_" & sEachCompanyID
+        
+        sFilePathRange = fGetCompany_InputFileTextBoxName(sEachCompanyID)
         sEachFilePath = Trim(shtMenu.Range(sFilePathRange).Value)
         
         If Not fFileExists(sEachFilePath) Then
@@ -78,13 +75,3 @@ End Function
 'Function fSetSalesInfoFileToMainConfig(sCompanyId As String, sFile As String)
 '    Call fSetSpecifiedConfigCellAddress(shtSysConf, "[Input Files]", "File Full Path", "Company ID=" & sCompanyId, sFile)
 'End Function
-
-Function fSetUserTicketToConfigSheetAndgDict()
-    If shtMenu.ckb_GY Then
-        Call fSetSpecifiedConfigCellValue(shtStaticData, "[Sales Company List]", "User Ticked", "Company ID=GY", "Y")
-        Call fUpdateDictionaryItemValueForDelimitedElement(dictCompList, "GY", Company.Selected - Company.Report_ID, "Y")
-    Else
-        Call fSetSpecifiedConfigCellValue(shtStaticData, "[Sales Company List]", "User Ticked", "Company ID=GY", "N")
-        Call fUpdateDictionaryItemValueForDelimitedElement(dictCompList, "GY", Company.Selected - Company.Report_ID, "Y")
-    End If
-End Function

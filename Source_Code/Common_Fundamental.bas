@@ -236,12 +236,12 @@ End Function
 
 
 Function fErr(Optional sMsg As String = "") As VbMsgBoxResult
-    If Len(Trim(sMsg)) > 0 Then fMsgBox "Error: " & vbCr & vbCr & sMsg, vbCritical
+    If fNzero(sMsg) Then fMsgBox "Error: " & vbCr & vbCr & sMsg, vbCritical
     
     err.Raise vbObjectError + ERROR_NUMBER, "", "Program is to be terminated."
 End Function
 
-Function fMsgBox(Optional sMsg As String = "", Optional aVbMsgBoxStyle As VbMsgBoxStyle) As VbMsgBoxResult
+Function fMsgBox(Optional sMsg As String = "", Optional aVbMsgBoxStyle As VbMsgBoxStyle = vbCritical) As VbMsgBoxResult
     fMsgBox = MsgBox(sMsg, aVbMsgBoxStyle)
 End Function
 
@@ -252,7 +252,7 @@ Function fSelectFileDialog(Optional asDefaultFilePath As String = "" _
     Dim fd As FileDialog
     Dim sFilterDesc As String
     Dim sFilterStr As String
-    Dim sParentFolder As String
+    Dim sDefaultFile As String
     
     If Len(Trim(asFileFilters)) > 0 Then
         sFilterDesc = Trim(Split(asFileFilters, "=")(0))
@@ -260,14 +260,15 @@ Function fSelectFileDialog(Optional asDefaultFilePath As String = "" _
     End If
     
     If Len(Trim(asDefaultFilePath)) > 0 Then
-        sParentFolder = fGetFileParentFolder(asDefaultFilePath)
+       ' sDefaultFile = fGetFileParentFolder(asDefaultFilePath)
+        sDefaultFile = asDefaultFilePath
     Else
-        sParentFolder = ThisWorkbook.Path
+        sDefaultFile = ThisWorkbook.Path
     End If
     
     Set fd = Application.FileDialog(msoFileDialogFilePicker)
     
-    fd.InitialFileName = sParentFolder
+    fd.InitialFileName = sDefaultFile
     fd.Title = IIf(Len(asTitle) > 0, asTitle, fd.InitialFileName)
     fd.AllowMultiSelect = False
     

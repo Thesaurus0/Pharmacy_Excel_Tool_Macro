@@ -2,13 +2,59 @@ Attribute VB_Name = "MA_0_Customize"
 Option Explicit
 Option Base 1
 
-Function fOverWriteGDictVariables_gDictInputfiles()
-    Dim sFile As String
+Function fSetBackToConfigSheetAndUpdategDict_UserTicket()
     
-    sFile = Trim(shtMenu.Range("rngSalesFilePath_GY").Value)
+    Dim ckb As Object
     
-    Call fSetSpecifiedConfigCellValue(shtSysConf, "[Input Files]", "File Full Path", "File Tag=GY", sFile)
-    Call fUpdateDictionaryItemValueForDelimitedElement(gDictInputFiles, "GY", InputFile.FilePath - InputFile.FileTag, sFile)
+    Dim eachObj As Object
+    
+    'for each eachobj in shtmenu.
+    Dim i As Long
+    Dim sCompanyID As String
+    Dim sTickValue As String
+    
+    For i = 0 To dictCompList.Count - 1
+        sCompanyID = dictCompList.Keys(i)
+         
+        If Not fActiveXControlExistsInSheet(shtMenu, fGetCompany_CheckBoxName(sCompanyID), ckb) Then GoTo next_company
+        
+        sTickValue = IIf(ckb.Value, "Y", "N")
+        
+        Call fSetSpecifiedConfigCellValue(shtStaticData, "[Sales Company List]", "User Ticked", "Company ID=" & sCompanyID, sTickValue)
+        Call fUpdateDictionaryItemValueForDelimitedElement(dictCompList, sCompanyID, Company.Selected - Company.Report_ID, sTickValue)
+next_company:
+    Next
+End Function
+
+Function fSetBackToConfigSheetAndUpdategDict_InputFiles()
+    Dim i As Integer
+    Dim sEachCompanyID As String
+    Dim sFilePathRange As String
+    Dim sEachFilePath  As String
+    
+    For i = 0 To dictCompList.Count - 1
+        sEachCompanyID = dictCompList.Keys(i)
+        'sFilePathRange = "rngSalesFilePath_" & sEachCompanyID
+        
+        If fGetCompany_UserTicked(sEachCompanyID) = "Y" Then
+            sFilePathRange = fGetCompany_InputFileTextBoxName(sEachCompanyID)
+            sEachFilePath = Trim(shtMenu.Range(sFilePathRange).Value)
+        Else
+            sEachFilePath = "User not selected."
+        End If
+         
+        Call fSetValueBackToSysConf_InputFile_FileName(sEachCompanyID, sEachFilePath)
+        Call fUpdateGDictInputFile_FileName(sEachCompanyID, sEachFilePath)
+        
+        'Call fSetSalesInfoFileToMainConfig(sEachCompanyID, sEachFilePath)
+    Next
+    
+    
+'    sFile = Trim(shtMenu.Range("rngSalesFilePath_GY").Value)
+'
+'    Call fSetValueBackToSysConf_InputFile_FileName("GY", sFile)
+'    Call fUpdateGDictInputFile_FileName("GY", sFile)
+    
     
 End Function
 
@@ -16,10 +62,11 @@ Function fSetIntialValueForShtMenuInitialize()
     
 End Function
 
-Function fProgramInitialization()
+Function fInitialization()
     err.Clear
     gbNoData = False
     gbBusinessError = False
+    gbUserCanceled = False
     
     If fZero(gsEnv) Then gsEnv = fGetEnvFromSysConf
     
@@ -29,3 +76,4 @@ Function fProgramInitialization()
     
     Call fRevmoeFilterForAllSheets(ThisWorkbook)
 End Function
+

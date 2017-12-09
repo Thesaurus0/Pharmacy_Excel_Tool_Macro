@@ -8,6 +8,7 @@ Public gsEnv As String
 
 Public gbNoData As Boolean
 Public gbBusinessError As Boolean
+Public gbUserCanceled As Boolean
 '=======================================
 Public gsRptID As String
 
@@ -25,3 +26,19 @@ Function fIsDev() As Boolean
     
     fIsDev = (gsEnv = "DEV")
 End Function
+
+Function fSetNoDataAndError(sMsg As String, Optional bStop As Boolean = True)
+    gbNoData = True
+    
+    If bStop Then
+        fErr sMsg
+    Else
+        fMsgBox sMsg
+    End If
+End Function
+
+Function fSetUserCanceledAndError(sMsg As String, Optional bStop As Boolean = True)
+    gbUserCanceled = True
+    If bStop Then fErr
+End Function
+
