@@ -452,17 +452,16 @@ error_exit:
     fGetArrayDimension = i - 1
 End Function
 
-Function fNum2Letter(alNum As Long) As String
+Function fNum2Letter(ByVal alNum As Long) As String
     fNum2Letter = Replace(Split(Columns(alNum).Address, ":")(1), "$", "")
 End Function
-Function fLetter2Num(alLetter As String) As String
+Function fLetter2Num(ByVal alLetter As String) As Long
     fLetter2Num = Columns(alLetter).Column
 End Function
 
 Function fFileExists(sFilePath As String) As Boolean
-    Dim fso As New FileSystemObject
-    fFileExists = fso.FileExists(sFilePath)
-    Set fso = Nothing
+    fGetFSO
+    fFileExists = gFSO.FileExists(sFilePath)
 End Function
 
 Function fDeleteFile(sFilePath As String)
@@ -723,13 +722,13 @@ Function fValidateDuplicateInArray(arrParam, arrKeyColsOrSingle _
     
     If IsArray(arrKeyColsOrSingle) Then
         Call fValidateDuplicateInArrayForCombineCols(arrParam:=arrParam, arrKeyCols:=arrKeyColsOrSingle _
-                                                    , bAllowBlank:=bAllowBlank _
+                                                    , bAllowBlankIgnore:=bAllowBlank _
                                                     , shtAt:=shtAt _
                                                     , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
                                                     , sMsgColHeader:=sMsgColHeader)
     Else
         Call fValidateDuplicateInArrayForSingleCol(arrParam:=arrParam, lKeyCol:=CLng(arrKeyColsOrSingle) _
-                                                    , bAllowBlank:=bAllowBlank _
+                                                    , bAllowBlankIgnore:=bAllowBlank _
                                                     , shtAt:=shtAt _
                                                     , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
                                                     , sMsgColHeader:=sMsgColHeader)
@@ -737,7 +736,7 @@ Function fValidateDuplicateInArray(arrParam, arrKeyColsOrSingle _
 End Function
 
 Function fValidateDuplicateInArrayForCombineCols(arrParam, arrKeyCols _
-                        , Optional bAllowBlank As Boolean = False _
+                        , Optional bAllowBlankIgnore As Boolean = False _
                         , Optional shtAt As Worksheet _
                         , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
                         , Optional sMsgColHeader As String)
@@ -779,12 +778,14 @@ Function fValidateDuplicateInArrayForCombineCols(arrParam, arrKeyCols _
             sKeyStr = sKeyStr & DELI & Trim(CStr(arrParam(lEachRow, lEachCol)))
         Next
         
-        If Not bAllowBlank Then
-            If fZero(Replace(sKeyStr, DELI, "")) Then
+        If fZero(Replace(sKeyStr, DELI, "")) Then
+            If Not bAllowBlankIgnore Then
                 'sPos = sPos & "[" & lActualRow & ", " & sColLetterStr & "]"
                 sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
                 fErr "Keys [" & sKeyStr & "] is blank!" & sPos
             End If
+            
+            GoTo next_row
         End If
         
         sKeyStr = Right(sKeyStr, Len(sKeyStr) - Len(DELI))
@@ -802,7 +803,7 @@ next_row:
 End Function
 
 Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
-                                            , Optional bAllowBlank As Boolean = False _
+                                            , Optional bAllowBlankIgnore As Boolean = False _
                                             , Optional shtAt As Worksheet _
                                             , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
                                             , Optional sMsgColHeader As String)
@@ -829,12 +830,14 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
         
         sKeyStr = Trim(CStr(arrParam(lEachRow, lKeyCol)))
         
-        If Not bAllowBlank Then
-            If fZero(sKeyStr) Then
+        If fZero(sKeyStr) Then
+            If Not bAllowBlankIgnore Then
                 'sPos = sPos & lActualRow & " / " & sColLetter
                 sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
                 fErr "Keys [" & sColLetter & "] is blank!" & sPos
             End If
+            
+            GoTo next_row
         End If
         
         If dict.Exists(sKeyStr) Then
@@ -1123,12 +1126,24 @@ End Function
 
 
 Function fEnlargeArayWithValue(ByRef arr, aValue, Optional aPreserve As Boolean = True, Optional lIncrementNum As Integer = 1) As Long
+'    If fArrayIsEmpty(arr) Then
+'        Redim arr
+'        Exit Function
+'    End If
+    
     fRedim arr, ArrayLen(arr) + 1, aPreserve
     arr(UBound(arr)) = aValue
     fEnlargeArayWithValue = UBound(arr)
 End Function
 
 Function fRedim(ByRef arr, lNewUbound As Long, Optional aPreserve As Boolean = True)
+    If fArrayIsEmpty(arr) Then
+        If aPreserve Then
+            ReDim arr(lNewUbound)
+        End If
+        Exit Function
+    End If
+
     If Base0(arr) Then
         If aPreserve Then
             ReDim Preserve arr(0 To lNewUbound - 1)
@@ -1145,7 +1160,11 @@ Function fRedim(ByRef arr, lNewUbound As Long, Optional aPreserve As Boolean = T
 End Function
 
 Function ArrayLen(ByRef arr) As Long
-     If fArrayIsEmpty(arr) Then fErr "Empty array is not allowed."
+    If fArrayIsEmpty(arr) Then
+        ArrayLen = 0
+        Exit Function
+    '    fErr "Empty array is not allowed."
+    End If
      ArrayLen = UBound(arr) - LBound(arr) + 1
 End Function
 
@@ -1194,6 +1213,19 @@ Function fCopyDictionaryKeys2Array(dict As Dictionary, ByRef arrOut())
     
     For i = 0 To dict.Count - 1
         arrOut(i + 1) = dict.Keys(i)
+    Next
+End Function
+Function fCopyDictionaryItemsArray(dict As Dictionary, ByRef arrOut())
+    If dict.Count <= 0 Then
+        arrOut = Array()
+    End If
+    
+    ReDim arrOut(1 To dict.Count)
+    
+    Dim i As Long
+    
+    For i = 0 To dict.Count - 1
+        arrOut(i + 1) = dict.Items(i)
     Next
 End Function
 
@@ -1300,4 +1332,115 @@ Function fGetGRegExp(Optional asPatten As String = "")
     End If
     
     If fNzero(asPatten) Then gRegExp.Pattern = asPatten
+End Function
+
+Function fSortArayDesc(ByRef arr(), Optional UseQuickSort As Boolean = True)
+    If Not UseQuickSort Then
+        Call fSortArrayBubbleSortDesc(arr)
+    Else
+        Call fSortArrayQuickSortDesc(arr)
+    End If
+End Function
+
+Function fSortAray(ByRef arr(), Optional UseQuickSort As Boolean = True)
+    If Not UseQuickSort Then
+        Call fSortArrayBubbleSort(arr)
+    Else
+        Call fSortArrayQuickSort(arr)
+    End If
+End Function
+Function fSortArrayBubbleSortDesc(ByRef arr())
+    Dim i As Long
+    Dim j As Long
+    Dim Temp
+    
+    For i = LBound(arr) To UBound(arr) - 1
+        For j = i + 1 To UBound(arr)
+            If arr(i) < arr(j) Then
+                Temp = arr(j)
+                arr(j) = arr(i)
+                arr(i) = Temp
+            End If
+        Next j
+    Next i
+End Function
+
+Function fSortArrayBubbleSort(ByRef arr)
+    Dim i As Long
+    Dim j As Long
+    Dim Temp
+    
+    For i = LBound(arr) To UBound(arr) - 1
+        For j = i + 1 To UBound(arr)
+            If arr(i) > arr(j) Then
+                Temp = arr(j)
+                arr(j) = arr(i)
+                arr(i) = Temp
+            End If
+        Next j
+    Next i
+End Function
+' Omit plngLeft & plngRight; they are used internally during recursion
+Function fSortArrayQuickSort(ByRef pvarArray As Variant, Optional ByVal plngLeft As Long, Optional ByVal plngRight As Long)
+    Dim lngFirst As Long
+    Dim lngLast As Long
+    Dim varMid As Variant
+    Dim varSwap As Variant
+
+    If plngRight = 0 Then
+        plngLeft = LBound(pvarArray)
+        plngRight = UBound(pvarArray)
+    End If
+    lngFirst = plngLeft
+    lngLast = plngRight
+    varMid = pvarArray((plngLeft + plngRight) \ 2)
+    Do
+        Do While pvarArray(lngFirst) < varMid And lngFirst < plngRight
+            lngFirst = lngFirst + 1
+        Loop
+        Do While varMid < pvarArray(lngLast) And lngLast > plngLeft
+            lngLast = lngLast - 1
+        Loop
+        If lngFirst <= lngLast Then
+            varSwap = pvarArray(lngFirst)
+            pvarArray(lngFirst) = pvarArray(lngLast)
+            pvarArray(lngLast) = varSwap
+            lngFirst = lngFirst + 1
+            lngLast = lngLast - 1
+        End If
+    Loop Until lngFirst > lngLast
+    If plngLeft < lngLast Then fSortArrayQuickSort pvarArray, plngLeft, lngLast
+    If lngFirst < plngRight Then fSortArrayQuickSort pvarArray, lngFirst, plngRight
+End Function
+
+Function fSortArrayQuickSortDesc(ByRef pvarArray As Variant, Optional ByVal plngLeft As Long, Optional ByVal plngRight As Long)
+    Dim lngFirst As Long
+    Dim lngLast As Long
+    Dim varMid As Variant
+    Dim varSwap As Variant
+
+    If plngRight = 0 Then
+        plngLeft = LBound(pvarArray)
+        plngRight = UBound(pvarArray)
+    End If
+    lngFirst = plngLeft
+    lngLast = plngRight
+    varMid = pvarArray((plngLeft + plngRight) \ 2)
+    Do While lngFirst <= lngLast
+        Do While pvarArray(lngFirst) > varMid And lngFirst < plngRight
+            lngFirst = lngFirst + 1
+        Loop
+        Do While varMid > pvarArray(lngLast) And lngLast > plngLeft
+            lngLast = lngLast - 1
+        Loop
+        If lngFirst <= lngLast Then
+            varSwap = pvarArray(lngFirst)
+            pvarArray(lngFirst) = pvarArray(lngLast)
+            pvarArray(lngLast) = varSwap
+            lngFirst = lngFirst + 1
+            lngLast = lngLast - 1
+        End If
+    Loop
+    If plngLeft < lngLast Then fSortArrayQuickSortDesc pvarArray, plngLeft, lngLast
+    If lngFirst < plngRight Then fSortArrayQuickSortDesc pvarArray, lngFirst, plngRight
 End Function

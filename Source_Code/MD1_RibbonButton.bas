@@ -4,7 +4,13 @@ Option Base 1
    
 Sub subMain_Ribbon_ImportSalesInfoFiles()
     If shtMenu.Visible = xlSheetVisible Then
-        shtMenu.Visible = xlSheetVeryHidden
+        If ActiveSheet.Name <> shtMenu.Name Then
+            shtMenu.Visible = xlSheetVisible
+            shtMenu.Activate
+            Range("A63").Select
+        Else
+            shtMenu.Visible = xlSheetVeryHidden
+        End If
     Else
         shtMenu.Visible = xlSheetVisible
         shtMenu.Activate

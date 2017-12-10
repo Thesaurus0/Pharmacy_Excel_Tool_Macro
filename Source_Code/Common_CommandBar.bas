@@ -170,7 +170,7 @@ Function fReadConfigCommandBarsInfo() As Variant
     arrColsName(3) = "Sub/Function/OnAction"
     arrColsName(4) = "DEV/UAT/PROD"
    
-    arrConfigData = fReadConfigBlockToArrayNet(asTag:=asTag, rngToFindIn:=shtSysConf.Cells _
+    arrConfigData = fReadConfigBlockToArrayNet(asTag:=asTag, shtParam:=shtSysConf _
                                 , arrColsName:=arrColsName _
                                 , lConfigStartRow:=lConfigStartRow _
                                 , lConfigStartCol:=lConfigStartCol _
@@ -212,7 +212,7 @@ Function fReadConfigRibbonCommandBarMenuAndCreateCommandBarButton()
     arrColsName(5) = "DEV/UAT/PROD"
     arrColsName(6) = "Tip Text"
    
-    arrConfigData = fReadConfigBlockToArrayNet(asTag:=asTag, rngToFindIn:=shtSysConf.Cells _
+    arrConfigData = fReadConfigBlockToArrayNet(asTag:=asTag, shtParam:=shtSysConf _
                                 , arrColsName:=arrColsName _
                                 , lConfigStartRow:=lConfigStartRow _
                                 , lConfigStartCol:=lConfigStartCol _

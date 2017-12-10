@@ -3,7 +3,7 @@ Option Explicit
 Option Base 1
 
 Enum Company
-    Report_ID = 1
+    REPORT_ID = 1
     ID = 2
     Name = 3
     Commission = 4
@@ -24,9 +24,9 @@ Function fReadConfigCompanyList() As Dictionary
     Dim lConfigHeaderAtRow As Long
 
     asTag = "[Sales Company List]"
-    ReDim arrColsName(Company.Report_ID To Company.Selected)
+    ReDim arrColsName(Company.REPORT_ID To Company.Selected)
     
-    arrColsName(Company.Report_ID) = "Company ID"
+    arrColsName(Company.REPORT_ID) = "Company ID"
     arrColsName(Company.ID) = "Company ID In DB"
     arrColsName(Company.Name) = "Company Name"
     arrColsName(Company.Commission) = "Default Commission"
@@ -34,7 +34,7 @@ Function fReadConfigCompanyList() As Dictionary
     arrColsName(Company.InputFileTextBoxName) = "Input File TextBox Name"
     arrColsName(Company.Selected) = "User Ticked"
      
-    arrConfigData = fReadConfigBlockToArrayNet(asTag:=asTag, rngToFindIn:=shtStaticData.Cells _
+    arrConfigData = fReadConfigBlockToArrayNet(asTag:=asTag, shtParam:=shtStaticData _
                                 , arrColsName:=arrColsName _
                                 , lConfigStartRow:=lConfigStartRow _
                                 , lConfigStartCol:=lConfigStartCol _
@@ -42,7 +42,7 @@ Function fReadConfigCompanyList() As Dictionary
                                 , lOutConfigHeaderAtRow:=lConfigHeaderAtRow _
                                 , abNoDataConfigThenError:=True _
                                 )
-    Call fValidateDuplicateInArray(arrConfigData, Company.Report_ID, False, shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "Company ID")
+    Call fValidateDuplicateInArray(arrConfigData, Company.REPORT_ID, False, shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "Company ID")
     Call fValidateDuplicateInArray(arrConfigData, Company.ID, False, shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "Company ID In DB")
     Call fValidateDuplicateInArray(arrConfigData, Company.Name, False, shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "Company Name")
     Call fValidateDuplicateInArray(arrConfigData, Company.CheckBoxName, False, shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "Company Name")
@@ -71,7 +71,7 @@ Function fReadConfigCompanyList() As Dictionary
         
         'lActualRow = lConfigHeaderAtRow + lEachRow
         
-        sFileTag = Trim(arrConfigData(lEachRow, Company.Report_ID))
+        sFileTag = Trim(arrConfigData(lEachRow, Company.REPORT_ID))
         sValueStr = fComposeStrForDictCompanyList(arrConfigData, lEachRow)
         
         dictOut.Add sFileTag, sValueStr
@@ -89,20 +89,20 @@ Function fComposeStrForDictCompanyList(arrConfigData, lEachRow As Long) As Strin
     Dim i As Integer
     
     For i = Company.ID To Company.Selected
-        sOut = sOut & DELIMITER & arrConfigData(lEachRow, i)
+        sOut = sOut & DELIMITER & Trim(arrConfigData(lEachRow, i))
     Next
     
     fComposeStrForDictCompanyList = Right(sOut, Len(sOut) - 1)
 End Function
 
 Function fGetCompany_InputFileTextBoxName(asCompanyID As String) As String
-    fGetCompany_InputFileTextBoxName = Split(dictCompList(asCompanyID), DELIMITER)(Company.InputFileTextBoxName - Company.Report_ID - 1)
+    fGetCompany_InputFileTextBoxName = Split(dictCompList(asCompanyID), DELIMITER)(Company.InputFileTextBoxName - Company.REPORT_ID - 1)
 End Function
 Function fGetCompany_CheckBoxName(asCompanyID As String) As String
-    fGetCompany_CheckBoxName = Split(dictCompList(asCompanyID), DELIMITER)(Company.CheckBoxName - Company.Report_ID - 1)
+    fGetCompany_CheckBoxName = Split(dictCompList(asCompanyID), DELIMITER)(Company.CheckBoxName - Company.REPORT_ID - 1)
 End Function
 Function fGetCompany_UserTicked(asCompanyID As String) As String
-    fGetCompany_UserTicked = Split(dictCompList(asCompanyID), DELIMITER)(Company.Selected - Company.Report_ID - 1)
+    fGetCompany_UserTicked = Split(dictCompList(asCompanyID), DELIMITER)(Company.Selected - Company.REPORT_ID - 1)
 End Function
 
 

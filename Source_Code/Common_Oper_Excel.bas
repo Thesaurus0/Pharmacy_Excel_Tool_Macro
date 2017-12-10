@@ -139,7 +139,7 @@ Function fGetSpecifiedConfigCellAddress(shtConfig As Worksheet, asTag As String,
     Dim arrConfigData()
     Dim arrColsIndex()
 
-    Call fReadConfigBlockToArray(asTag:=asTag, rngToFindIn:=shtConfig.Cells, arrColsName:=arrColNames _
+    Call fReadConfigBlockToArray(asTag:=asTag, shtParam:=shtConfig, arrColsName:=arrColNames _
                                 , arrConfigData:=arrConfigData _
                                 , arrColsIndex:=arrColsIndex _
                                 , lConfigStartRow:=lConfigStartRow _
@@ -358,6 +358,33 @@ err_exit:
     fActiveXControlExistsInSheet2 = bOut
 End Function
  
+Function fSheetExists(asShtName As String, Optional ByRef shtOut As Worksheet, Optional wb As Workbook) As Boolean
+    Dim sht As Worksheet
+    Dim bOut As Boolean
+    
+    If wb Is Nothing Then Set wb = ThisWorkbook
+    
+    bOut = False
+    asShtName = UCase(Trim(asShtName))
+    
+    For Each sht In wb.Worksheets
+        If UCase(sht.Name) = asShtName Then
+            bOut = True
+            Set shtOut = sht
+            Exit For
+        End If
+    Next
+    
+    Set sht = Nothing
+    fSheetExists = bOut
+End Function
+
+Function fIfExcelFileOpenedToCloseIt(sExcelFile As String)
+    If fExcelFileIsOpen(sExcelFile) Then
+        fErr "Excel File is open, pleae close it first." _
+             & vbCr & fGetFileBaseName(sExcelFile)
+    End If
+End Function
  
 Function fSortDataInSheetSortSheetData(sht As Worksheet, arrColsOrSingleCol, Optional arrAscendDescend)
 

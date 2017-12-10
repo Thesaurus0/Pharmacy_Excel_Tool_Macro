@@ -14,29 +14,43 @@ Sub subMain_ImportSalesInfoFiles()
     
     gsRptID = "IMPORT_SALES_INFO"
     
+    Call fReadSysConfig_InputTxtSheetFile
+    
     Set dictCompList = fReadConfigCompanyList
     Call fValidationAndSetToConfigSheet
     
-   ' On Error GoTo error_handling
-'    gsCompanyID = "GY"
-    
-    Call fReadConfigInputFiles
-    
     Call fSetBackToConfigSheetAndUpdategDict_UserTicket
     Call fSetBackToConfigSheetAndUpdategDict_InputFiles
-     
+    
+    gsRptFilePath = fReadSysConfig_Output(, gsRptType)
+    
+    Dim i As Integer
+    For i = 0 To dictCompList.Count - 1
+        gsCompanyID = dictCompList.Keys(i)
+        
+        If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
+            Call fLoadFilesAndRead2Variables
+        End If
+    Next
+    
     
 error_handling:
 End Sub
 
-Function fImportAllSalesInfoFiles()
-    Dim i As Integer
-    
-    For i = LBound(arrSalesCompanys, 1) To UBound(arrSalesCompanys, 1)
-        Call fImportSalesInfoFileForComapnay(CStr(arrSalesCompanys(i, 0)) _
-                                            , CStr(arrSalesCompanys(i, 1)) _
-                                            , CStr(arrSalesCompanys(i, 2)))
-    Next
+'Function fImportAllSalesInfoFiles()
+'    Dim i As Integer
+'
+'    For i = LBound(arrSalesCompanys, 1) To UBound(arrSalesCompanys, 1)
+'        Call fImportSalesInfoFileForComapnay(CStr(arrSalesCompanys(i, 0)) _
+'                                            , CStr(arrSalesCompanys(i, 1)) _
+'                                            , CStr(arrSalesCompanys(i, 2)))
+'    Next
+'End Function
+
+Function fLoadFilesAndRead2Variables()
+    'gsCompanyID
+    Call fLoadFileByFileTag(gsCompanyID)
+    Call fReadMasterSheetData(gsCompanyID)
 End Function
  
 

@@ -13,6 +13,26 @@ Public gbUserCanceled As Boolean
 Public gsRptID As String
 
 Public gDictInputFiles As Dictionary
+Public gDictTxtFileSpec As Dictionary
+
+'=======================================
+Public arrMaster()
+Public gDictMstColIndex As Dictionary
+Public gDictMstDisplayName As Dictionary
+Public gDictMstRawType As Dictionary
+Public gDictMstCellFormat As Dictionary
+Public gDictMstDataFormat As Dictionary
+'=======================================
+Public gsRptType As String
+Public gsRptFilePath As String
+Public arrOutput()
+Public gDictRptColIndex As Dictionary
+Public gDictRptDisplayName As Dictionary
+Public gDictRptRawType As Dictionary
+Public gDictRptCellFormat As Dictionary
+Public gDictRptDataFormat As Dictionary
+Public gDictRptColWidth As Dictionary
+Public gDictRptColAttr As Dictionary
 '=======================================
 Public gFSO As FileSystemObject
 Public gRegExp As VBScript_RegExp_55.RegExp

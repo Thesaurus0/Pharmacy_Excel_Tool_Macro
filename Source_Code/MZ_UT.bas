@@ -81,17 +81,19 @@ Sub AllUnitTest()
     'Call fReadConfigInputFiles
     
     'Call ThisWorkbook.fReadConfigGetAllCommandBars
-    Dim sAddr As String
-    sAddr = Range("A12:Z34").Address(ReferenceStyle:=xlR1C1, external:=True)
-    sAddr = Range("A12:Z34").Address(external:=True)
-'    Debug.Print sAddr
-'    Debug.Print fReplaceConvertR1C1ToA1(sAddr)
-
-    Dim rng As Range
-    Set rng = fGetRangeFromExternalAddress(sAddr)
-    Debug.Print rng.Address
+'    Dim sAddr As String
+'    sAddr = Range("A12:Z34").Address(ReferenceStyle:=xlR1C1, external:=True)
+'    sAddr = Range("A12:Z34").Address(external:=True)
+''    Debug.Print sAddr
+''    Debug.Print fReplaceConvertR1C1ToA1(sAddr)
+'
+'    Dim rng As Range
+'    Set rng = fGetRangeFromExternalAddress(sAddr)
+'    Debug.Print rng.Address
     
     'Debug.Print fGetFileExtension("abce\ef\a\c\aaa.txt")
+    
+    Call fConvertFomulaToValueForSheetIfAny(ActiveSheet)
 End Sub
 
 Sub testa()
@@ -122,11 +124,25 @@ Sub testa()
 '    'Debug.Print Join(aa(3), "")
 '    Dim s As String
 '    Debug.Print fArrayIsEmptyOrNoData(s)
-    Dim a As String
+'    Dim a As String
+'
+'    a = "c"
+'    'Debug.Print Switch(a = "a", 1, a = "b", 2, a = "c", 3, a = "e", 4)
+'    Debug.Print Switch("c", 3, "e", 4)
     
-    a = "c"
-    'Debug.Print Switch(a = "a", 1, a = "b", 2, a = "c", 3, a = "e", 4)
-    Debug.Print Switch("c", 3, "e", 4)
+'    Dim a
+'    a = "[xxx]"
+'    Debug.Print (a Like "[*]")
+
+    Dim arr(1000)
     
+    Dim i As Long
+    
+    For i = 1 To 1000
+        arr(i) = Rnd() * 1000
+    Next
+    
+    Call fSortArrayQuickSortDesc(arr)
+    Call fSortArrayQuickSort(arr)
 End Sub
 

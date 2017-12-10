@@ -21,7 +21,7 @@ Function fSetBackToConfigSheetAndUpdategDict_UserTicket()
         sTickValue = IIf(ckb.Value, "Y", "N")
         
         Call fSetSpecifiedConfigCellValue(shtStaticData, "[Sales Company List]", "User Ticked", "Company ID=" & sCompanyID, sTickValue)
-        Call fUpdateDictionaryItemValueForDelimitedElement(dictCompList, sCompanyID, Company.Selected - Company.Report_ID, sTickValue)
+        Call fUpdateDictionaryItemValueForDelimitedElement(dictCompList, sCompanyID, Company.Selected - Company.REPORT_ID, sTickValue)
 next_company:
     Next
 End Function
