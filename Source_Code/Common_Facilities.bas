@@ -72,7 +72,7 @@ Sub sub_ListAllFunctionsOfThisWorkbook()
     
     Call fAutoFilterAutoFitSheet(shtOutput)
     Call fFreezeSheet(shtOutput)
-    Call fSortDataInSheetSortSheetData(shtOutput, 3)
+    Call fSortDataInSheetSortSheetData(shtOutput, Array(3))
     
     Set shtOutput = Nothing
 End Sub

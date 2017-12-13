@@ -67,6 +67,7 @@ Function fInitialization()
     gbNoData = False
     gbBusinessError = False
     gbUserCanceled = False
+    gbCheckCompatibility = True
     
     If fZero(gsEnv) Then gsEnv = fGetEnvFromSysConf
     

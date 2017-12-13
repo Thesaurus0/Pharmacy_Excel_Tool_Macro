@@ -25,16 +25,43 @@ Sub subMain_ImportSalesInfoFiles()
     gsRptFilePath = fReadSysConfig_Output(, gsRptType)
     
     Dim i As Integer
+    Dim iCnt As Integer
+    iCnt = 0
+    For i = 0 To dictCompList.Count - 1
+        gsCompanyID = dictCompList.Keys(i)
+        
+        If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
+            iCnt = iCnt + 1
+        End If
+    Next
+    
+    If iCnt <= 0 Then fErr "No Company is selected."
+    
+    Call fCleanSheetOutputResetSheetOutput(shtSalesRawDataRpt)
+    Call fPrepareOutputSheetHeaderAndTextColumns(shtSalesRawDataRpt)
+    
     For i = 0 To dictCompList.Count - 1
         gsCompanyID = dictCompList.Keys(i)
         
         If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
             Call fLoadFilesAndRead2Variables
+            
+            Call fProcessData
+            Erase arrMaster
+            
+            Call fAppendArray2Sheet(shtSalesRawDataRpt, arrOutput)
         End If
     Next
     
+    Call fFormatOutputSheet(shtSalesRawDataRpt)
     
+    Call fPostProcess(shtSalesRawDataRpt)
+    
+    shtSalesRawDataRpt.Visible = xlSheetVisible
+    shtSalesRawDataRpt.Activate
+    shtSalesRawDataRpt.Range("A1").Select
 error_handling:
+    err.Clear
 End Sub
 
 'Function fImportAllSalesInfoFiles()
@@ -54,13 +81,13 @@ Function fLoadFilesAndRead2Variables()
 End Function
  
 
-Function fImportSalesInfoFileForComapnay(asCompanyID As String, asCompanyName As String, sSalesInfoFile As String)
-    Dim sTmpSht As String
-    sTmpSht = fGenRandomUniqueString
-    
-    
-    
-End Function
+'Function fImportSalesInfoFileForComapnay(asCompanyID As String, asCompanyName As String, sSalesInfoFile As String)
+'    Dim sTmpSht As String
+'    sTmpSht = fGenRandomUniqueString
+'
+'
+'
+'End Function
 
 
 Function fValidationAndSetToConfigSheet()
@@ -89,3 +116,29 @@ End Function
 'Function fSetSalesInfoFileToMainConfig(sCompanyId As String, sFile As String)
 '    Call fSetSpecifiedConfigCellAddress(shtSysConf, "[Input Files]", "File Full Path", "Company ID=" & sCompanyId, sFile)
 'End Function
+
+Private Function fProcessData()
+    
+    Call fRedimArrOutputBaseArrMaster
+    
+    Dim lEachRow As Long
+    Dim sCompanyLongID As String
+    Dim sCompanyName As String
+    
+    sCompanyLongID = fGetCompany_CompanyLongID(gsCompanyID)
+    sCompanyName = fGetCompany_CompanyName(gsCompanyID)
+    
+    For lEachRow = LBound(arrMaster, 1) To UBound(arrMaster, 1)
+        arrOutput(lEachRow, dictRptColIndex("SalesCompanyID")) = sCompanyLongID
+        arrOutput(lEachRow, dictRptColIndex("SalesCompanyName")) = sCompanyName
+        
+        arrOutput(lEachRow, dictRptColIndex("SalesDate")) = arrMaster(lEachRow, dictMstColIndex("SalesDate"))
+        arrOutput(lEachRow, dictRptColIndex("ProductProducer")) = arrMaster(lEachRow, dictMstColIndex("ProductProducer"))
+        arrOutput(lEachRow, dictRptColIndex("ProductName")) = arrMaster(lEachRow, dictMstColIndex("ProductName"))
+        arrOutput(lEachRow, dictRptColIndex("ProductSeries")) = arrMaster(lEachRow, dictMstColIndex("ProductSeries"))
+        arrOutput(lEachRow, dictRptColIndex("ProductUnit")) = arrMaster(lEachRow, dictMstColIndex("ProductUnit"))
+        arrOutput(lEachRow, dictRptColIndex("Hospital")) = arrMaster(lEachRow, dictMstColIndex("Hospital"))
+        arrOutput(lEachRow, dictRptColIndex("Quantity")) = arrMaster(lEachRow, dictMstColIndex("Quantity"))
+        'arrOutput(lEachRow, "SalesAmount") = arrMaster(lEachRow, "SalesAmount")
+    Next
+End Function

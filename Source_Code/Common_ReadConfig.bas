@@ -795,13 +795,13 @@ Function fGetOutputReportColsConfig(asFileSpecTag As String)
     End If
     
     Call fReadOutputFileSpecConfig(asTag:=asFileSpecTag _
-                                    , dictColsIndex:=gDictRptColIndex _
-                                    , dictColsName:=gDictRptDisplayName _
-                                    , dictRawType:=gDictRptRawType _
-                                    , dictCellFormat:=gDictRptCellFormat _
-                                    , dictDataFormat:=gDictRptDataFormat _
-                                    , dictColWidth:=gDictRptColWidth _
-                                    , dictColAttr:=gDictRptColAttr _
+                                    , dictColsIndex:=dictRptColIndex _
+                                    , dictColsName:=dictRptDisplayName _
+                                    , dictRawType:=dictRptRawType _
+                                    , dictCellFormat:=dictRptCellFormat _
+                                    , dictDataFormat:=dictRptDataFormat _
+                                    , dictColWidth:=dictRptColWidth _
+                                    , dictColAttr:=dictRptColAttr _
                                     )
 End Function
 

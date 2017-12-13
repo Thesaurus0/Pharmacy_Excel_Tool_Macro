@@ -260,9 +260,9 @@ End Function
 Function fAppendArray2Sheet(sht As Worksheet, arrData, Optional lStartCol As Long = 1)
     If fArrayIsEmptyOrNoData(arrData) Then Exit Function
     
-    If fGetArrayDimension(arrData) <> 2 Then
-        fErr "Wrong array to paste to sheet: fGetArrayDimension(arrData) <> 2"
-    End If
+'    If fGetArrayDimension(arrData) <> 2 Then
+'        fErr "Wrong array to paste to sheet: fGetArrayDimension(arrData) <> 2"
+'    End If
     
     Dim lFromRow As Long
     lFromRow = fGetValidMaxRow(sht) + 1
@@ -386,9 +386,48 @@ Function fIfExcelFileOpenedToCloseIt(sExcelFile As String)
     End If
 End Function
  
-Function fSortDataInSheetSortSheetData(sht As Worksheet, arrColsOrSingleCol, Optional arrAscendDescend)
-
+Function fSortDataInSheetSortSheetData(sht As Worksheet, arrSortByCols, Optional arrAscend)
+'arrAscendDescend : array(true, false, true)
+    Dim lMaxRow As Long
+    Dim lMaxCol As Long
+    Dim rgToSort As Range
+    Dim rgSortBy As Range
+    Dim iSortOrder As XlSortOrder
+    Dim i As Long
+    Dim lSortCol As Long
     
+    lMaxRow = fGetValidMaxRow(sht)
+    lMaxCol = fGetValidMaxCol(sht)
 
+    Set rgToSort = fGetRangeByStartEndPos(sht, 1, 1, lMaxRow, lMaxCol)
+    
+    sht.Sort.SortFields.Clear
+    
+    For i = LBound(arrSortByCols) To UBound(arrSortByCols)
+        lSortCol = arrSortByCols(i)
+        
+        If Not IsMissing(arrAscend) Then
+            If arrAscend(i) Then
+                iSortOrder = xlAscending
+            Else
+                iSortOrder = xlDescending
+            End If
+        Else
+            iSortOrder = xlAscending
+        End If
+        
+        Set rgSortBy = fGetRangeByStartEndPos(sht, 2, lSortCol, lMaxRow, lSortCol)
+        sht.Sort.SortFields.Add Key:=rgSortBy, SortOn:=xlSortOnValues _
+                , Order:=iSortOrder, DataOption:=xlSortNormal
+    Next
+    
+    sht.Sort.SetRange rgToSort
+    sht.Sort.Header = xlYes
+    sht.Sort.MatchCase = False
+    sht.Sort.Orientation = xlTopToBottom
+    sht.Sort.SortMethod = xlPinYin
+    sht.Sort.Apply
+    
+    Set rgToSort = Nothing
+    Set rgSortBy = Nothing
 End Function
- 

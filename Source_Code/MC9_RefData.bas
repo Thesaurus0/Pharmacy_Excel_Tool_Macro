@@ -104,5 +104,12 @@ End Function
 Function fGetCompany_UserTicked(asCompanyID As String) As String
     fGetCompany_UserTicked = Split(dictCompList(asCompanyID), DELIMITER)(Company.Selected - Company.REPORT_ID - 1)
 End Function
+Function fGetCompany_CompanyLongID(asCompanyID As String) As String
+    fGetCompany_CompanyLongID = Split(dictCompList(asCompanyID), DELIMITER)(Company.ID - Company.REPORT_ID - 1)
+End Function
+Function fGetCompany_CompanyName(asCompanyID As String) As String
+    fGetCompany_CompanyName = Split(dictCompList(asCompanyID), DELIMITER)(Company.Name - Company.REPORT_ID - 1)
+End Function
+
 
 
