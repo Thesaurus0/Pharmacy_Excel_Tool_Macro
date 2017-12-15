@@ -1444,3 +1444,18 @@ Function fSortArrayQuickSortDesc(ByRef pvarArray As Variant, Optional ByVal plng
     If plngLeft < lngLast Then fSortArrayQuickSortDesc pvarArray, plngLeft, lngLast
     If lngFirst < plngRight Then fSortArrayQuickSortDesc pvarArray, lngFirst, plngRight
 End Function
+
+Function InArray(arr, aValue) As Long
+    Dim iBasePlus As Integer
+    iBasePlus = IIf(Base0(arr), 1, 0)
+    
+    Dim i As Long
+    For i = LBound(arr) To UBound(arr)
+        If arr(i) = aValue Then
+            InArray = iBasePlus + i
+            Exit Function
+        End If
+    Next
+    
+    InArray = -1
+End Function

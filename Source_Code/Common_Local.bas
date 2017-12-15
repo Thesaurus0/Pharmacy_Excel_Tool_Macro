@@ -164,10 +164,7 @@ Function fReadTxtColSpec(asFileTag As String) As Variant
     Dim sLetterIndex As String
     Dim sTxtFormat As String
     Dim lTxtFormat As Long
-   ' Dim lMaxColNum As Long
-'    Dim lColindex As Long
-    
-'    lMaxColNum = 0
+     
     For lEachRow = LBound(arrConfigData, 1) To UBound(arrConfigData, 1)
         If fArrayRowIsBlankHasNoData(arrConfigData, lEachRow) Then GoTo next_row
         
@@ -177,12 +174,10 @@ Function fReadTxtColSpec(asFileTag As String) As Variant
         If Len(sTxtFormat) <= 0 Then
             lTxtFormat = 1
         Else
-            lTxtFormat = fGetTxtImportDataFormat(sTxtFormat)
+            lTxtFormat = fConvertTxtImportFormatToNum(sTxtFormat)
         End If
         
-        dict.Add sLetterIndex, lTxtFormat
-'        lColindex = fLetter2Num(sLetterIndex)
-'        If lColindex > lMaxColNum Then lMaxColNum = lColindex
+        dict.Add fLetter2Num(sLetterIndex), lTxtFormat
 next_row:
     Next
     
@@ -190,11 +185,20 @@ next_row:
     Erase arrConfigData
     
     Dim lColindex As Long
+    Dim lMaxCol As Long
     
-    ReDim arrOut(1 To dict.Count)
+    lMaxCol = WorksheetFunction.Max(dict.Keys)
+    
+    ReDim arrOut(1 To lMaxCol)
     For lEachRow = 0 To dict.Count - 1
-        lColindex = fLetter2Num(dict.Keys(lEachRow))
+        lColindex = dict.Keys(lEachRow)
         arrOut(lColindex) = dict.Items(lEachRow)
+    Next
+    
+    For lEachRow = LBound(arrOut) To UBound(arrOut)
+        If Len(CStr(arrOut(lEachRow))) <= 0 Then
+            arrOut(lEachRow) = 9    'xlSkipColumn
+        End If
     Next
     
     fReadTxtColSpec = arrOut()
@@ -245,6 +249,15 @@ Function fReadTxtFile2NewSheet(sFileFullPath As String, sShtToBeAdded As String,
     
     Dim arrColFormat()
     arrColFormat = fReadTxtColSpec(asFileTag)
+    
+    Dim i As Long
+    Dim iConfiMaxCol As Long
+    
+    iConfiMaxCol = UBound(arrColFormat)
+    ReDim Preserve arrColFormat(LBound(arrColFormat) To iConfiMaxCol + 200)
+    For i = iConfiMaxCol + 1 To iConfiMaxCol + 200
+        arrColFormat(i) = 9         'xlSkipColumn
+    Next
     
     Dim sColDelimiter As String
     Dim lPlatForm As Long
@@ -508,7 +521,7 @@ Function fReadInputFileSpecConfig(sFileSpecTag As String, ByRef dictLetterIndex 
                 lColArray2Num = CLng(sArrayIndex)
                 
                 If lColArray2Num <= 0 Or lColArray2Num > Columns.Count Then
-                    fErr "Col Array Index is invalid,should be A - XFD: " & Replace(sErrPos, "$ACTUAL_ROW$", lActualRow) & arrColsName(ARRAY_INDEX)
+                    fErr "Col Array Index is invalid,should be 1 - " & Columns.Count & ": " & Replace(sErrPos, "$ACTUAL_ROW$", lActualRow) & arrColsName(ARRAY_INDEX)
                 End If
                 dictArrayIndex.Add sColTechName, lColArray2Num
             End If
@@ -523,6 +536,21 @@ next_row:
     Next
     
     If dictActualRow.Count <= 0 Then fErr "Cxxxxxxxxxxx"
+    
+    Dim lTxtMaxCol As Long
+    Dim iTxt As Long
+    Dim arrTxt
+    If bTxtTemplate Then
+        lTxtMaxCol = WorksheetFunction.Max(dictLetterIndex.Items)
+        arrTxt = dictLetterIndex.Items
+        For iTxt = 1 To lTxtMaxCol
+            If InArray(arrTxt, iTxt) < 0 Then
+                Call fEnlargeArayWithValue(arrTxtNonImportCol, iTxt)
+            End If
+        Next
+        
+        Erase arrTxt
+    End If
     
     If Not bReadWholeSheetData Then
         If dictArrayIndex.Count <= 0 Then
@@ -597,7 +625,7 @@ exit_fun:
     fRecalculateColumnIndexByRemoveNonImportTxtCol = bOut
 End Function
 
-Function fGetTxtImportDataFormat(sDesc As String) As Integer
+Function fConvertTxtImportFormatToNum(sDesc As String) As Integer
     Dim iOut As Integer
 
     Select Case sDesc
@@ -624,7 +652,7 @@ Function fGetTxtImportDataFormat(sDesc As String) As Integer
         Case Else
     End Select
     
-    fGetTxtImportDataFormat = iOut
+    fConvertTxtImportFormatToNum = iOut
 End Function
 
 Function fReadSheetDataByConfig(asFileTag As String, ByRef dictColIndex As Dictionary, ByRef arrDataOut() _

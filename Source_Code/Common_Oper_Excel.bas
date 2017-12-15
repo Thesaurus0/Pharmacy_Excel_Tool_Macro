@@ -431,3 +431,58 @@ Function fSortDataInSheetSortSheetData(sht As Worksheet, arrSortByCols, Optional
     Set rgToSort = Nothing
     Set rgSortBy = Nothing
 End Function
+
+Function fProtectSheetAndAllowEdit(sht As Worksheet, Optional rngAllowEdit As Range _
+                    , Optional lMaxRow As Long = 0, Optional lMaxCol As Long = 0 _
+                    , Optional bLockColor As Boolean = True)
+
+    If lMaxRow <= 0 Then lMaxRow = fGetValidMaxRow(sht)
+    
+    If lMaxRow < 2 Then Exit Function
+    
+    If lMaxCol <= 0 Then lMaxCol = fGetValidMaxCol(sht)
+    
+    Dim rgUsed As Range
+    Set rgUsed = fGetRangeByStartEndPos(sht, 2, 1, lMaxRow, lMaxCol)
+    
+    If bLockColor Then
+        rgUsed.Interior.Color = 13553360
+        
+        If Not rngAllowEdit Is Nothing Then
+            'rngAllowEdit.Interior.Color = RGB(255, 255, 255)
+            rngAllowEdit.Interior.Pattern = xlNone
+            rngAllowEdit.Interior.TintAndShade = 0
+            rngAllowEdit.Interior.PatternTintAndShade = 0
+        End If
+    End If
+    
+    sht.Cells.Locked = True
+    
+    If Not rngAllowEdit Is Nothing Then
+        rngAllowEdit.Locked = False
+        rngAllowEdit.FormulaHidden = False
+    End If
+    
+    Set rgUsed = Nothing
+    
+    sht.Protect userinterfaceonly:=True, Password:=PW_PROTECT_SHEET _
+        , DrawingObjects:=True _
+        , Contents:=True _
+        , Scenarios:=True _
+        , AllowFormattingCells:=True _
+        , AllowFormattingColumns:=True _
+        , AllowFormattingRows:=True _
+        , AllowInsertingColumns:=False _
+        , AllowInsertingRows:=False _
+        , AllowInsertingHyperlinks:=True _
+        , AllowDeletingColumns:=False _
+        , AllowDeletingRows:=False _
+        , AllowSorting:=True _
+        , AllowFiltering:=True _
+        , AllowUsingPivotTables:=False
+
+End Function
+
+Function fUnProtectSheet(sht As Worksheet)
+    sht.Unprotect Password:=PW_PROTECT_SHEET
+End Function

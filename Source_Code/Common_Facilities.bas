@@ -109,59 +109,49 @@ Function fGetEnvFromSysConf() As String
 End Function
 
 Sub sub_SwitchDevProdMode()
-    Const sDev = "This is Dev version, please swtich to PROD version by clicking the button ""Swtich Dev/Prod Mode"" twice in the ribbon"
-    Const sUat = "This is Uat version, please swtich to PROD version by clicking the button ""Swtich Dev/Prod Mode"" in the ribbon"
-    
-    Dim sNotification As String
-    Dim iColor As Long
-    Dim iFontSize As Long
-    Dim bBold As Boolean
-    
     gsEnv = fGetEnvFromSysConf
     
     If gsEnv = "DEV" Then
         gsEnv = "PROD"
-        
-        sNotification = "Prod"
-        iColor = RGB(0, 0, 0)
-        iFontSize = 10
-        bBold = False
-    ElseIf gsEnv = "UAT" Then
-        gsEnv = "PROD"
-        
-        sNotification = "Prod"
-        iColor = RGB(0, 0, 0)
-        iFontSize = 10
-        bBold = False
     ElseIf gsEnv = "PROD" Then
         gsEnv = "DEV"
-        
-        sNotification = sDev
-        iColor = RGB(255, 0, 0)
-        iFontSize = 20
-        bBold = True
     End If
-    
-    'Application.EnableEvents = False
     
     Call fSetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=DEVELOPMENT_OR_FORMAL_RELEASE" _
                                     , gsEnv, False)
-    
-    shtMenu.Range("A1").Value = sNotification
-    shtMenu.Range("A1").Font.Size = iFontSize
-    shtMenu.Range("A1").Font.Color = iColor
-    shtMenu.Range("A1").Font.Bold = bBold
-    
-'    Call fRemoveAllCommandbarsByConfig
-'    Call ThisWorkbook.sub_WorkBookInitialization
-'    Call fSetInitialValueForShtMenuInitialize
-    
-    'Application.EnableEvents = True
     
     shtMenu.Activate
     Range("A1").Select
 End Sub
 
+Function fSetDEVUATPRODNotificationInSheetMenu()
+    Const sDevNotifi = "This is DEV mode, please switch to PROD vresion by click the button above ""Switch Dev/Prod Mode"""
+    
+    Dim sNotifi As String
+    Dim iColor As Long
+    Dim iFontSize As Long
+    Dim bBold As Boolean
+    
+    If gsEnv = "DEV" Then
+        sNotifi = sDevNotifi
+        
+        iColor = RGB(0, 0, 255)
+        iFontSize = 20
+        bBold = True
+    ElseIf gsEnv = "PROD" Then
+        sNotifi = ""
+        
+        iColor = RGB(0, 0, 0)
+        iFontSize = 10
+        bBold = False
+    Else
+    End If
+    
+    shtMenu.Range("A1").Value = sNotifi
+    shtMenu.Range("A1").Font.Size = iFontSize
+    shtMenu.Range("A1").Font.Color = iColor
+    shtMenu.Range("A1").Font.Bold = bBold
+End Function
 
 '*************************************************************************
 
@@ -315,6 +305,7 @@ Function fShtSysConf_SheetChange_DevProdChange(Target As Range)
         Call fRemoveAllCommandbarsByConfig
         Call ThisWorkbook.sub_WorkBookInitialization
         Call fSetIntialValueForShtMenuInitialize
+        Call fSetDEVUATPRODNotificationInSheetMenu
     End If
     
     Set rgAimed = Nothing

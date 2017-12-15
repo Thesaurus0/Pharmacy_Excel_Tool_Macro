@@ -845,17 +845,14 @@ Function fReadOutputFileSpecConfig(asTag As String _
                                 , lConfigEndRow:=lConfigEndRow _
                                 , lOutConfigHeaderAtRow:=lConfigHeaderAtRow _
                                 , abNoDataConfigThenError:=True)
-    Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(1), False, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(1))
-    Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(2), False, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(2))
-    Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(3), True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
+    Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(1), False, shtFileSpec, lConfigHeaderAtRow, lConfigStartCol, arrColsName(1))
+    Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(2), False, shtFileSpec, lConfigHeaderAtRow, lConfigStartCol, arrColsName(2))
+    Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(3), True, shtFileSpec, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
 '    Call fValidateBlankInArray(arrConfigData, 1, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Output Type")
-'    Call fValidateBlankInArray(arrConfigData, 2, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Output Type")
-'    Call fValidateBlankInArray(arrConfigData, 5, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Output Type")
     
     Dim lEachRow As Long
     Dim lActualRow As Long
     Dim sColTechName As String
-'    Dim sEnv As String
     Dim sRptFileName As String
     Dim sColWidth As String
     Dim sColLetterIndex As String
@@ -864,14 +861,13 @@ Function fReadOutputFileSpecConfig(asTag As String _
     Dim lColWidth As Double
     
     Dim sPos As String
-    sPos = vbCr & vbCr & "Row : $ACTUAL_ROW$" & vbCr & "Column: "
+    sPos = vbCr & vbCr & "Sheet: " & shtFileSpec.Name & vbCr & "Row : $ACTUAL_ROW$" & vbCr & "Column: "
     
     Set dictColsIndex = New Dictionary
     Set dictColsName = New Dictionary
     Set dictRawType = New Dictionary
     Set dictCellFormat = New Dictionary
     Set dictDataFormat = New Dictionary
-    'Set dictNumberFormat = New Dictionary
     Set dictColWidth = New Dictionary
     Set dictColAttr = New Dictionary
 
