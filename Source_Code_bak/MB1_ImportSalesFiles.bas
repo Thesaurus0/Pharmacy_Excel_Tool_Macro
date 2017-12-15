@@ -24,11 +24,11 @@ Sub subMain_ImportSalesInfoFiles()
     
     gsRptFilePath = fReadSysConfig_Output(, gsRptType)
     
-    Dim I As Integer
+    Dim i As Integer
     Dim iCnt As Integer
     iCnt = 0
-    For I = 0 To dictCompList.Count - 1
-        gsCompanyID = dictCompList.Keys(I)
+    For i = 0 To dictCompList.Count - 1
+        gsCompanyID = dictCompList.Keys(i)
         
         If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
             iCnt = iCnt + 1
@@ -40,8 +40,8 @@ Sub subMain_ImportSalesInfoFiles()
     Call fCleanSheetOutputResetSheetOutput(shtSalesRawDataRpt)
     Call fPrepareOutputSheetHeaderAndTextColumns(shtSalesRawDataRpt)
     
-    For I = 0 To dictCompList.Count - 1
-        gsCompanyID = dictCompList.Keys(I)
+    For i = 0 To dictCompList.Count - 1
+        gsCompanyID = dictCompList.Keys(i)
         
         If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
             Call fLoadFilesAndRead2Variables
@@ -79,7 +79,6 @@ Sub subMain_ImportSalesInfoFiles()
    ' Call fProtectSheetAndAllowEdit(shtSalesRawDataRpt, shtSalesRawDataRpt.Columns(4), UBound(arrOutput, 1) + 1, UBound(arrOutput, 2), False)
     Call fPostProcess(shtSalesRawDataRpt)
     
-    shtSalesRawDataRpt.Rows(1).RowHeight = 25
     shtSalesRawDataRpt.Visible = xlSheetVisible
     shtSalesRawDataRpt.Activate
     shtSalesRawDataRpt.Range("A1").Select
@@ -131,13 +130,13 @@ End Function
 
 
 Function fValidationAndSetToConfigSheet()
-    Dim I As Integer
+    Dim i As Integer
     Dim sEachCompanyID As String
     Dim sFilePathRange As String
     Dim sEachFilePath  As String
     
-    For I = 0 To dictCompList.Count - 1
-        sEachCompanyID = dictCompList.Keys(I)
+    For i = 0 To dictCompList.Count - 1
+        sEachCompanyID = dictCompList.Keys(i)
         'sFilePathRange = "rngSalesFilePath_" & sEachCompanyID
         
         sFilePathRange = fGetCompany_InputFileTextBoxName(sEachCompanyID)
@@ -193,6 +192,8 @@ Private Function fProcessDataAll()
         If dictMstColIndex.Exists("SellAmount") Then
             arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("SellAmount"))
         End If
+        
+        'arrOutput(lEachRow, "SalesAmount") = arrMaster(lEachRow, "SalesAmount")
     Next
 End Function
 

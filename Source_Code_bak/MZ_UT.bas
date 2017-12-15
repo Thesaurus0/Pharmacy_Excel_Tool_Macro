@@ -136,10 +136,10 @@ Sub testa()
 
     Dim arr(1000)
     
-    Dim I As Long
+    Dim i As Long
     
-    For I = 1 To 1000
-        arr(I) = Rnd() * 1000
+    For i = 1 To 1000
+        arr(i) = Rnd() * 1000
     Next
     
     Call fSortArrayQuickSortDesc(arr)

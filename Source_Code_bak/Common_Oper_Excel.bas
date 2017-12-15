@@ -169,7 +169,7 @@ Function fFindMatchDataInArrayWithCriteria(arr(), arrColsIndex(), arrColValues()
 ' -3: no match
     Dim lEachRow As Long
     Dim lEachCol As Long
-    Dim I As Integer
+    Dim i As Integer
     Dim bAllColAreSame As Boolean
     Dim lMatchCnt As Long
     Dim lOut As Long
@@ -189,10 +189,10 @@ Function fFindMatchDataInArrayWithCriteria(arr(), arrColsIndex(), arrColValues()
         End If
         
         bAllColAreSame = True
-        For I = LBound(arrColValues) To UBound(arrColValues)
-            lEachCol = arrColsIndex(I)
+        For i = LBound(arrColValues) To UBound(arrColValues)
+            lEachCol = arrColsIndex(i)
             
-            If Trim(CStr(arr(lEachRow, lEachCol))) <> arrColValues(I) Then
+            If Trim(CStr(arr(lEachRow, lEachCol))) <> arrColValues(i) Then
                 bAllColAreSame = False
                 GoTo next_row
             End If
@@ -225,7 +225,7 @@ Function fSplitDataCriteria(asCriteria As String, ByRef arrColNames(), ByRef arr
     Dim arrCriteria
     Dim sCol As String
     Dim sValue As String
-    Dim I As Integer
+    Dim i As Integer
     Dim sEachCriteria As String
     
     arrCriteria = Split(asCriteria, ",")
@@ -233,14 +233,14 @@ Function fSplitDataCriteria(asCriteria As String, ByRef arrColNames(), ByRef arr
     ReDim arrColNames(LBound(arrCriteria) To UBound(arrCriteria))
     ReDim arrColValues(LBound(arrCriteria) To UBound(arrCriteria))
     
-    For I = LBound(arrCriteria) To UBound(arrCriteria)
-        sEachCriteria = Trim(arrCriteria(I))    ' colA=Value01
+    For i = LBound(arrCriteria) To UBound(arrCriteria)
+        sEachCriteria = Trim(arrCriteria(i))    ' colA=Value01
         
         sCol = Trim(Split(sEachCriteria, "=")(0))
         sValue = Trim(Split(sEachCriteria, "=")(1))
         
-        arrColNames(I) = sCol
-        arrColValues(I) = sValue
+        arrColNames(i) = sCol
+        arrColValues(i) = sValue
     Next
     
     Erase arrCriteria
@@ -392,7 +392,7 @@ Function fSortDataInSheetSortSheetData(sht As Worksheet, arrSortByCols, Optional
     Dim rgToSort As Range
     Dim rgSortBy As Range
     Dim iSortOrder As XlSortOrder
-    Dim I As Long
+    Dim i As Long
     Dim lSortCol As Long
     
     lMaxRow = fGetValidMaxRow(sht)
@@ -402,11 +402,11 @@ Function fSortDataInSheetSortSheetData(sht As Worksheet, arrSortByCols, Optional
     
     sht.Sort.SortFields.Clear
     
-    For I = LBound(arrSortByCols) To UBound(arrSortByCols)
-        lSortCol = arrSortByCols(I)
+    For i = LBound(arrSortByCols) To UBound(arrSortByCols)
+        lSortCol = arrSortByCols(i)
         
         If Not IsMissing(arrAscend) Then
-            If arrAscend(I) Then
+            If arrAscend(i) Then
                 iSortOrder = xlAscending
             Else
                 iSortOrder = xlDescending

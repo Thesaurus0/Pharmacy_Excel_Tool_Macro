@@ -9,12 +9,12 @@ Function fSetBackToConfigSheetAndUpdategDict_UserTicket()
     Dim eachObj As Object
     
     'for each eachobj in shtmenu.
-    Dim I As Long
+    Dim i As Long
     Dim sCompanyID As String
     Dim sTickValue As String
     
-    For I = 0 To dictCompList.Count - 1
-        sCompanyID = dictCompList.Keys(I)
+    For i = 0 To dictCompList.Count - 1
+        sCompanyID = dictCompList.Keys(i)
          
         If Not fActiveXControlExistsInSheet(shtMenu, fGetCompany_CheckBoxName(sCompanyID), ckb) Then GoTo next_company
         
@@ -27,13 +27,13 @@ next_company:
 End Function
 
 Function fSetBackToConfigSheetAndUpdategDict_InputFiles()
-    Dim I As Integer
+    Dim i As Integer
     Dim sEachCompanyID As String
     Dim sFilePathRange As String
     Dim sEachFilePath  As String
     
-    For I = 0 To dictCompList.Count - 1
-        sEachCompanyID = dictCompList.Keys(I)
+    For i = 0 To dictCompList.Count - 1
+        sEachCompanyID = dictCompList.Keys(i)
         'sFilePathRange = "rngSalesFilePath_" & sEachCompanyID
         
         If fGetCompany_UserTicked(sEachCompanyID) = "Y" Then

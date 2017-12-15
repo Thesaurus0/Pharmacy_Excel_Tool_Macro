@@ -179,7 +179,7 @@ Function fReadConfigCommandBarsInfo() As Variant
                                 , abNoDataConfigThenError:=True _
                                 )
     
-    'Call fValidateDuplicateInArray(arrConfigData, 1, True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(1))
+    Call fValidateDuplicateInArray(arrConfigData, 1, True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(1))
     Call fValidateDuplicateInArray(arrConfigData, 2, True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(2))
     Call fValidateDuplicateInArray(arrConfigData, 3, True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
     
@@ -228,7 +228,7 @@ Function fReadConfigRibbonCommandBarMenuAndCreateCommandBarButton()
 '    Call fValidateBlankInArray(arrConfigData, 1, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(1))
 '    Call fValidateBlankInArray(arrConfigData, 2, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(2))
 '    Call fValidateBlankInArray(arrConfigData, 3, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
-    Dim I As Long
+    Dim i As Long
     Dim sEnv As String
     Dim sCmdBarName As String
     Dim sBtnCap As String
@@ -236,17 +236,17 @@ Function fReadConfigRibbonCommandBarMenuAndCreateCommandBarButton()
     Dim lFaceId As Long
     Dim sTip As String
     
-    For I = LBound(arrConfigData, 1) To UBound(arrConfigData, 1)
-        If fArrayRowIsBlankHasNoData(arrConfigData, I) Then GoTo next_row
+    For i = LBound(arrConfigData, 1) To UBound(arrConfigData, 1)
+        If fArrayRowIsBlankHasNoData(arrConfigData, i) Then GoTo next_row
         
-        sEnv = arrConfigData(I, 5)
+        sEnv = arrConfigData(i, 5)
         
         If sEnv = gsEnv Or sEnv = "SHARED" Then
-            sCmdBarName = arrConfigData(I, 1)
-            sBtnCap = arrConfigData(I, 2)
-            sSub = arrConfigData(I, 3)
-            lFaceId = arrConfigData(I, 4)
-            sTip = arrConfigData(I, 6)
+            sCmdBarName = arrConfigData(i, 1)
+            sBtnCap = arrConfigData(i, 2)
+            sSub = arrConfigData(i, 3)
+            lFaceId = arrConfigData(i, 4)
+            sTip = arrConfigData(i, 6)
             
             Call subAddNewButtonToBarWhenBarNotExistsCreateIt(sCmdBarName, sBtnCap, sSub, lFaceId, sTip)
         End If
@@ -263,10 +263,10 @@ Function fRemoveAllCommandbarsByConfig()
     Dim arrAllCmdBarList()
     arrAllCmdBarList = ThisWorkbook.fGetThisWorkBookVariable("CMDBAR")
     
-    Dim I As Long
+    Dim i As Long
     
-    For I = LBound(arrAllCmdBarList) To UBound(arrAllCmdBarList)
-        Call sub_RemoveCommandBar(arrAllCmdBarList(I))
+    For i = LBound(arrAllCmdBarList) To UBound(arrAllCmdBarList)
+        Call sub_RemoveCommandBar(arrAllCmdBarList(i))
     Next
     
     err.Clear
@@ -278,10 +278,10 @@ Function fEnableOrDisableAllCommandBarsByConfig(bValue As Boolean)
     Dim arrAllCmdBarList()
     arrAllCmdBarList = ThisWorkbook.fGetThisWorkBookVariable("CMDBAR")
     
-    Dim I As Long
+    Dim i As Long
     
-    For I = LBound(arrAllCmdBarList) To UBound(arrAllCmdBarList)
-        Application.CommandBars(arrAllCmdBarList(I)).Visible = bValue
+    For i = LBound(arrAllCmdBarList) To UBound(arrAllCmdBarList)
+        Application.CommandBars(arrAllCmdBarList(i)).Visible = bValue
     Next
     
     err.Clear

@@ -12,8 +12,6 @@ Enum Company
     Selected = 7
 End Enum
 
-Dim dictHospitalMaster As Dictionary
-Dim dictHospitalReplace As Dictionary
 
 Function fReadConfigCompanyList() As Dictionary
     Dim asTag As String
@@ -88,10 +86,10 @@ End Function
 
 Function fComposeStrForDictCompanyList(arrConfigData, lEachRow As Long) As String
     Dim sOut As String
-    Dim I As Integer
+    Dim i As Integer
     
-    For I = Company.ID To Company.Selected
-        sOut = sOut & DELIMITER & Trim(arrConfigData(lEachRow, I))
+    For i = Company.ID To Company.Selected
+        sOut = sOut & DELIMITER & Trim(arrConfigData(lEachRow, i))
     Next
     
     fComposeStrForDictCompanyList = Right(sOut, Len(sOut) - 1)
@@ -113,40 +111,5 @@ Function fGetCompany_CompanyName(asCompanyID As String) As String
     fGetCompany_CompanyName = Split(dictCompList(asCompanyID), DELIMITER)(Company.Name - Company.REPORT_ID - 1)
 End Function
 
-'====================== Hospital Master =================================================================
-Function fReadSheetHospitalMaster2Dictionary()
-    Dim arrData()
-    Dim dictColIndex As Dictionary
-    
-    Call fReadSheetDataByConfig("HOSPITAL_MASTER", dictColIndex, arrData, , , , , shtHospital)
-    Set dictHospitalMaster = fReadArray2DictionaryOnlyKeys(arrData, dictColIndex("Hospital"))
-    
-    Set dictColIndex = Nothing
-End Function
-Function fHospitalExistsInHospitalMaster(sHospital As String) As Boolean
-    If dictHospitalMaster Is Nothing Then Call fReadSheetHospitalMaster2Dictionary
-    
-    fHospitalExistsInHospitalMaster = dictHospitalMaster.Exists(sHospital)
-End Function
-'------------------------------------------------------------------------------
 
-'====================== Hospital Replacement =================================================================
-Function fReadSheetHospitalReplace2Dictionary()
-    Dim arrData()
-    Dim dictColIndex As Dictionary
-    
-    Call fReadSheetDataByConfig("HOSPITAL_REPLACE_SHEET", dictColIndex, arrData, , , , , shtHospitalReplace)
-    Set dictHospitalReplace = fReadArray2DictionaryWithSingleCol(arrData, dictColIndex("FromHospital"), dictColIndex("ToHospital"))
-    
-    Set dictColIndex = Nothing
-End Function
-Function fFindInConfigedReplaceHospital(sHospital As String) As String
-    If dictHospitalReplace Is Nothing Then Call fReadSheetHospitalReplace2Dictionary
-    
-    If dictHospitalReplace.Exists(sHospital) Then
-        fFindInConfigedReplaceHospital = dictHospitalReplace(sHospital)
-    Else
-        fFindInConfigedReplaceHospital = ""
-    End If
-End Function
-'------------------------------------------------------------------------------
+

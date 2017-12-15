@@ -413,13 +413,13 @@ exit_function:
 End Function
 
 Function fArrayIsEmpty(ByRef arrParam) As Boolean
-    Dim I As Long
+    Dim i As Long
     
     fArrayIsEmpty = True
     
     On Error Resume Next
     
-    I = UBound(arrParam, 1)
+    i = UBound(arrParam, 1)
     If err.Number = 0 Then
         If UBound(arrParam) < LBound(arrParam) Then
             Exit Function
@@ -431,15 +431,15 @@ Function fArrayIsEmpty(ByRef arrParam) As Boolean
     End If
 End Function
 Function fGetArrayDimension(arrParam) As Integer
-    Dim I As Integer
+    Dim i As Integer
     Dim tmp As Long
     
     On Error GoTo error_exit
     
-    I = 0
+    i = 0
     Do While True
-        I = I + 1
-        tmp = UBound(arrParam, I)
+        i = i + 1
+        tmp = UBound(arrParam, i)
         
         If tmp < 0 Then
             fGetArrayDimension = -1
@@ -449,7 +449,7 @@ Function fGetArrayDimension(arrParam) As Integer
     
 error_exit:
     err.Clear
-    fGetArrayDimension = I - 1
+    fGetArrayDimension = i - 1
 End Function
 
 Function fNum2Letter(ByVal alNum As Long) As String
@@ -498,11 +498,11 @@ Function fSplit(asOrig As String, Optional asSeparators As String = "") As Varia
     
     Dim sTransFormed As String
     Dim sEachDeli As String
-    Dim I As Integer
+    Dim i As Integer
     
     sTransFormed = asOrig
-    For I = 1 To Len(asSeparators)
-        sEachDeli = Mid(asSeparators, I, 1)
+    For i = 1 To Len(asSeparators)
+        sEachDeli = Mid(asSeparators, i, 1)
         sTransFormed = Replace(sTransFormed, sEachDeli, tDelimiter)
     Next
     
@@ -592,13 +592,13 @@ Function fReadArray2DictionaryWithMultipleColsCombined(arrData, lKeyCol As Long,
     If fArrayIsEmptyOrNoData(arrItemCols) Then fErr "arrItemCols is empty."
     If fArrayHasDuplicateElement(arrItemCols) Then fErr "arrItemCols has duplicate element."
     
-    Dim I As Long
+    Dim i As Long
     Dim sKey
     Dim sValue As String
-    For I = LBound(arrData, 1) To UBound(arrData, 1)
-        If fArrayRowIsBlankHasNoData(arrData, I) Then GoTo next_row
+    For i = LBound(arrData, 1) To UBound(arrData, 1)
+        If fArrayRowIsBlankHasNoData(arrData, i) Then GoTo next_row
         
-        sKey = arrData(I, lKeyCol)
+        sKey = arrData(i, lKeyCol)
         
         If fZero(sKey) Then
             If IgnoreBlankKeys Then GoTo next_row
@@ -611,9 +611,9 @@ Function fReadArray2DictionaryWithMultipleColsCombined(arrData, lKeyCol As Long,
         End If
         
         sValue = ""
-        Dim J As Integer
-        For J = LBound(arrItemCols) To UBound(arrItemCols)
-            sValue = sValue & asDelimiter & Trim(arrData(I, arrItemCols(J)))
+        Dim j As Integer
+        For j = LBound(arrItemCols) To UBound(arrItemCols)
+            sValue = sValue & asDelimiter & Trim(arrData(i, arrItemCols(j)))
         Next
         
         If fNzero(sValue) And fNzero(asDelimiter) Then
@@ -629,7 +629,7 @@ exit_fun:
     Set dictOut = Nothing
 End Function
 
-Function fReadArray2DictionaryWithSingleCol(arrParam, lKeyCol As Long, lItemCol As Long _
+Function fRadArray2DictionaryOnlyKeys(arrParam, lKeyCol As Long _
                             , Optional IgnoreBlankKeys As Boolean = False _
                             , Optional WhenKeyIsDuplicateError As Boolean = True) As Dictionary
 '==========================================================================
@@ -638,22 +638,10 @@ Function fReadArray2DictionaryWithSingleCol(arrParam, lKeyCol As Long, lItemCol 
 '          0: get key only, not care the item value, 0 as default
 '         >0: the item is specified column
 '==========================================================================
-    If lItemCol <= 0 Then fErr "lItemCol cannot be less than 0 in fReadArray2DictionaryWithSingleCol"
-    Set fReadArray2DictionaryWithSingleCol = fReadArray2Dictionary(arrParam, lKeyCol, lItemCol, IgnoreBlankKeys, WhenKeyIsDuplicateError)
-End Function
-Function fReadArray2DictionaryOnlyKeys(arrParam, lKeyCol As Long _
-                            , Optional IgnoreBlankKeys As Boolean = False _
-                            , Optional WhenKeyIsDuplicateError As Boolean = True) As Dictionary
-'==========================================================================
-'lItemCol
-'         -1: the item is row number
-'          0: get key only, not care the item value, 0 as default
-'         >0: the item is specified column
-'==========================================================================
-    Set fReadArray2DictionaryOnlyKeys = fReadArray2Dictionary(arrParam, lKeyCol, 0, IgnoreBlankKeys, WhenKeyIsDuplicateError)
+    Set fRadArray2DictionaryOnlyKeys = fRadArray2Dictionary(arrParam, lKeyCol, 0, IgnoreBlankKeys, WhenKeyIsDuplicateError)
 End Function
 
-Private Function fReadArray2Dictionary(arrParam, lKeyCol As Long _
+Private Function fRadArray2Dictionary(arrParam, lKeyCol As Long _
                             , Optional lItemCol As Long = 0 _
                             , Optional IgnoreBlankKeys As Boolean = False _
                             , Optional WhenKeyIsDuplicateError As Boolean = True) As Dictionary
@@ -676,14 +664,14 @@ Private Function fReadArray2Dictionary(arrParam, lKeyCol As Long _
     bGetKeyOnly = (lItemCol = 0)
     bGetRowNo = (lItemCol = -1)
     
-    Dim I As Long
+    Dim i As Long
     Dim sKey As String
     Dim sValue As String
     
-    For I = LBound(arrParam, 1) To UBound(arrParam, 1)
-        If fArrayRowIsBlankHasNoData(arrParam, I) Then GoTo next_row
+    For i = LBound(arrParam, 1) To UBound(arrParam, 1)
+        If fArrayRowIsBlankHasNoData(arrParam, i) Then GoTo next_row
         
-        sKey = Trim(arrParam(I, lKeyCol))
+        sKey = Trim(arrParam(i, lKeyCol))
         
         If Len(sKey) <= 0 Then
             If Not IgnoreBlankKeys Then
@@ -702,19 +690,19 @@ Private Function fReadArray2Dictionary(arrParam, lKeyCol As Long _
         End If
         
         If bGetRowNo Then
-            dictOut.Add sKey, I
+            dictOut.Add sKey, i
         Else
             If bGetKeyOnly Then
                 dictOut.Add sKey, 0
             Else
-                dictOut.Add sKey, arrParam(I, lItemCol)
+                dictOut.Add sKey, arrParam(i, lItemCol)
             End If
         End If
 next_row:
     Next
     
 exit_fun:
-    Set fReadArray2Dictionary = dictOut
+    Set fRadArray2Dictionary = dictOut
     Set dictOut = Nothing
 End Function
 
@@ -758,7 +746,7 @@ Function fValidateDuplicateInArrayForCombineCols(arrParam, arrKeyCols _
     
     Dim lEachRow As Long
     Dim lEachCol As Long
-    Dim I As Long
+    Dim i As Long
     Dim sKeyStr As String
     Dim sColLetterStr As String
     Dim dict As Dictionary
@@ -768,8 +756,8 @@ Function fValidateDuplicateInArrayForCombineCols(arrParam, arrKeyCols _
     If Not fZero(sMsgColHeader) Then
         sColLetterStr = sMsgColHeader
     Else
-        For I = LBound(arrKeyCols) To UBound(arrKeyCols)
-            lEachCol = arrKeyCols(I)
+        For i = LBound(arrKeyCols) To UBound(arrKeyCols)
+            lEachCol = arrKeyCols(i)
             sColLetterStr = sColLetterStr & " + " & fNum2Letter(lStartCol + lEachCol - 1)
         Next
         sColLetterStr = Right(sColLetterStr, Len(sColLetterStr) - 3)
@@ -785,8 +773,8 @@ Function fValidateDuplicateInArrayForCombineCols(arrParam, arrKeyCols _
         lActualRow = (lHeaderAtRow + lEachRow)
         
         sKeyStr = ""
-        For I = LBound(arrKeyCols) To UBound(arrKeyCols)
-            lEachCol = arrKeyCols(I)
+        For i = LBound(arrKeyCols) To UBound(arrKeyCols)
+            lEachCol = arrKeyCols(i)
             sKeyStr = sKeyStr & DELI & Trim(CStr(arrParam(lEachRow, lEachCol)))
         Next
         
@@ -822,7 +810,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
     If lKeyCol <= 0 Then fErr "Wrong param: lKeyCol"
     
     Dim lEachRow As Long
-    Dim I As Long
+    Dim i As Long
     Dim sKeyStr As String
     Dim sColLetter As String
     Dim dict As Dictionary
@@ -880,7 +868,7 @@ Function fValidateDuplicateInArrayIndividually(arrParam, arrKeyColsOrSingle _
     End If
     
     If IsArray(arrKeyColsOrSingle) Then
-        For I = LBound(arrKeyColsOrSingle) To UBound(arrKeyColsOrSingle)
+        For i = LBound(arrKeyColsOrSingle) To UBound(arrKeyColsOrSingle)
             Call fValidateDuplicateInArrayForSingleCol(arrParam:=arrParam, arrKeyColsOrSingle:=arrKeyColsOrSingle _
                                                     , bAllowBlank:=bAllowBlank _
                                                     , shtAt:=shtAt _
@@ -1031,7 +1019,7 @@ Private Function fValidateBlankInArrayForCombineCols(arrParam, arrKeyCols _
     
     Dim lEachRow As Long
     Dim lEachCol As Long
-    Dim I As Long
+    Dim i As Long
     Dim sKeyStr As String
     Dim sColLetterStr As String
     Dim sPos As String
@@ -1040,8 +1028,8 @@ Private Function fValidateBlankInArrayForCombineCols(arrParam, arrKeyCols _
     If Not fZero(sMsgColHeader) Then
         sColLetterStr = sMsgColHeader
     Else
-        For I = LBound(arrKeyCols) To UBound(arrKeyCols)
-            lEachCol = arrKeyCols(I)
+        For i = LBound(arrKeyCols) To UBound(arrKeyCols)
+            lEachCol = arrKeyCols(i)
             sColLetterStr = sColLetterStr & " + " & fNum2Letter(lStartCol + lEachCol - 1)
         Next
         sColLetterStr = Right(sColLetterStr, Len(sColLetterStr) - 3)
@@ -1056,8 +1044,8 @@ Private Function fValidateBlankInArrayForCombineCols(arrParam, arrKeyCols _
         lActualRow = (lHeaderAtRow + lEachRow)
         
         sKeyStr = ""
-        For I = LBound(arrKeyCols) To UBound(arrKeyCols)
-            lEachCol = arrKeyCols(I)
+        For i = LBound(arrKeyCols) To UBound(arrKeyCols)
+            lEachCol = arrKeyCols(i)
             sKeyStr = sKeyStr & CStr(arrParam(lEachRow, lEachCol))
         Next
         
@@ -1076,7 +1064,7 @@ Function fValidateBlankInArrayForSingleCol(arrParam, lKeyCol As Long _
     If lKeyCol <= 0 Then fErr "Wrong param: lKeyCol"
     
     Dim lEachRow As Long
-    Dim I As Long
+    Dim i As Long
     Dim sKeyStr As String
     Dim sColLetter As String
     Dim sPos As String
@@ -1115,9 +1103,9 @@ Function fValidateBlankInArray(arrParam, arrKeyColsOrSingle _
         If arrKeyColsOrSingle <= 0 Then fErr "Wrong param: arrKeyColsOrSingle"
     End If
     
-    Dim I As Integer
+    Dim i As Integer
     If IsArray(arrKeyColsOrSingle) Then
-        For I = LBound(arrKeyColsOrSingle) To UBound(arrKeyColsOrSingle)
+        For i = LBound(arrKeyColsOrSingle) To UBound(arrKeyColsOrSingle)
             Call fValidateBlankInArrayForSingleCol(arrParam:=arrParam, lKeyCol:=CLng(arrKeyColsOrSingle) _
                                                     , shtAt:=shtAt _
                                                     , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
@@ -1221,10 +1209,10 @@ Function fCopyDictionaryKeys2Array(dict As Dictionary, ByRef arrOut())
     
     ReDim arrOut(1 To dict.Count)
     
-    Dim I As Long
+    Dim i As Long
     
-    For I = 0 To dict.Count - 1
-        arrOut(I + 1) = dict.Keys(I)
+    For i = 0 To dict.Count - 1
+        arrOut(i + 1) = dict.Keys(i)
     Next
 End Function
 Function fCopyDictionaryItemsArray(dict As Dictionary, ByRef arrOut())
@@ -1234,10 +1222,10 @@ Function fCopyDictionaryItemsArray(dict As Dictionary, ByRef arrOut())
     
     ReDim arrOut(1 To dict.Count)
     
-    Dim I As Long
+    Dim i As Long
     
-    For I = 0 To dict.Count - 1
-        arrOut(I + 1) = dict.Items(I)
+    For i = 0 To dict.Count - 1
+        arrOut(i + 1) = dict.Items(i)
     Next
 End Function
 
@@ -1362,35 +1350,35 @@ Function fSortAray(ByRef arr(), Optional UseQuickSort As Boolean = True)
     End If
 End Function
 Function fSortArrayBubbleSortDesc(ByRef arr())
-    Dim I As Long
-    Dim J As Long
+    Dim i As Long
+    Dim j As Long
     Dim Temp
     
-    For I = LBound(arr) To UBound(arr) - 1
-        For J = I + 1 To UBound(arr)
-            If arr(I) < arr(J) Then
-                Temp = arr(J)
-                arr(J) = arr(I)
-                arr(I) = Temp
+    For i = LBound(arr) To UBound(arr) - 1
+        For j = i + 1 To UBound(arr)
+            If arr(i) < arr(j) Then
+                Temp = arr(j)
+                arr(j) = arr(i)
+                arr(i) = Temp
             End If
-        Next J
-    Next I
+        Next j
+    Next i
 End Function
 
 Function fSortArrayBubbleSort(ByRef arr)
-    Dim I As Long
-    Dim J As Long
+    Dim i As Long
+    Dim j As Long
     Dim Temp
     
-    For I = LBound(arr) To UBound(arr) - 1
-        For J = I + 1 To UBound(arr)
-            If arr(I) > arr(J) Then
-                Temp = arr(J)
-                arr(J) = arr(I)
-                arr(I) = Temp
+    For i = LBound(arr) To UBound(arr) - 1
+        For j = i + 1 To UBound(arr)
+            If arr(i) > arr(j) Then
+                Temp = arr(j)
+                arr(j) = arr(i)
+                arr(i) = Temp
             End If
-        Next J
-    Next I
+        Next j
+    Next i
 End Function
 ' Omit plngLeft & plngRight; they are used internally during recursion
 Function fSortArrayQuickSort(ByRef pvarArray As Variant, Optional ByVal plngLeft As Long, Optional ByVal plngRight As Long)
@@ -1461,10 +1449,10 @@ Function InArray(arr, aValue) As Long
     Dim iBasePlus As Integer
     iBasePlus = IIf(Base0(arr), 1, 0)
     
-    Dim I As Long
-    For I = LBound(arr) To UBound(arr)
-        If arr(I) = aValue Then
-            InArray = iBasePlus + I
+    Dim i As Long
+    For i = LBound(arr) To UBound(arr)
+        If arr(i) = aValue Then
+            InArray = iBasePlus + i
             Exit Function
         End If
     Next
@@ -1510,7 +1498,7 @@ Function fFileterTwoDimensionArray(arrSource(), lCol As Long, sValue) As Variant
     Dim iCnt As Long
     Dim lEachRow As Long
     Dim iEachCol As Long
-    Dim I As Long
+    Dim i As Long
     
     If Base0(arrSource) Then fErr "base0(arrSource) is 0"
     
@@ -1529,10 +1517,10 @@ Function fFileterTwoDimensionArray(arrSource(), lCol As Long, sValue) As Variant
     If iCnt > 0 Then
         ReDim arrOut(1 To iCnt, LBound(arrSource, 2) To UBound(arrSource, 2))
         
-        For I = LBound(arrQualifiedRows) To UBound(arrQualifiedRows)
-            lEachRow = arrQualifiedRows(I)
+        For i = LBound(arrQualifiedRows) To UBound(arrQualifiedRows)
+            lEachRow = arrQualifiedRows(i)
             For iEachCol = LBound(arrSource, 2) To UBound(arrSource, 2)
-                arrOut(I, iEachCol) = arrSource(lEachRow, iEachCol)
+                arrOut(i, iEachCol) = arrSource(lEachRow, iEachCol)
             Next
         Next
         
@@ -1542,36 +1530,4 @@ Function fFileterTwoDimensionArray(arrSource(), lCol As Long, sValue) As Variant
 exit_fun:
     fFileterTwoDimensionArray = arrOut
     Erase arrOut
-End Function
-
-Function fTranspose1DimenArrayTo2DimenArrayVertically(arrParam) As Variant
-    Dim I As Long
-    Dim iNew As Long
-    Dim arrOut()
-    
-    If fArrayIsEmptyOrNoData(arrParam) Then GoTo exit_fun
-    
-    If fGetArrayDimension(arrParam) > 1 Then fErr "1 dimension array is allowed."
-    
-    ReDim arrOut(1 To fUbound(arrParam), 1 To 1)
-    
-    iNew = 0
-    For I = LBound(arrParam) To UBound(arrParam)
-        iNew = iNew + 1
-        arrOut(iNew, 1) = arrParam(I)
-    Next
-    
-exit_fun:
-    fTranspose1DimenArrayTo2DimenArrayVertically = arrOut
-    Erase arrOut
-End Function
-
-Function fUbound(arr, Optional iDimen As Integer = 1) As Long
-    If iDimen = 1 Then
-        fUbound = UBound(arr, 1) - LBound(arr, 1) + 1
-    ElseIf iDimen = 2 Then
-        fUbound = UBound(arr, 2) - LBound(arr, 2) + 1
-    Else
-        fErr "wrong param, fUbound"
-    End If
 End Function

@@ -95,11 +95,7 @@ Function fLoadFileByFileTag(asFileTag As String)
     Dim sShtToBeAdded As String
     
     sSource = fGetInputFileSourceType(asFileTag)
-    If sSource = "READ_SHEET_BINDED_IN_MACRO" _
-    Or sSource = "READ_PRE_EXISTING_SHEET" _
-    Or sSource = "READ_PREV_STEP_OUTPUT_SHEET" Then Exit Function
-'    sSource = "FILE_BINDED_IN_MACRO" _
-'    Or sSource = "READ_PREV_STEP_OUTPUT_FILE"
+    If sSource = "READ_SHEET_BINDED_IN_MACRO" Then Exit Function
     
     sFileFullPath = fGetInputFileFileName(asFileTag)
     sReloadOrNot = fGetInputFileReloadOrNot(asFileTag)
@@ -254,13 +250,13 @@ Function fReadTxtFile2NewSheet(sFileFullPath As String, sShtToBeAdded As String,
     Dim arrColFormat()
     arrColFormat = fReadTxtColSpec(asFileTag)
     
-    Dim I As Long
+    Dim i As Long
     Dim iConfiMaxCol As Long
     
     iConfiMaxCol = UBound(arrColFormat)
     ReDim Preserve arrColFormat(LBound(arrColFormat) To iConfiMaxCol + 200)
-    For I = iConfiMaxCol + 1 To iConfiMaxCol + 200
-        arrColFormat(I) = 9         'xlSkipColumn
+    For i = iConfiMaxCol + 1 To iConfiMaxCol + 200
+        arrColFormat(i) = 9         'xlSkipColumn
     Next
     
     Dim sColDelimiter As String
@@ -275,10 +271,10 @@ Function fReadTxtFile2NewSheet(sFileFullPath As String, sShtToBeAdded As String,
 End Function
 
 Function fDeleteRemoveConnections(wb As Workbook)
-    Dim I As Long
+    Dim i As Long
     
-    For I = wb.Connections.Count To 1 Step -1
-        wb.Connections(I).Delete
+    For i = wb.Connections.Count To 1 Step -1
+        wb.Connections(i).Delete
     Next
 End Function
 
@@ -326,14 +322,14 @@ Function fFileSpecTemplateHasAdditionalHeader(rngConfigBlock As Range, arrHeader
     Dim rngHeader As Range
     Dim lHeaderAtLine As Long
     Dim rngFound As Range
-    Dim I As Integer
+    Dim i As Integer
     
     lHeaderAtLine = fFindHeaderAtLineInFileSpec(rngConfigBlock, arrColsName)
     Set rngHeader = fGetRangeByStartEndPos(shtFileSpec, lHeaderAtLine, rngConfigBlock.Column, lHeaderAtLine, Columns.Count)
     
     If IsArray(arrHeadersToFind) Then
-        For I = LBound(arrHeadersToFind) To UBound(arrHeadersToFind)
-            Set rngFound = fFindInWorksheet(rngHeader, CStr(arrHeadersToFind(I)), False)
+        For i = LBound(arrHeadersToFind) To UBound(arrHeadersToFind)
+            Set rngFound = fFindInWorksheet(rngHeader, CStr(arrHeadersToFind(i)), False)
             If rngFound Is Nothing Then
                 Exit For
             End If
@@ -675,7 +671,7 @@ Function fReadSheetDataByConfig(asFileTag As String, ByRef dictColIndex As Dicti
     If shtData Is Nothing Then
         Set shtToRead = fGetInputFileSheetAfterLoadingToThisWorkBook(asFileTag)
     Else
-        Set shtToRead = shtData
+        Set shtToRead = shtToRead
     End If
      
     Dim bReadWholeSheetData As Boolean
@@ -759,13 +755,13 @@ Function fReadSpecifiedColsToArrayByConfig(shtData As Worksheet, dictLetterIndex
     
     ReDim arrDataOut(1 To lShtMaxRow - alDataFromRow + 1, 1 To lArrayMaxCol)
     
-    Dim I As Long
+    Dim i As Long
     Dim sTechName As String
     Dim sColType As String
     Dim arrEachCol()
     Dim lEachRow As Long
-    For I = 0 To dictArrayIndex.Count - 1
-        sTechName = dictArrayIndex.Keys(I)
+    For i = 0 To dictArrayIndex.Count - 1
+        sTechName = dictArrayIndex.Keys(i)
         
         lColCopyFrom = dictLetterIndex(sTechName)
         lColCopyTo = dictArrayIndex(sTechName)
@@ -787,18 +783,18 @@ Function fReadSpecifiedColsToArrayByConfig(shtData As Worksheet, dictLetterIndex
 End Function
 
 Function fConvertDataToTheirRawDataType(ByRef arrData(), dictLetterIndex As Dictionary, dictRawType As Dictionary, dictColFormat As Dictionary)
-    Dim I As Long
+    Dim i As Long
     Dim lEachRow As Long
     Dim lEachCol As Long
     Dim sTechName As String
     Dim sColType As String
     
-    For I = 0 To dictLetterIndex.Count - 1
-        sTechName = dictLetterIndex.Keys(I)
+    For i = 0 To dictLetterIndex.Count - 1
+        sTechName = dictLetterIndex.Keys(i)
         sColType = UCase(dictRawType(sTechName))
         
         If sColType = "DATE" Or sColType = "STRING_PERCENTAGE" Or sColType = "RMB_CURRENCY" Then
-            lEachCol = dictLetterIndex.Items(I)
+            lEachCol = dictLetterIndex.Items(i)
             
             For lEachRow = LBound(arrData, 1) To UBound(arrData, 1)
                 arrData(lEachRow, lEachCol) = fCType(arrData(lEachRow, lEachCol), sColType, dictColFormat(sTechName))
@@ -879,10 +875,10 @@ Function fCdateStr(sDate As String, Optional sFormat As String = "") As Date
     
     bSplit = False
     
-    Dim I As Integer
-    For I = 1 To Len(DATE_DELIMITERS)
-        If InStr(sDate, Mid(DATE_DELIMITERS, I, 1)) > 0 Then
-            sDelimiter = Mid(DATE_DELIMITERS, I, 1)
+    Dim i As Integer
+    For i = 1 To Len(DATE_DELIMITERS)
+        If InStr(sDate, Mid(DATE_DELIMITERS, i, 1)) > 0 Then
+            sDelimiter = Mid(DATE_DELIMITERS, i, 1)
             bSplit = True
             Exit For
         End If
@@ -971,7 +967,7 @@ Function fReadMasterSheetData(asFileTag As String, Optional shtData As Worksheet
 End Function
 
 Function fPrepareOutputSheetHeaderAndTextColumns(shtOutput As Worksheet)
-    Dim I As Long
+    Dim i As Long
     Dim arrHeader()
     Dim lMaxCol As Long
     
@@ -981,9 +977,9 @@ Function fPrepareOutputSheetHeaderAndTextColumns(shtOutput As Worksheet)
     
     Dim lEachCol As Long
     For lEachCol = 1 To lMaxCol
-        For I = 0 To dictRptColIndex.Count - 1
-            If dictRptColIndex.Items(I) = lEachCol Then
-                arrHeader(1, lEachCol) = dictRptDisplayName(dictRptColIndex.Keys(I))
+        For i = 0 To dictRptColIndex.Count - 1
+            If dictRptColIndex.Items(i) = lEachCol Then
+                arrHeader(1, lEachCol) = dictRptDisplayName(dictRptColIndex.Keys(i))
                 Exit For
             End If
         Next
@@ -1011,13 +1007,13 @@ End Function
 Function fPresetColsNumberFormat2TextForOuputSheet(shtOutput As Worksheet, Optional lMaxRow As Long = 0)
     If lMaxRow = 0 Then lMaxRow = Rows.Count - 1
     
-    Dim I As Long
+    Dim i As Long
     Dim iColIndex As Long
     Dim sColTech  As String
     Dim sColType As String
     
-    For I = 0 To dictRptRawType.Count - 1
-        sColTech = dictRptRawType.Keys(I)
+    For i = 0 To dictRptRawType.Count - 1
+        sColTech = dictRptRawType.Keys(i)
         
         If dictRptColAttr(sColTech) = "NOT_SHOW_UP" Then GoTo next_col
             
@@ -1041,19 +1037,17 @@ Function fPostProcess(ByRef shtOutput As Worksheet)
 End Function
 
 Function fDeleteNotShowUpColumns(ByRef shtOutput As Worksheet)
-    Dim I As Long
+    Dim i As Long
     Dim iColIndex As Long
     Dim sColTech  As String
     Dim sColType As String
     
-    If dictRptColIndex Is Nothing Then fErr "dictRptColIndex is even empty , pls call fReadSysConfig_Output first"
-    
-    For I = dictRptColIndex.Count - 1 To 0 Step -1
-        sColTech = dictRptColIndex.Keys(I)
+    For i = dictRptColIndex.Count - 1 To 0 Step -1
+        sColTech = dictRptColIndex.Keys(i)
         sColType = dictRptColAttr(sColTech)
         
         If sColType = "NOT_SHOW_UP" Then
-            shtOutput.Columns(dictRptColIndex.Items(I)).Delete shift:=xlToLeft
+            shtOutput.Columns(dictRptColIndex.Items(i)).Delete shift:=xlToLeft
         End If
 next_col:
     Next
@@ -1093,8 +1087,6 @@ Function fFormatOutputSheet(ByRef shtOutput As Worksheet, Optional lRowFrom As L
     Dim lMaxCol As Long
     lMaxRow = fGetValidMaxRow(shtOutput)
     lMaxCol = fGetValidMaxCol(shtOutput)
-    
-    If lMaxRow < 2 Then Exit Function
 
     Call fBasicCosmeticFormatSheet(shtOutput, lMaxCol)
     Call fFormatReportByConfigByCopyFormat(shtOutput, lRowFrom, lMaxRow, lMaxCol)
@@ -1106,11 +1098,11 @@ Function fFormatOutputSheet(ByRef shtOutput As Worksheet, Optional lRowFrom As L
 End Function
 
 Function fSetColumnWidthForOutputSheetByConfig(ByRef shtOutput As Worksheet)
-    Dim I As Long
+    Dim i As Long
     
-    For I = 0 To dictRptColWidth.Count - 1
-        If dictRptColWidth.Items(I) <> 0 Then
-            shtOutput.Columns(dictRptColIndex(dictRptColWidth.Keys(I))).ColumnWidth = CDbl(dictRptColWidth.Items(I))
+    For i = 0 To dictRptColWidth.Count - 1
+        If dictRptColWidth.Items(i) <> 0 Then
+            shtOutput.Columns(dictRptColIndex(dictRptColWidth.Keys(i))).ColumnWidth = CDbl(dictRptColWidth.Items(i))
         End If
     Next
 End Function
@@ -1143,7 +1135,7 @@ Function fFormatReportByConfigByCopyFormat(ByRef shtOutput As Worksheet _
     
     If lRowTo < lRowFrom Then Exit Function
     
-    Dim I As Long
+    Dim i As Long
     Dim sColTech As String
     Dim lEachCol As Long
     Dim rgFrom As Range
@@ -1153,9 +1145,9 @@ Function fFormatReportByConfigByCopyFormat(ByRef shtOutput As Worksheet _
     If dictColIndex Is Nothing Then Set dictColIndex = dictRptColIndex
     If dictColCellFormat Is Nothing Then Set dictColCellFormat = dictRptCellFormat
     
-    For I = 0 To dictColIndex.Count - 1
-        sColTech = dictColIndex.Keys(I)
-        lEachCol = CLng(dictColIndex.Items(I))
+    For i = 0 To dictColIndex.Count - 1
+        sColTech = dictColIndex.Keys(i)
+        lEachCol = CLng(dictColIndex.Items(i))
         
         Set rgFrom = shtFileSpec.Range(dictColCellFormat(sColTech))
         Set rgTo = fGetRangeByStartEndPos(shtOutput, lRowFrom, lEachCol, lRowTo, lEachCol)
@@ -1241,14 +1233,14 @@ Function fSetNumberFormatForOutputSheetByConfigExceptTextCol(ByRef shtOutput As 
     
     If lRowTo < lRowFrom Then Exit Function
     
-    Dim I As Long
+    Dim i As Long
     Dim sColTech As String
     Dim lEachCol As Long
     Dim sFormat As String
     Dim sColType As String
     
-    For I = 0 To dictRptRawType.Count - 1
-        sColTech = dictRptRawType.Keys(I)
+    For i = 0 To dictRptRawType.Count - 1
+        sColTech = dictRptRawType.Keys(i)
         
         If dictRptColAttr(sColTech) = "NOT_SHOW_UP" Then GoTo next_col
         
@@ -1278,7 +1270,7 @@ Function fSetBackNumberFormat2TextForCols(ByRef shtOutput As Worksheet _
 
     If lRowTo < lRowFrom Then Exit Function
     
-    Dim I As Long
+    Dim i As Long
     Dim lEachRow As Long
     Dim sColTech As String
     Dim lEachCol As Long
@@ -1286,8 +1278,8 @@ Function fSetBackNumberFormat2TextForCols(ByRef shtOutput As Worksheet _
     Dim sColType As String
     Dim arrData()
     
-    For I = 0 To dictRptRawType.Count - 1
-        sColTech = dictRptRawType.Keys(I)
+    For i = 0 To dictRptRawType.Count - 1
+        sColTech = dictRptRawType.Keys(i)
         
         If dictRptColAttr(sColTech) = "NOT_SHOW_UP" Then GoTo next_col
         
@@ -1404,7 +1396,7 @@ Function fCheckIfUnCapturedExceptionAbnormalError() As Boolean
     If err.Number <> 0 Then
         fMsgBox "Error has occurred:" _
                 & vbCr & vbCr _
-                & "Error Number: " & err.Number & vbCr _
+                & "Error Number: " & err.Number _
                 & "Error Description:" & err.Description
         fCheckIfUnCapturedExceptionAbnormalError = True
         Exit Function

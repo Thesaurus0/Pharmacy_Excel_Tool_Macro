@@ -19,7 +19,7 @@ End Sub
 Sub sub_ExportModulesSourceCodeToFolder()
     Dim sFolder As String
     Dim sMsg As String
-    Dim I As Integer
+    Dim i As Integer
     Dim iCnt As Long
     Dim vbProj As VBIDE.VBProject
     Dim vbComp As VBIDE.VBComponent
@@ -27,18 +27,14 @@ Sub sub_ExportModulesSourceCodeToFolder()
     Set vbProj = ThisWorkbook.VBProject
     
     iCnt = vbProj.VBComponents.Count
-    
-    fGetFSO
         
-    For I = 1 To 1
-        If I = 1 Then
+    For i = 1 To 1
+        If i = 1 Then
             sFolder = ThisWorkbook.Path & "\" & "Source_Code"
         Else
         End If
         
         sMsg = sMsg & vbCr & vbCr & sFolder
-        
-        If Not gFSO.FolderExists(sFolder) Then gFSO.CreateFolder (sFolder)
         
         'call fCheckPath(sfolder, true)
         fDeleteAllFilesInFolder (sFolder)
@@ -90,7 +86,7 @@ Sub Sub_ToHomeSheet()
     End If
 End Sub
 
-Sub sub_ResetOnError_Initialize()
+Sub sub_RestOnError_Initialize()
     err.Clear
     
     On Error GoTo err_exit
@@ -206,7 +202,7 @@ End Function
 
 Function fGetListAllSubFunctionsInThisWorkbook(arrModules()) As Variant
     Dim arrOut()
-    Dim I As Long
+    Dim i As Long
     Dim iCnt As Long
     Dim sMod As String
     Dim lineNo As Long
@@ -221,8 +217,8 @@ Function fGetListAllSubFunctionsInThisWorkbook(arrModules()) As Variant
     iCnt = 0
     ReDim arrOut(1 To 10000, 4)
     
-    For I = LBound(arrModules, 1) To UBound(arrModules, 1)
-        sMod = arrModules(I, 3)
+    For i = LBound(arrModules, 1) To UBound(arrModules, 1)
+        sMod = arrModules(i, 3)
         
         Set vbComp = vbProj.VBComponents(sMod)
         Set codeMod = vbComp.CodeModule
@@ -346,10 +342,10 @@ Sub sub_GenAlpabetList()
         Exit Sub
     End If
     
-    Dim I As Long
+    Dim i As Long
     ReDim arrList(1 To lMax, 1)
-    For I = 1 To lMax
-        arrList(I, 1) = fNum2Letter(I)
+    For i = 1 To lMax
+        arrList(i, 1) = fNum2Letter(i)
     Next
     
     ActiveCell.Resize(UBound(arrList, 1), 1).Value = arrList
@@ -378,10 +374,10 @@ Sub sub_GenNumberList()
         Exit Sub
     End If
     
-    Dim I As Long
+    Dim i As Long
     ReDim arrList(1 To lMax, 1)
-    For I = 1 To lMax
-        arrList(I, 1) = I
+    For i = 1 To lMax
+        arrList(i, 1) = i
     Next
     
     ActiveCell.Resize(UBound(arrList, 1), 1).Value = arrList
@@ -411,31 +407,3 @@ Function fPromptToConfirmToContinue(asAskMsg As String _
     fPromptToConfirmToContinue = True
 End Function
 
-'Sub AddFaceIDs()
-'    Dim GName As String
-'    Dim I As Integer, J As Single
-'
-'    For I = 6 To 1 Step -1 'Display from bottom to top
-'        GName = "Group" & 600 * (I - 1) + 1 & "_" & 600 * I
-'        On Error GoTo Endline
-'        With Application.CommandBars.Add(GName)
-'            .Visible = True
-'            With .Controls
-'                For J = 600 * (I - 1) + 1 To 600 * I
-'                On Error Resume Next
-'                With .Add(msoControlButton)
-'                .FaceId = J
-'                .Caption = J
-'                End With
-'                Next
-'            End With
-'        End With
-'Endline:
-'        With CommandBars(GName)
-'            .Visible = True
-'            .Width = 720 'contains 30×20 icons
-'            .Left = 50 + (6 - I) * 20
-'            .Top = 90 + (6 - I) * 20
-'        End With
-'    Next I
-'End Sub

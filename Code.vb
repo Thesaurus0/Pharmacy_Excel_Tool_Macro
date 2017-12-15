@@ -1,3 +1,4 @@
+Call fCheckIfSheetHasNodata_RaiseErrToStop(arrMaster)
 
     Select Case sVariable
         Case "CMDBAR"
