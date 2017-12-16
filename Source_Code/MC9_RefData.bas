@@ -15,6 +15,12 @@ End Enum
 Dim dictHospitalMaster As Dictionary
 Dim dictHospitalReplace As Dictionary
 
+Dim dictProducerMaster As Dictionary
+Dim dictProducerReplace As Dictionary
+
+Dim dictProductNameMaster As Dictionary
+Dim dictProductNameReplace As Dictionary
+
 Function fReadConfigCompanyList() As Dictionary
     Dim asTag As String
     Dim arrColsName()
@@ -88,10 +94,10 @@ End Function
 
 Function fComposeStrForDictCompanyList(arrConfigData, lEachRow As Long) As String
     Dim sOut As String
-    Dim I As Integer
+    Dim i As Integer
     
-    For I = Company.ID To Company.Selected
-        sOut = sOut & DELIMITER & Trim(arrConfigData(lEachRow, I))
+    For i = Company.ID To Company.Selected
+        sOut = sOut & DELIMITER & Trim(arrConfigData(lEachRow, i))
     Next
     
     fComposeStrForDictCompanyList = Right(sOut, Len(sOut) - 1)
@@ -150,3 +156,85 @@ Function fFindInConfigedReplaceHospital(sHospital As String) As String
     End If
 End Function
 '------------------------------------------------------------------------------
+
+'====================== Producer Master =================================================================
+Function fReadSheetProducerMaster2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    Call fReadSheetDataByConfig("PRODUCER_MASTER", dictColIndex, arrData, , , , , shtProductProducerMaster)
+    Set dictProducerMaster = fReadArray2DictionaryOnlyKeys(arrData, dictColIndex("ProductProducer"), True, False)
+    
+    Set dictColIndex = Nothing
+End Function
+Function fProducerExistsInProducerMaster(sProducer As String) As Boolean
+    If dictProducerMaster Is Nothing Then Call fReadSheetProducerMaster2Dictionary
+    
+    fProducerExistsInProducerMaster = dictProducerMaster.Exists(sProducer)
+End Function
+'------------------------------------------------------------------------------
+
+'====================== Producer Replacement =================================================================
+Function fReadSheetProducerReplace2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    Call fReadSheetDataByConfig("PRODUCER_REPLACE_SHEET", dictColIndex, arrData, , , , , shtProductProducerReplace)
+    Set dictProducerReplace = fReadArray2DictionaryWithSingleCol(arrData, dictColIndex("FromProducer"), dictColIndex("ToProducer"))
+    
+    Set dictColIndex = Nothing
+End Function
+Function fFindInConfigedReplaceProducer(sProducer As String) As String
+    If dictProducerReplace Is Nothing Then Call fReadSheetProducerReplace2Dictionary
+    
+    If dictProducerReplace.Exists(sProducer) Then
+        fFindInConfigedReplaceProducer = dictProducerReplace(sProducer)
+    Else
+        fFindInConfigedReplaceProducer = ""
+    End If
+End Function
+'------------------------------------------------------------------------------
+
+
+'====================== ProductName Master =================================================================
+Function fReadSheetProductNameMaster2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    Call fReadSheetDataByConfig("PRODUCER_NAME_MASTER", dictColIndex, arrData, , , , , shtProductNameMaster)
+    Call fValidateDuplicateInArray(arrData, Array(dictColIndex("ProductProducer"), dictColIndex("ProductName")), False, shtProductNameMaster, 1, 1, "ProductProducer + Name")
+    
+    Set dictProductNameMaster = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
+                                    , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName")) _
+                                    , Array(dictColIndex("ProductName")), DELIMITER)
+    Set dictColIndex = Nothing
+End Function
+Function fProductNameExistsInProductNameMaster(sProductProducer As String, sProductName As String) As Boolean
+    If dictProductNameMaster Is Nothing Then Call fReadSheetProductNameMaster2Dictionary
+    
+    fProductNameExistsInProductNameMaster = dictProductNameMaster.Exists(sProductProducer & DELIMITER & sProductName)
+End Function
+'------------------------------------------------------------------------------
+
+'====================== ProductName Replacement =================================================================
+Function fReadSheetProductNameReplace2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    Call fReadSheetDataByConfig("PRODUCT_NAME_REPLACE_SHEET", dictColIndex, arrData, , , , , shtProductNameReplace)
+    Set dictProductNameReplace = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
+                                    , Array(dictColIndex("ProductProducer"), dictColIndex("FromProductName")) _
+                                    , Array(dictColIndex("ToProductName")), DELIMITER)
+    Set dictColIndex = Nothing
+End Function
+Function fFindInConfigedReplaceProductName(sProductProducer As String, sProductName As String) As String
+    If dictProductNameReplace Is Nothing Then Call fReadSheetProductNameReplace2Dictionary
+    
+    If dictProductNameReplace.Exists(sProductProducer & DELIMITER & sProductName) Then
+        fFindInConfigedReplaceProductName = dictProductNameReplace(sProductProducer & DELIMITER & sProductName)
+    Else
+        fFindInConfigedReplaceProductName = ""
+    End If
+End Function
+'------------------------------------------------------------------------------
+

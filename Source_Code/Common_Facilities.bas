@@ -19,7 +19,7 @@ End Sub
 Sub sub_ExportModulesSourceCodeToFolder()
     Dim sFolder As String
     Dim sMsg As String
-    Dim I As Integer
+    Dim i As Integer
     Dim iCnt As Long
     Dim vbProj As VBIDE.VBProject
     Dim vbComp As VBIDE.VBComponent
@@ -30,8 +30,8 @@ Sub sub_ExportModulesSourceCodeToFolder()
     
     fGetFSO
         
-    For I = 1 To 1
-        If I = 1 Then
+    For i = 1 To 1
+        If i = 1 Then
             sFolder = ThisWorkbook.Path & "\" & "Source_Code"
         Else
         End If
@@ -91,9 +91,9 @@ Sub Sub_ToHomeSheet()
 End Sub
 
 Sub sub_ResetOnError_Initialize()
-    err.Clear
+    Err.Clear
     
-    On Error GoTo err_exit
+    'On Error GoTo err_exit
     
     gsEnv = fGetEnvFromSysConf
     
@@ -105,7 +105,8 @@ Sub sub_ResetOnError_Initialize()
     Call ThisWorkbook.sub_WorkBookInitialization
     Call fSetIntialValueForShtMenuInitialize
 err_exit:
-    err.Clear
+    Err.Clear
+    ThisWorkbook.CheckCompatibility = False
     End
 End Sub
 Function fGetEnvFromSysConf() As String
@@ -206,7 +207,7 @@ End Function
 
 Function fGetListAllSubFunctionsInThisWorkbook(arrModules()) As Variant
     Dim arrOut()
-    Dim I As Long
+    Dim i As Long
     Dim iCnt As Long
     Dim sMod As String
     Dim lineNo As Long
@@ -221,8 +222,8 @@ Function fGetListAllSubFunctionsInThisWorkbook(arrModules()) As Variant
     iCnt = 0
     ReDim arrOut(1 To 10000, 4)
     
-    For I = LBound(arrModules, 1) To UBound(arrModules, 1)
-        sMod = arrModules(I, 3)
+    For i = LBound(arrModules, 1) To UBound(arrModules, 1)
+        sMod = arrModules(i, 3)
         
         Set vbComp = vbProj.VBComponents(sMod)
         Set codeMod = vbComp.CodeModule
@@ -334,7 +335,7 @@ Sub sub_GenAlpabetList()
     On Error Resume Next
     lMax = CLng(maxNum)
     sMaxcol = CStr(maxNum)
-    err.Clear
+    Err.Clear
     
     If lMax > 0 Then
     ElseIf Len(sMaxcol) > 0 Then
@@ -346,10 +347,10 @@ Sub sub_GenAlpabetList()
         Exit Sub
     End If
     
-    Dim I As Long
+    Dim i As Long
     ReDim arrList(1 To lMax, 1)
-    For I = 1 To lMax
-        arrList(I, 1) = fNum2Letter(I)
+    For i = 1 To lMax
+        arrList(i, 1) = fNum2Letter(i)
     Next
     
     ActiveCell.Resize(UBound(arrList, 1), 1).Value = arrList
@@ -371,17 +372,17 @@ Sub sub_GenNumberList()
     
     On Error Resume Next
     lMax = CLng(maxNum)
-    err.Clear
+    Err.Clear
 
     If lMax <= 0 Then
         fMsgBox "the number you input is too small or too large, which should be with 1 - " & Columns.CountLarge
         Exit Sub
     End If
     
-    Dim I As Long
+    Dim i As Long
     ReDim arrList(1 To lMax, 1)
-    For I = 1 To lMax
-        arrList(I, 1) = I
+    For i = 1 To lMax
+        arrList(i, 1) = i
     Next
     
     ActiveCell.Resize(UBound(arrList, 1), 1).Value = arrList
@@ -439,3 +440,49 @@ End Function
 '        End With
 '    Next I
 'End Sub
+Sub Sub_FilterByActiveCell()
+    Dim lMaxCol As Long
+    lMaxCol = ActiveSheet.Cells(1, 1).End(xlToRight).Column
+    Dim lMaxRow As Long
+    lMaxRow = fGetValidMaxRow(ActiveSheet)
+
+    If ActiveSheet.AutoFilterMode Then  'auto filter
+        ActiveSheet.AutoFilter.ShowAllData
+    Else
+        fGetRangeByStartEndPos(ActiveSheet, 1, 1, 1, lMaxCol).AutoFilter
+    End If
+    
+    Dim aActiveCellValue
+    Dim lColToFilter As Long
+    aActiveCellValue = ActiveCell.Value
+    lColToFilter = ActiveCell.Column
+    
+    fGetRangeByStartEndPos(ActiveSheet, 1, 1, lMaxRow, lMaxCol).AutoFilter _
+                Field:=lColToFilter _
+                , Criteria1:="=*" & aActiveCellValue & "*" _
+                , Operator:=xlAnd
+End Sub
+
+Sub Sub_RemoveFilterForAcitveSheet()
+    Call fRemoveFilterForSheet(ActiveSheet)
+'    Dim lMaxCol As Long
+'    lMaxCol = ActiveSheet.Cells(1, 1).End(xlToRight).Column
+'    Dim lMaxRow As Long
+'    lMaxRow = fGetValidMaxRow(ActiveSheet)
+'
+'    If ActiveSheet.AutoFilterMode Then  'auto filter
+'        ActiveSheet.AutoFilter.ShowAllData
+'    Else
+'        fGetRangeByStartEndPos(ActiveSheet, 1, 1, 1, lMaxCol).AutoFilter
+'    End If
+'
+'    Dim aActiveCellValue
+'    Dim lColToFilter As Long
+'    aActiveCellValue = ActiveCell.Value
+'    lColToFilter = ActiveCell.Column
+'
+'    fGetRangeByStartEndPos(ActiveSheet, 1, 1, lMaxRow, lMaxCol).AutoFilter _
+'                Field:=lColToFilter _
+'                , Criteria1:="=*" & aActiveCellValue & "*" _
+'                , Operator:=xlAnd
+End Sub

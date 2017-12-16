@@ -17,18 +17,18 @@ Sub subMain_ImportSalesInfoFiles()
     Call fReadSysConfig_InputTxtSheetFile
     
     Set dictCompList = fReadConfigCompanyList
-    Call fValidationAndSetToConfigSheet
+    Call fValidateUserInputAndSetToConfigSheet
     
     Call fSetBackToConfigSheetAndUpdategDict_UserTicket
     Call fSetBackToConfigSheetAndUpdategDict_InputFiles
     
     gsRptFilePath = fReadSysConfig_Output(, gsRptType)
     
-    Dim I As Integer
+    Dim i As Integer
     Dim iCnt As Integer
     iCnt = 0
-    For I = 0 To dictCompList.Count - 1
-        gsCompanyID = dictCompList.Keys(I)
+    For i = 0 To dictCompList.Count - 1
+        gsCompanyID = dictCompList.Keys(i)
         
         If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
             iCnt = iCnt + 1
@@ -40,8 +40,8 @@ Sub subMain_ImportSalesInfoFiles()
     Call fCleanSheetOutputResetSheetOutput(shtSalesRawDataRpt)
     Call fPrepareOutputSheetHeaderAndTextColumns(shtSalesRawDataRpt)
     
-    For I = 0 To dictCompList.Count - 1
-        gsCompanyID = dictCompList.Keys(I)
+    For i = 0 To dictCompList.Count - 1
+        gsCompanyID = dictCompList.Keys(i)
         
         If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
             Call fLoadFilesAndRead2Variables
@@ -83,6 +83,9 @@ Sub subMain_ImportSalesInfoFiles()
     shtSalesRawDataRpt.Visible = xlSheetVisible
     shtSalesRawDataRpt.Activate
     shtSalesRawDataRpt.Range("A1").Select
+    
+    Call fModifyMoveActiveXButtonOnSheet(shtSalesRawDataRpt.Cells(1, fGetValidMaxCol(shtSalesRawDataRpt) + 1) _
+                                        , "btnReplaceUnify", 1, 1, , 25, RGB(255, 20, 134), RGB(255, 255, 255))
 error_handling:
     If fCheckIfGotBusinessError Then
         Call fSetReneratedReport(, "-")
@@ -98,7 +101,7 @@ error_handling:
     fMsgBox "成功整合在工作表：[" & shtSalesRawDataRpt.Name & "] 中，请检查！", vbInformation
     
 reset_excel_options:
-    err.Clear
+    Err.Clear
     fEnableExcelOptionsAll
     End
 End Sub
@@ -130,14 +133,14 @@ End Function
 'End Function
 
 
-Function fValidationAndSetToConfigSheet()
-    Dim I As Integer
+Function fValidateUserInputAndSetToConfigSheet()
+    Dim i As Integer
     Dim sEachCompanyID As String
     Dim sFilePathRange As String
     Dim sEachFilePath  As String
     
-    For I = 0 To dictCompList.Count - 1
-        sEachCompanyID = dictCompList.Keys(I)
+    For i = 0 To dictCompList.Count - 1
+        sEachCompanyID = dictCompList.Keys(i)
         'sFilePathRange = "rngSalesFilePath_" & sEachCompanyID
         
         sFilePathRange = fGetCompany_InputFileTextBoxName(sEachCompanyID)

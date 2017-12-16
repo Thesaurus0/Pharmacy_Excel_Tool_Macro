@@ -93,7 +93,10 @@ Sub AllUnitTest()
     
     'Debug.Print fGetFileExtension("abce\ef\a\c\aaa.txt")
     
-    Call fConvertFomulaToValueForSheetIfAny(ActiveSheet)
+   ' Call fConvertFomulaToValueForSheetIfAny(ActiveSheet)
+   fDeleteAllConditionFormatFromSheet ActiveSheet
+   Call fSetConditionFormatForOddEvenLine(ActiveSheet, , , , Array(1), True)
+   Call fSetConditionFormatForBorders(ActiveSheet, , , , Array(1), True)
 End Sub
 
 Sub testa()
@@ -136,10 +139,10 @@ Sub testa()
 
     Dim arr(1000)
     
-    Dim I As Long
+    Dim i As Long
     
-    For I = 1 To 1000
-        arr(I) = Rnd() * 1000
+    For i = 1 To 1000
+        arr(i) = Rnd() * 1000
     Next
     
     Call fSortArrayQuickSortDesc(arr)
@@ -151,4 +154,10 @@ Sub aaaa()
     'a = shtSalesRawDataRpt
     
        'shtSalesRawDataRpt.Close
+       
+'    Call fHideAllSheetExcept("1", "2", "6", "24")
+    Dim rngAddr As String
+    rngAddr = fGetRangeByStartEndPos(shtProductMaster, 2, 1, 800, 1).Address(external:=True)
+    rngAddr = "=" & rngAddr
+    Call fSetValidationListForRange(fGetRangeByStartEndPos(shtProductProducerReplace, 2, 1, 1000, 1), rngAddr)
 End Sub

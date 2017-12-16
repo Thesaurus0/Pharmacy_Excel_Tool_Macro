@@ -6,6 +6,6 @@ Attribute ºê1.VB_ProcData.VB_Invoke_Func = " \n14"
 '
 
 '
-    Rows("6:6").Select
-    Selection.RowHeight = 25
+    Call fModifyMoveActiveXButtonOnSheet(shtSalesRawDataRpt.Cells(1, fGetValidMaxCol(shtSalesRawDataRpt) + 1) _
+                                        , "btnReplaceUnify", 1, 1, , 25, RGB(255, 20, 134), RGB(255, 255, 255))
 End Sub

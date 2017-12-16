@@ -9,12 +9,12 @@ Function fSetBackToConfigSheetAndUpdategDict_UserTicket()
     Dim eachObj As Object
     
     'for each eachobj in shtmenu.
-    Dim I As Long
+    Dim i As Long
     Dim sCompanyID As String
     Dim sTickValue As String
     
-    For I = 0 To dictCompList.Count - 1
-        sCompanyID = dictCompList.Keys(I)
+    For i = 0 To dictCompList.Count - 1
+        sCompanyID = dictCompList.Keys(i)
          
         If Not fActiveXControlExistsInSheet(shtMenu, fGetCompany_CheckBoxName(sCompanyID), ckb) Then GoTo next_company
         
@@ -27,13 +27,13 @@ next_company:
 End Function
 
 Function fSetBackToConfigSheetAndUpdategDict_InputFiles()
-    Dim I As Integer
+    Dim i As Integer
     Dim sEachCompanyID As String
     Dim sFilePathRange As String
     Dim sEachFilePath  As String
     
-    For I = 0 To dictCompList.Count - 1
-        sEachCompanyID = dictCompList.Keys(I)
+    For i = 0 To dictCompList.Count - 1
+        sEachCompanyID = dictCompList.Keys(i)
         'sFilePathRange = "rngSalesFilePath_" & sEachCompanyID
         
         If fGetCompany_UserTicked(sEachCompanyID) = "Y" Then
@@ -63,9 +63,10 @@ Function fSetIntialValueForShtMenuInitialize()
 End Function
 
 Function fInitialization()
-    err.Clear
+    Err.Clear
     gbNoData = False
     gbBusinessError = False
+    gsBusinessErrorMsg = ""
     gbUserCanceled = False
     gbCheckCompatibility = True
     
@@ -76,6 +77,24 @@ Function fInitialization()
     If fIsDev Then Application.ScreenUpdating = True
     Application.ScreenUpdating = True   ' for testing
     
-    Call fRevmoeFilterForAllSheets(ThisWorkbook)
+    Call fRemoveFilterForAllSheets
 End Function
 
+Function fSetConditionFormatForFundamentalSheets()
+    Call fClearConditionFormatAndAdd(shtHospital, Array(1), True)
+    Call fClearConditionFormatAndAdd(shtHospitalReplace, Array(1, 2), True)
+    Call fClearConditionFormatAndAdd(shtProductMaster, Array(1, 2, 3, 4), True)
+    Call fClearConditionFormatAndAdd(shtProductNameReplace, Array(1, 2, 3), True)
+    Call fClearConditionFormatAndAdd(shtProductProducerReplace, Array(1, 2), True)
+    Call fClearConditionFormatAndAdd(shtProductSeriesReplace, Array(1, 2, 3), True)
+    Call fClearConditionFormatAndAdd(shtProductUnitRatio, Array(1, 2, 3, 4), True)
+    Call fClearConditionFormatAndAdd(shtProductProducerMaster, Array(1), True)
+    Call fClearConditionFormatAndAdd(shtProductNameMaster, Array(1, 2), True)
+    Call fClearConditionFormatAndAdd(shtException, Array(1), True)
+End Function
+
+Function fClearConditionFormatAndAdd(sht As Worksheet, arrKeysCols, Optional bExtendToMore10ThousRows As Boolean = True)
+    Call fDeleteAllConditionFormatFromSheet(sht)
+    Call fSetConditionFormatForOddEvenLine(sht, , , , arrKeysCols, bExtendToMore10ThousRows)
+    Call fSetConditionFormatForBorders(sht, , , , arrKeysCols, bExtendToMore10ThousRows)
+End Function

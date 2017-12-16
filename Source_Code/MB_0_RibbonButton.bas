@@ -3,122 +3,172 @@ Option Explicit
 Option Base 1
   
 Sub subMain_Ribbon_ImportSalesInfoFiles()
-    On Error Resume Next
-    
-    If shtMenu.Visible = xlSheetVisible Then
-        If ActiveSheet.Name <> shtMenu.Name Then
-            shtMenu.Visible = xlSheetVisible
-            shtMenu.Activate
-            Range("A63").Select
-        Else
-            shtMenu.Visible = xlSheetVeryHidden
-        End If
-    Else
-        shtMenu.Visible = xlSheetVisible
-        shtMenu.Activate
-        Range("A63").Select
-    End If
-    
-    err.Clear
+    fActiveVisibleSwitchSheet shtMenu, "A63", False
 End Sub
 
 Sub subMain_Hospital()
-    If shtHospital.Visible = xlSheetVisible Then
-        If ActiveSheet.Name <> shtHospital.Name Then
-            shtHospital.Visible = xlSheetVisible
-            shtHospital.Activate
-            Range("a1").Select
-        Else
-            shtHospital.Visible = xlSheetVeryHidden
-        End If
-    Else
-        shtHospital.Visible = xlSheetVisible
-        shtHospital.Activate
-        Range("a1").Select
-    End If
+    fActiveVisibleSwitchSheet shtHospital, , False
+    'Call fHideAllSheetExcept(shtHospital, shtHospitalReplace)
 End Sub
 
+Sub subMain_HideHospital()
+    On Error Resume Next
+    shtHospital.Visible = xlSheetVeryHidden
+    Err.Clear
+End Sub
 Sub subMain_HospitalReplacement()
-    If shtHospitalReplace.Visible = xlSheetVisible Then
-        If ActiveSheet.Name <> shtHospitalReplace.Name Then
-            shtHospitalReplace.Visible = xlSheetVisible
-            shtHospitalReplace.Activate
-            Range("a1").Select
-        Else
-            shtHospitalReplace.Visible = xlSheetVeryHidden
-        End If
-    Else
-        shtHospitalReplace.Visible = xlSheetVisible
-        shtHospitalReplace.Activate
-        Range("a1").Select
-    End If
+    fActiveVisibleSwitchSheet shtHospitalReplace, , False
+    'Call fHideAllSheetExcept(shtHospital, shtHospitalReplace)
 End Sub
 
 Sub subMain_RawSalesInfos()
-    If shtSalesRawDataRpt.Visible = xlSheetVisible Then
-        If ActiveSheet.Name <> shtSalesRawDataRpt.Name Then
-            shtSalesRawDataRpt.Visible = xlSheetVisible
-            shtSalesRawDataRpt.Activate
-            Range("a1").Select
-        Else
-            shtSalesRawDataRpt.Visible = xlSheetVeryHidden
-        End If
-    Else
-        shtSalesRawDataRpt.Visible = xlSheetVisible
-        shtSalesRawDataRpt.Activate
-        Range("a1").Select
-    End If
+    fActiveVisibleSwitchSheet shtSalesRawDataRpt, , False
 End Sub
 
 Sub subMain_SalesInfos()
-    If shtSalesInfos.Visible = xlSheetVisible Then
-        If ActiveSheet.Name <> shtSalesInfos.Name Then
-            shtSalesInfos.Visible = xlSheetVisible
-            shtSalesInfos.Activate
-            Range("a1").Select
-        Else
-            shtSalesInfos.Visible = xlSheetVeryHidden
-        End If
-    Else
-        shtSalesInfos.Visible = xlSheetVisible
-        shtSalesInfos.Activate
-        Range("a1").Select
-    End If
+    fActiveVisibleSwitchSheet shtSalesInfos, , False
 End Sub
 
 Sub subMain_ProductMaster()
-    If shtProductMaster.Visible = xlSheetVisible Then
-        If ActiveSheet.Name <> shtProductMaster.Name Then
-            shtProductMaster.Visible = xlSheetVisible
-            shtProductMaster.Activate
-            Range("a1").Select
-        Else
-            shtProductMaster.Visible = xlSheetVeryHidden
-        End If
-    Else
-        shtProductMaster.Visible = xlSheetVisible
-        shtProductMaster.Activate
-        Range("a1").Select
-    End If
+    fActiveVisibleSwitchSheet shtProductMaster, , False
+    'Call fHideAllSheetExcept(shtProductMaster, shtProductProducerReplace, shtProductNameReplace, shtProductSeriesReplace, shtProductUnitRatio)
+End Sub
+
+Sub subMain_HideProductMaster()
+    On Error Resume Next
+    shtProductMaster.Visible = xlSheetVeryHidden
+    Err.Clear
+End Sub
+Sub subMain_HideProducerMaster()
+    On Error Resume Next
+    shtProductProducerMaster.Visible = xlSheetVeryHidden
+    Err.Clear
+End Sub
+
+Sub subMain_ProducerMaster()
+    fActiveVisibleSwitchSheet shtProductProducerMaster, , False
+    'Call fHideAllSheetExcept(shtProductMaster, shtProductProducerReplace, shtProductNameReplace, shtProductSeriesReplace, shtProductUnitRatio)
+End Sub
+Sub subMain_ProductNameMaster()
+    fActiveVisibleSwitchSheet shtProductNameMaster, , False
+    'Call fHideAllSheetExcept(shtProductMaster, shtProductProducerReplace, shtProductNameReplace, shtProductSeriesReplace, shtProductUnitRatio)
+End Sub
+Sub subMain_HideProductNameMaster()
+    On Error Resume Next
+    shtProductNameMaster.Visible = xlSheetVeryHidden
+    Err.Clear
 End Sub
 Sub subMain_ProductProducerReplace()
-
+    fActiveVisibleSwitchSheet shtProductProducerReplace, , False
+    'Call fHideAllSheetExcept(shtProductMaster, shtProductProducerReplace, shtProductNameReplace, shtProductSeriesReplace, shtProductUnitRatio)
 End Sub
 Sub subMain_ProductNameReplace()
-
+    fActiveVisibleSwitchSheet shtProductNameReplace, , False
+    'Call fHideAllSheetExcept(shtProductMaster, shtProductProducerReplace, shtProductNameReplace, shtProductSeriesReplace, shtProductUnitRatio)
 End Sub
 Sub subMain_ProductSeriesReplace()
-
+    fActiveVisibleSwitchSheet shtProductSeriesReplace, , False
+    'Call fHideAllSheetExcept(shtProductMaster, shtProductProducerReplace, shtProductNameReplace, shtProductSeriesReplace, shtProductUnitRatio)
 End Sub
 Sub subMain_ProductUnitRatio()
-
+    fActiveVisibleSwitchSheet shtProductUnitRatio, , False
+    'Call fHideAllSheetExcept(shtProductMaster, shtProductProducerReplace, shtProductNameReplace, shtProductSeriesReplace, shtProductUnitRatio)
 End Sub
 
-
-Sub subMain_InvisibleAllBusinessSheets()
+Sub subMain_InvisibleHideAllBusinessSheets()
     shtMenu.Visible = xlSheetVisible
+    
     shtHospital.Visible = xlSheetVeryHidden
     shtHospitalReplace.Visible = xlSheetVeryHidden
     shtSalesRawDataRpt.Visible = xlSheetVeryHidden
     shtSalesInfos.Visible = xlSheetVeryHidden
+    
+    shtProductMaster.Visible = xlSheetVeryHidden
+    shtProductNameReplace.Visible = xlSheetVeryHidden
+    shtProductProducerReplace.Visible = xlSheetVeryHidden
+    shtProductSeriesReplace.Visible = xlSheetVeryHidden
+    shtProductUnitRatio.Visible = xlSheetVeryHidden
+    shtProductProducerMaster.Visible = xlSheetVeryHidden
+    shtProductNameMaster.Visible = xlSheetVeryHidden
+    
+    shtException.Visible = xlSheetVeryHidden
 End Sub
+
+Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrToSelect As String = "A1" _
+                            , Optional bHidePreviousActiveSheet As Boolean = True)
+    Dim shtCurr As Worksheet
+    Set shtCurr = ActiveSheet
+
+    On Error Resume Next
+
+    If shtToSwitch.Visible = xlSheetVisible Then
+        If Not ActiveSheet Is shtToSwitch Then
+            shtToSwitch.Visible = xlSheetVisible
+            shtToSwitch.Activate
+            Range(sRngAddrToSelect).Select
+        Else
+            shtToSwitch.Visible = xlSheetVeryHidden
+        End If
+    Else
+        shtToSwitch.Visible = xlSheetVisible
+        shtToSwitch.Activate
+        Range(sRngAddrToSelect).Select
+    End If
+
+    If bHidePreviousActiveSheet Then
+        If Not shtCurr Is shtToSwitch Then shtCurr.Visible = xlSheetVeryHidden
+    End If
+
+    Err.Clear
+End Function
+
+'Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrToSelect As String = "A1")
+'    Dim shtCurr As Worksheet
+'    Set shtCurr = ActiveSheet
+'
+'    On Error Resume Next
+'
+'    If shtToSwitch.Visible = xlSheetVisible Then
+'        If ActiveSheet Is shtToSwitch Then
+'            shtToSwitch.Visible = xlSheetVisible
+'            shtToSwitch.Activate
+'            Range(sRngAddrToSelect).Select
+'        Else
+'            shtToSwitch.Visible = xlSheetVeryHidden
+'        End If
+'    Else
+'        shtToSwitch.Visible = xlSheetVisible
+'        shtToSwitch.Activate
+'        Range(sRngAddrToSelect).Select
+'    End If
+'
+'    If bHidePreviousActiveSheet Then
+'        If Not shtCurr Is shtToSwitch Then shtCurr.Visible = xlSheetVeryHidden
+'    End If
+'
+'    err.Clear
+'End Function
+Function fHideAllSheetExcept(ParamArray arr())
+    Dim sht 'As Worksheet
+    Dim shtConvt 'As Worksheet
+    Dim wbSht 'As Worksheet
+    
+    On Error Resume Next
+    
+    For Each wbSht In ThisWorkbook.Worksheets
+        For Each sht In arr
+            Set shtConvt = sht
+            If wbSht Is shtConvt Then
+                'sht.Visible = xlSheetVisible
+                GoTo next_wbsheet
+            End If
+        Next
+        
+        wbSht.Visible = xlSheetVeryHidden
+next_wbsheet:
+    Next
+    
+    
+    Set shtConvt = Nothing
+    Err.Clear
+End Function

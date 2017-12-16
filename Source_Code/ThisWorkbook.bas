@@ -21,6 +21,7 @@ Private Sub Workbook_Open()
     Call fSetIntialValueForShtMenuInitialize
 
     ThisWorkbook.Saved = True
+    ThisWorkbook.CheckCompatibility = False
 End Sub
 
 Sub sub_WorkBookInitialization()
@@ -36,7 +37,9 @@ Sub sub_WorkBookInitialization()
         shtFileSpec.Visible = xlSheetVeryHidden
     End If
 
-    subMain_InvisibleAllBusinessSheets
+    subMain_InvisibleHideAllBusinessSheets
+    Call fSetValidationListForAllSheets
+    Call fSetConditionFormatForFundamentalSheets
 End Sub
 
 Function fRefreshGetAllCommandbarsList()

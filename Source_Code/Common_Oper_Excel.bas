@@ -169,7 +169,7 @@ Function fFindMatchDataInArrayWithCriteria(arr(), arrColsIndex(), arrColValues()
 ' -3: no match
     Dim lEachRow As Long
     Dim lEachCol As Long
-    Dim I As Integer
+    Dim i As Integer
     Dim bAllColAreSame As Boolean
     Dim lMatchCnt As Long
     Dim lOut As Long
@@ -189,10 +189,10 @@ Function fFindMatchDataInArrayWithCriteria(arr(), arrColsIndex(), arrColValues()
         End If
         
         bAllColAreSame = True
-        For I = LBound(arrColValues) To UBound(arrColValues)
-            lEachCol = arrColsIndex(I)
+        For i = LBound(arrColValues) To UBound(arrColValues)
+            lEachCol = arrColsIndex(i)
             
-            If Trim(CStr(arr(lEachRow, lEachCol))) <> arrColValues(I) Then
+            If Trim(CStr(arr(lEachRow, lEachCol))) <> arrColValues(i) Then
                 bAllColAreSame = False
                 GoTo next_row
             End If
@@ -225,7 +225,7 @@ Function fSplitDataCriteria(asCriteria As String, ByRef arrColNames(), ByRef arr
     Dim arrCriteria
     Dim sCol As String
     Dim sValue As String
-    Dim I As Integer
+    Dim i As Integer
     Dim sEachCriteria As String
     
     arrCriteria = Split(asCriteria, ",")
@@ -233,14 +233,14 @@ Function fSplitDataCriteria(asCriteria As String, ByRef arrColNames(), ByRef arr
     ReDim arrColNames(LBound(arrCriteria) To UBound(arrCriteria))
     ReDim arrColValues(LBound(arrCriteria) To UBound(arrCriteria))
     
-    For I = LBound(arrCriteria) To UBound(arrCriteria)
-        sEachCriteria = Trim(arrCriteria(I))    ' colA=Value01
+    For i = LBound(arrCriteria) To UBound(arrCriteria)
+        sEachCriteria = Trim(arrCriteria(i))    ' colA=Value01
         
         sCol = Trim(Split(sEachCriteria, "=")(0))
         sValue = Trim(Split(sEachCriteria, "=")(1))
         
-        arrColNames(I) = sCol
-        arrColValues(I) = sValue
+        arrColNames(i) = sCol
+        arrColValues(i) = sValue
     Next
     
     Erase arrCriteria
@@ -299,17 +299,20 @@ End Function
 Function fExcelFileIsOpen(sExcelFileName As String, Optional wbOut As Workbook) As Boolean
     On Error Resume Next
     Set wbOut = Workbooks(fGetFileBaseName(sExcelFileName))
-    err.Clear
+    Err.Clear
     
     fExcelFileIsOpen = (Not wbOut Is Nothing)
 End Function
 
-Function fRevmoeFilterForAllSheets(wb As Workbook, Optional ByVal asDegree As String = "SHOW_ALL_DATA")
-    Dim sht As Worksheet
+Function fRemoveFilterForAllSheets(Optional wb As Workbook, Optional ByVal asDegree As String = "SHOW_ALL_DATA")
+    If wb Is Nothing Then Set wb = ThisWorkbook
     
+    Dim sht As Worksheet
     For Each sht In wb.Worksheets
         Call fRemoveFilterForSheet(sht, asDegree)
     Next
+    
+    Set sht = Nothing
 End Function
 Function fRemoveFilterForSheet(sht As Worksheet, Optional ByVal asDegree As String = "SHOW_ALL_DATA")
     asDegree = UCase(Trim(asDegree))
@@ -336,7 +339,7 @@ Function fActiveXControlExistsInSheet(sht As Worksheet, asControlName As String,
     bOut = True
     
 err_exit:
-    err.Clear
+    Err.Clear
     fActiveXControlExistsInSheet = bOut
 End Function
 Function fActiveXControlExistsInSheet2(sht As Worksheet, asControlName As String, ByRef objOut As Object) As Boolean
@@ -392,7 +395,7 @@ Function fSortDataInSheetSortSheetData(sht As Worksheet, arrSortByCols, Optional
     Dim rgToSort As Range
     Dim rgSortBy As Range
     Dim iSortOrder As XlSortOrder
-    Dim I As Long
+    Dim i As Long
     Dim lSortCol As Long
     
     lMaxRow = fGetValidMaxRow(sht)
@@ -402,11 +405,11 @@ Function fSortDataInSheetSortSheetData(sht As Worksheet, arrSortByCols, Optional
     
     sht.Sort.SortFields.Clear
     
-    For I = LBound(arrSortByCols) To UBound(arrSortByCols)
-        lSortCol = arrSortByCols(I)
+    For i = LBound(arrSortByCols) To UBound(arrSortByCols)
+        lSortCol = arrSortByCols(i)
         
         If Not IsMissing(arrAscend) Then
-            If arrAscend(I) Then
+            If arrAscend(i) Then
                 iSortOrder = xlAscending
             Else
                 iSortOrder = xlDescending
@@ -484,4 +487,76 @@ End Function
 
 Function fUnProtectSheet(sht As Worksheet)
     sht.Unprotect Password:=PW_PROTECT_SHEET
+End Function
+
+Function fSetValidationListForRange(rngParam As Range, asValueListOrExternalAddr As String)
+'asValueListOrExternalAddr
+' 1) Formula1:="=$K$5:$K$21"    --> range().address( external:=true)
+' 2) Formula1:="a,b,c,d,e,f,g"  --> "a, b, c, d, e, f"
+
+    With rngParam.Validation
+        .Delete
+        .Add Type:=xlValidateList _
+            , AlertStyle:=xlValidAlertStop _
+            , Operator:=xlBetween _
+            , Formula1:=asValueListOrExternalAddr
+        .IgnoreBlank = True
+        .InCellDropdown = True
+        .InputTitle = ""
+        .ErrorTitle = ""
+        .InputMessage = ""
+        .ErrorMessage = ""
+        .IMEMode = xlIMEModeNoControl
+        .ShowInput = True
+        .ShowError = True
+    End With
+End Function
+
+Function fModifyMoveActiveXButtonOnSheet(rngToPlaceTheButton As Range, sBtnTechName As String _
+                                , Optional dblOffsetLeft As Double = 0, Optional dblOffsetTop As Double = 0 _
+                                , Optional dblWidth As Double = 0, Optional dblHeight As Double = 0 _
+                                , Optional lBackColor As Long = 0 _
+                                , Optional lForeColor As Long = 0)
+    Dim sht As Worksheet
+    Set sht = rngToPlaceTheButton.Parent
+    
+    Dim obj As Object
+    Dim eachObj As Object
+    
+    For Each eachObj In sht.OLEObjects
+        If eachObj.Name = sBtnTechName Then
+            Set obj = eachObj
+            Exit For
+        End If
+    Next
+    
+    If obj Is Nothing Then fErr "Button " & sBtnTechName & " cannot be found in sheet " & sht.Name
+    
+    If dblWidth = 0 Then dblWidth = obj.Width
+    If dblHeight = 0 Then dblHeight = obj.Height
+    
+    Dim offsetLeft As Double
+    If dblOffsetLeft = 0 Then
+        offsetLeft = (rngToPlaceTheButton.Width - dblWidth) / 2 - 2
+    Else
+        offsetLeft = dblOffsetLeft
+    End If
+    
+    Dim offsetTop As Double
+    If dblOffsetTop = 0 Then
+        offsetTop = (rngToPlaceTheButton.Width - dblWidth) / 2 - 2
+    Else
+        offsetTop = dblOffsetTop
+    End If
+    
+    obj.Left = rngToPlaceTheButton.Left + offsetLeft
+    obj.Top = rngToPlaceTheButton.Top + offsetTop
+    obj.Width = dblWidth
+    obj.Height = dblHeight
+    
+    If lBackColor <> 0 Then obj.Object.BackColor = lBackColor
+    If lForeColor <> 0 Then obj.Object.ForeColor = lForeColor
+    
+    Set obj = Nothing
+    Set eachObj = Nothing
 End Function

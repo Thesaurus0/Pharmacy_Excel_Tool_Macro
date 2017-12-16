@@ -90,16 +90,16 @@ Function fValidateDuplicateKeysForConfigBlock(arrConfigData(), arrColsIndex(), a
     
     Dim lEachRow As Long
     Dim lEachCol As Long
-    Dim I As Long
+    Dim i As Long
     Dim sKeyStr As String
     Dim dict As New Dictionary
     
     For lEachRow = LBound(arrConfigData, 1) To UBound(arrConfigData, 1)
         sKeyStr = ""
         
-        For I = LBound(arrKeyCols) To UBound(arrKeyCols)
+        For i = LBound(arrKeyCols) To UBound(arrKeyCols)
             'lEachCol = arrColsIndex(arrKeyCols(i) - 1)
-            lEachCol = arrColsIndex(arrKeyCols(I))
+            lEachCol = arrColsIndex(arrKeyCols(i))
             sKeyStr = sKeyStr & Trim(CStr(arrConfigData(lEachRow, lEachCol)))
         Next
         
@@ -147,14 +147,14 @@ Function fReadConfigBlockToArrayValidated(asTag As String, shtParam As Worksheet
         
         Dim lEachRow As Long
         Dim lEachCol As Long
-        Dim I As Long
+        Dim i As Long
         
         For lEachRow = LBound(arrConfigData, 1) To UBound(arrConfigData, 1)
             'i = LBound(arrColsIndex) + 1
-            I = LBound(arrColsIndex)
+            i = LBound(arrColsIndex)
             For lEachCol = LBound(arrColsIndex) To UBound(arrColsIndex)
-                arrOut(lEachRow, I) = arrConfigData(lEachRow, arrColsIndex(lEachCol))
-                I = I + 1
+                arrOut(lEachRow, i) = arrConfigData(lEachRow, arrColsIndex(lEachCol))
+                i = i + 1
             Next
         Next
     End If
@@ -197,13 +197,13 @@ Function fReadConfigBlockToArrayNet(asTag As String, shtParam As Worksheet, arrC
     
     Dim lEachRow As Long
     Dim lEachCol As Long
-    Dim I As Long
+    Dim i As Long
     
     For lEachRow = LBound(arrConfigData, 1) To UBound(arrConfigData, 1)
-        I = LBound(arrColsIndex)
+        i = LBound(arrColsIndex)
         For lEachCol = LBound(arrColsIndex) To UBound(arrColsIndex)
-            arrOut(lEachRow, I) = arrConfigData(lEachRow, arrColsIndex(lEachCol))
-            I = I + 1
+            arrOut(lEachRow, i) = arrConfigData(lEachRow, arrColsIndex(lEachCol))
+            i = i + 1
         Next
     Next
 exit_fun:
@@ -400,10 +400,10 @@ End Function
 
 Function fComposeStrForInputFile(arrConfigData, lEachRow As Long) As String
     Dim sOut As String
-    Dim I As Integer
+    Dim i As Integer
     
-    For I = InputFile.FilePath To InputFile.PivotTableTag
-        sOut = sOut & DELIMITER & Trim(arrConfigData(lEachRow, I))
+    For i = InputFile.FilePath To InputFile.PivotTableTag
+        sOut = sOut & DELIMITER & Trim(arrConfigData(lEachRow, i))
     Next
     
     fComposeStrForInputFile = Right(sOut, Len(sOut) - 1)
@@ -589,14 +589,14 @@ Function fReadSysConfig_InputTxtSheetFile(Optional asReportID As String = "")
     Call fReadConfigInputFiles(asReportID)
     Call fReadTxtFileImportConfig
     
-    Dim I As Long
+    Dim i As Long
     Dim sFileTag As String
     Dim sSource As String
     Dim sDependantFileTag As String
     Dim sDependantFileOrSheet As String
     
-    For I = 0 To gDictInputFiles.Count - 1
-        sFileTag = gDictInputFiles.Keys(I)
+    For i = 0 To gDictInputFiles.Count - 1
+        sFileTag = gDictInputFiles.Keys(i)
         sSource = fGetInputFileSourceType(sFileTag)
         
         If sSource = "READ_PREV_STEP_OUTPUT_SHEET" Or sSource = "READ_PREV_STEP_OUTPUT_FILE" Then
@@ -949,15 +949,15 @@ next_row:
 End Function
 
 Function fCrossValidateInputFileTxtSheetFile()
-    Dim I As Long
+    Dim i As Long
     Dim sFileTag As String
     Dim sSource As String
     Dim sDependantFileTag As String
     Dim sDependantSheet As String
     Dim lActualRow As Long
     
-    For I = 0 To gDictInputFiles.Count - 1
-        sFileTag = gDictInputFiles.Keys(I)
+    For i = 0 To gDictInputFiles.Count - 1
+        sFileTag = gDictInputFiles.Keys(i)
         sSource = fGetInputFileSourceType(sFileTag)
         
         If sSource = "FILE_BINDED_IN_MACRO" Or sSource = "READ_FROM_DRIVE" Then
@@ -975,8 +975,8 @@ Function fCrossValidateInputFileTxtSheetFile()
     Next
     
     If Not gDictTxtFileSpec Is Nothing Then
-        For I = 0 To gDictTxtFileSpec.Count - 1
-            sFileTag = gDictTxtFileSpec.Keys(I)
+        For i = 0 To gDictTxtFileSpec.Count - 1
+            sFileTag = gDictTxtFileSpec.Keys(i)
             
             If Not gDictInputFiles.Exists(sFileTag) Then
                 fErr sFileTag & " is coonfigured under [TXT File Importing Specification], but does not exist in [Input Files], pls check." _

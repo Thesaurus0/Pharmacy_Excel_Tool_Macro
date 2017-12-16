@@ -8,6 +8,7 @@ Public gsEnv As String
 
 Public gbNoData As Boolean
 Public gbBusinessError As Boolean
+Public gsBusinessErrorMsg As String
 Public gbUserCanceled As Boolean
 
 Public gbCheckCompatibility As Boolean

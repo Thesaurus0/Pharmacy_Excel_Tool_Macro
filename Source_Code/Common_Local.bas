@@ -41,7 +41,7 @@ Function fConvertFomulaToValueForSheetIfAny(sht As Worksheet)
     
     On Error Resume Next
     Set rng = sht.Cells.SpecialCells(xlCellTypeFormulas)
-    err.Clear
+    Err.Clear
     
     If rng Is Nothing Then Exit Function
     
@@ -254,13 +254,13 @@ Function fReadTxtFile2NewSheet(sFileFullPath As String, sShtToBeAdded As String,
     Dim arrColFormat()
     arrColFormat = fReadTxtColSpec(asFileTag)
     
-    Dim I As Long
+    Dim i As Long
     Dim iConfiMaxCol As Long
     
     iConfiMaxCol = UBound(arrColFormat)
     ReDim Preserve arrColFormat(LBound(arrColFormat) To iConfiMaxCol + 200)
-    For I = iConfiMaxCol + 1 To iConfiMaxCol + 200
-        arrColFormat(I) = 9         'xlSkipColumn
+    For i = iConfiMaxCol + 1 To iConfiMaxCol + 200
+        arrColFormat(i) = 9         'xlSkipColumn
     Next
     
     Dim sColDelimiter As String
@@ -275,10 +275,10 @@ Function fReadTxtFile2NewSheet(sFileFullPath As String, sShtToBeAdded As String,
 End Function
 
 Function fDeleteRemoveConnections(wb As Workbook)
-    Dim I As Long
+    Dim i As Long
     
-    For I = wb.Connections.Count To 1 Step -1
-        wb.Connections(I).Delete
+    For i = wb.Connections.Count To 1 Step -1
+        wb.Connections(i).Delete
     Next
 End Function
 
@@ -326,14 +326,14 @@ Function fFileSpecTemplateHasAdditionalHeader(rngConfigBlock As Range, arrHeader
     Dim rngHeader As Range
     Dim lHeaderAtLine As Long
     Dim rngFound As Range
-    Dim I As Integer
+    Dim i As Integer
     
     lHeaderAtLine = fFindHeaderAtLineInFileSpec(rngConfigBlock, arrColsName)
     Set rngHeader = fGetRangeByStartEndPos(shtFileSpec, lHeaderAtLine, rngConfigBlock.Column, lHeaderAtLine, Columns.Count)
     
     If IsArray(arrHeadersToFind) Then
-        For I = LBound(arrHeadersToFind) To UBound(arrHeadersToFind)
-            Set rngFound = fFindInWorksheet(rngHeader, CStr(arrHeadersToFind(I)), False)
+        For i = LBound(arrHeadersToFind) To UBound(arrHeadersToFind)
+            Set rngFound = fFindInWorksheet(rngHeader, CStr(arrHeadersToFind(i)), False)
             If rngFound Is Nothing Then
                 Exit For
             End If
@@ -450,7 +450,7 @@ Function fReadInputFileSpecConfig(sFileSpecTag As String, ByRef dictLetterIndex 
     
     If bDynamic Then ' by col dislay name    '"Column Display Name"
         Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(DISPLAY_NAME), False, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
-        Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(LETTER_INDEX), True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
+        'Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(LETTER_INDEX), True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
     Else   'by speicified letter  '"Column Index"     Txt Template
         Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(LETTER_INDEX), False, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
     End If
@@ -690,7 +690,6 @@ Function fReadSheetDataByConfig(asFileTag As String, ByRef dictColIndex As Dicti
                                 , bReadWholeSheetData:=bReadWholeSheetData _
                                 , shtData:=shtToRead _
                                 , alHeaderAtRow:=alDataFromRow - 1)
-    
     If bReadWholeSheetData Then
         Call fCopyReadWholeSheetData2Array(shtToRead, arrDataOut, dictLetterIndex, alDataFromRow)
         Call fConvertDataToTheirRawDataType(arrDataOut, dictLetterIndex, dictRawType, dictColFormat)
@@ -759,13 +758,13 @@ Function fReadSpecifiedColsToArrayByConfig(shtData As Worksheet, dictLetterIndex
     
     ReDim arrDataOut(1 To lShtMaxRow - alDataFromRow + 1, 1 To lArrayMaxCol)
     
-    Dim I As Long
+    Dim i As Long
     Dim sTechName As String
     Dim sColType As String
     Dim arrEachCol()
     Dim lEachRow As Long
-    For I = 0 To dictArrayIndex.Count - 1
-        sTechName = dictArrayIndex.Keys(I)
+    For i = 0 To dictArrayIndex.Count - 1
+        sTechName = dictArrayIndex.Keys(i)
         
         lColCopyFrom = dictLetterIndex(sTechName)
         lColCopyTo = dictArrayIndex(sTechName)
@@ -787,18 +786,18 @@ Function fReadSpecifiedColsToArrayByConfig(shtData As Worksheet, dictLetterIndex
 End Function
 
 Function fConvertDataToTheirRawDataType(ByRef arrData(), dictLetterIndex As Dictionary, dictRawType As Dictionary, dictColFormat As Dictionary)
-    Dim I As Long
+    Dim i As Long
     Dim lEachRow As Long
     Dim lEachCol As Long
     Dim sTechName As String
     Dim sColType As String
     
-    For I = 0 To dictLetterIndex.Count - 1
-        sTechName = dictLetterIndex.Keys(I)
+    For i = 0 To dictLetterIndex.Count - 1
+        sTechName = dictLetterIndex.Keys(i)
         sColType = UCase(dictRawType(sTechName))
         
         If sColType = "DATE" Or sColType = "STRING_PERCENTAGE" Or sColType = "RMB_CURRENCY" Then
-            lEachCol = dictLetterIndex.Items(I)
+            lEachCol = dictLetterIndex.Items(i)
             
             For lEachRow = LBound(arrData, 1) To UBound(arrData, 1)
                 arrData(lEachRow, lEachCol) = fCType(arrData(lEachRow, lEachCol), sColType, dictColFormat(sTechName))
@@ -879,10 +878,10 @@ Function fCdateStr(sDate As String, Optional sFormat As String = "") As Date
     
     bSplit = False
     
-    Dim I As Integer
-    For I = 1 To Len(DATE_DELIMITERS)
-        If InStr(sDate, Mid(DATE_DELIMITERS, I, 1)) > 0 Then
-            sDelimiter = Mid(DATE_DELIMITERS, I, 1)
+    Dim i As Integer
+    For i = 1 To Len(DATE_DELIMITERS)
+        If InStr(sDate, Mid(DATE_DELIMITERS, i, 1)) > 0 Then
+            sDelimiter = Mid(DATE_DELIMITERS, i, 1)
             bSplit = True
             Exit For
         End If
@@ -971,7 +970,7 @@ Function fReadMasterSheetData(asFileTag As String, Optional shtData As Worksheet
 End Function
 
 Function fPrepareOutputSheetHeaderAndTextColumns(shtOutput As Worksheet)
-    Dim I As Long
+    Dim i As Long
     Dim arrHeader()
     Dim lMaxCol As Long
     
@@ -981,9 +980,9 @@ Function fPrepareOutputSheetHeaderAndTextColumns(shtOutput As Worksheet)
     
     Dim lEachCol As Long
     For lEachCol = 1 To lMaxCol
-        For I = 0 To dictRptColIndex.Count - 1
-            If dictRptColIndex.Items(I) = lEachCol Then
-                arrHeader(1, lEachCol) = dictRptDisplayName(dictRptColIndex.Keys(I))
+        For i = 0 To dictRptColIndex.Count - 1
+            If dictRptColIndex.Items(i) = lEachCol Then
+                arrHeader(1, lEachCol) = dictRptDisplayName(dictRptColIndex.Keys(i))
                 Exit For
             End If
         Next
@@ -1011,13 +1010,13 @@ End Function
 Function fPresetColsNumberFormat2TextForOuputSheet(shtOutput As Worksheet, Optional lMaxRow As Long = 0)
     If lMaxRow = 0 Then lMaxRow = Rows.Count - 1
     
-    Dim I As Long
+    Dim i As Long
     Dim iColIndex As Long
     Dim sColTech  As String
     Dim sColType As String
     
-    For I = 0 To dictRptRawType.Count - 1
-        sColTech = dictRptRawType.Keys(I)
+    For i = 0 To dictRptRawType.Count - 1
+        sColTech = dictRptRawType.Keys(i)
         
         If dictRptColAttr(sColTech) = "NOT_SHOW_UP" Then GoTo next_col
             
@@ -1041,19 +1040,19 @@ Function fPostProcess(ByRef shtOutput As Worksheet)
 End Function
 
 Function fDeleteNotShowUpColumns(ByRef shtOutput As Worksheet)
-    Dim I As Long
+    Dim i As Long
     Dim iColIndex As Long
     Dim sColTech  As String
     Dim sColType As String
     
     If dictRptColIndex Is Nothing Then fErr "dictRptColIndex is even empty , pls call fReadSysConfig_Output first"
     
-    For I = dictRptColIndex.Count - 1 To 0 Step -1
-        sColTech = dictRptColIndex.Keys(I)
+    For i = dictRptColIndex.Count - 1 To 0 Step -1
+        sColTech = dictRptColIndex.Keys(i)
         sColType = dictRptColAttr(sColTech)
         
         If sColType = "NOT_SHOW_UP" Then
-            shtOutput.Columns(dictRptColIndex.Items(I)).Delete shift:=xlToLeft
+            shtOutput.Columns(dictRptColIndex.Items(i)).Delete shift:=xlToLeft
         End If
 next_col:
     Next
@@ -1096,21 +1095,23 @@ Function fFormatOutputSheet(ByRef shtOutput As Worksheet, Optional lRowFrom As L
     
     If lMaxRow < 2 Then Exit Function
 
+    Call fSetFormatBoldOrangeBorderForRangeEspeciallyForHeader(fGetRangeByStartEndPos(shtOutput, 1, 1, 1, lMaxCol))
+    
     Call fBasicCosmeticFormatSheet(shtOutput, lMaxCol)
-    Call fFormatReportByConfigByCopyFormat(shtOutput, lRowFrom, lMaxRow, lMaxCol)
-    Call fSetFormatForOddEvenLineByFixColor(shtOutput, lRowFrom, lMaxRow, lMaxCol)
-    Call fSetBorderLineForSheet(shtOutput, lRowFrom, lMaxRow, lMaxCol)
-    Call fSetNumberFormatForOutputSheetByConfigExceptTextCol(shtOutput, lRowFrom, lMaxRow, lMaxCol)
+    Call fFormatReportByConfigByCopyFormat(shtOutput, lMaxCol, lRowFrom, lMaxRow)
+    Call fSetFormatForOddEvenLineByFixColor(shtOutput, lMaxCol, lRowFrom, lMaxRow)
+    Call fSetBorderLineForSheet(shtOutput, lMaxCol, lRowFrom, lMaxRow)
+    Call fSetNumberFormatForOutputSheetByConfigExceptTextCol(shtOutput, lMaxCol, lRowFrom, lMaxRow)
     Call fSetBackNumberFormat2TextForCols(shtOutput)
     Call fSetColumnWidthForOutputSheetByConfig(shtOutput)
 End Function
 
 Function fSetColumnWidthForOutputSheetByConfig(ByRef shtOutput As Worksheet)
-    Dim I As Long
+    Dim i As Long
     
-    For I = 0 To dictRptColWidth.Count - 1
-        If dictRptColWidth.Items(I) <> 0 Then
-            shtOutput.Columns(dictRptColIndex(dictRptColWidth.Keys(I))).ColumnWidth = CDbl(dictRptColWidth.Items(I))
+    For i = 0 To dictRptColWidth.Count - 1
+        If dictRptColWidth.Items(i) <> 0 Then
+            shtOutput.Columns(dictRptColIndex(dictRptColWidth.Keys(i))).ColumnWidth = CDbl(dictRptColWidth.Items(i))
         End If
     Next
 End Function
@@ -1130,20 +1131,19 @@ Function fBasicCosmeticFormatSheet(ByRef sht As Worksheet, Optional lMaxCol As L
     sht.Range("A1").Select
 End Function
 
-Function fFormatReportByConfigByCopyFormat(ByRef shtOutput As Worksheet _
+Function fFormatReportByConfigByCopyFormat(ByRef shtOutput As Worksheet, Optional lMaxCol As Long = 0 _
                 , Optional lRowFrom As Long = 2, Optional lRowTo As Long = 0 _
-                , Optional lMaxCol As Long = 0 _
                 , Optional dictColIndex As Dictionary _
                 , Optional dictColCellFormat As Dictionary _
                 , Optional bOddEvenColor As Boolean = True)
     If lMaxCol = 0 Then lMaxCol = fGetValidMaxCol(shtOutput)
     If lRowTo = 0 Then lRowTo = fGetValidMaxRow(shtOutput)
 
-    Call fSetFormatBoldOrangeBorderForRangeEspeciallyForHeader(fGetRangeByStartEndPos(shtOutput, 1, 1, 1, lMaxCol))
+'    Call fSetFormatBoldOrangeBorderForRangeEspeciallyForHeader(fGetRangeByStartEndPos(shtOutput, 1, 1, 1, lMaxCol))
     
     If lRowTo < lRowFrom Then Exit Function
     
-    Dim I As Long
+    Dim i As Long
     Dim sColTech As String
     Dim lEachCol As Long
     Dim rgFrom As Range
@@ -1153,9 +1153,9 @@ Function fFormatReportByConfigByCopyFormat(ByRef shtOutput As Worksheet _
     If dictColIndex Is Nothing Then Set dictColIndex = dictRptColIndex
     If dictColCellFormat Is Nothing Then Set dictColCellFormat = dictRptCellFormat
     
-    For I = 0 To dictColIndex.Count - 1
-        sColTech = dictColIndex.Keys(I)
-        lEachCol = CLng(dictColIndex.Items(I))
+    For i = 0 To dictColIndex.Count - 1
+        sColTech = dictColIndex.Keys(i)
+        lEachCol = CLng(dictColIndex.Items(i))
         
         Set rgFrom = shtFileSpec.Range(dictColCellFormat(sColTech))
         Set rgTo = fGetRangeByStartEndPos(shtOutput, lRowFrom, lEachCol, lRowTo, lEachCol)
@@ -1181,9 +1181,8 @@ Function fFormatReportByConfigByCopyFormat(ByRef shtOutput As Worksheet _
     Set rgTo = Nothing
 End Function
 
-Function fSetBorderLineForSheet(ByRef shtOutput As Worksheet _
-                , Optional lRowFrom As Long = 2, Optional lRowTo As Long = 0 _
-                , Optional lMaxCol As Long = 0)
+Function fSetBorderLineForSheet(ByRef shtOutput As Worksheet, Optional lMaxCol As Long = 0 _
+                , Optional lRowFrom As Long = 2, Optional lRowTo As Long = 0)
     If lMaxCol = 0 Then lMaxCol = fGetValidMaxCol(shtOutput)
     If lRowTo = 0 Then lRowTo = fGetValidMaxRow(shtOutput)
     
@@ -1195,60 +1194,60 @@ Function fSetBorderLineForRange(ByRef rng As Range)
         .Borders(xlDiagonalDown).LineStyle = xlNone
         .Borders(xlDiagonalUp).LineStyle = xlNone
         With .Borders(xlEdgeLeft)
-            .LineStyle = xlContinuous
-            .ColorIndex = xlAutomatic
-            .TintAndShade = 0
+'            .LineStyle = xlContinuous
+'            .ColorIndex = xlAutomatic
+'            .TintAndShade = 0
             .Weight = xlHairline
         End With
         With .Borders(xlEdgeTop)
-            .LineStyle = xlContinuous
-            .ColorIndex = xlAutomatic
-            .TintAndShade = 0
+'            .LineStyle = xlContinuous
+'            .ColorIndex = xlAutomatic
+'            .TintAndShade = 0
             .Weight = xlHairline
         End With
         With .Borders(xlEdgeBottom)
-            .LineStyle = xlContinuous
-            .ColorIndex = xlAutomatic
-            .TintAndShade = 0
+'            .LineStyle = xlContinuous
+'            .ColorIndex = xlAutomatic
+'            .TintAndShade = 0
             .Weight = xlHairline
         End With
         With .Borders(xlEdgeRight)
-            .LineStyle = xlContinuous
-            .ColorIndex = xlAutomatic
-            .TintAndShade = 0
+'            .LineStyle = xlContinuous
+'            .ColorIndex = xlAutomatic
+'            .TintAndShade = 0
             .Weight = xlHairline
         End With
         With .Borders(xlInsideVertical)
-            .LineStyle = xlContinuous
-            .ColorIndex = xlAutomatic
-            .TintAndShade = 0
+'            .LineStyle = xlContinuous
+'            .ColorIndex = xlAutomatic
+'            .TintAndShade = 0
             .Weight = xlHairline
         End With
         With .Borders(xlInsideHorizontal)
-            .LineStyle = xlContinuous
-            .ColorIndex = xlAutomatic
-            .TintAndShade = 0
+'            .LineStyle = xlContinuous
+'            .ColorIndex = xlAutomatic
+'            .TintAndShade = 0
             .Weight = xlHairline
         End With
     End With
 End Function
 
-Function fSetNumberFormatForOutputSheetByConfigExceptTextCol(ByRef shtOutput As Worksheet _
+Function fSetNumberFormatForOutputSheetByConfigExceptTextCol(ByRef shtOutput As Worksheet, Optional lMaxCol As Long = 0 _
                                                             , Optional lRowFrom As Long = 2, Optional lRowTo As Long = 0 _
-                                                            , Optional lMaxCol As Long = 0)
+                                                            )
     If lMaxCol = 0 Then lMaxCol = fGetValidMaxCol(shtOutput)
     If lRowTo = 0 Then lRowTo = fGetValidMaxRow(shtOutput)
     
     If lRowTo < lRowFrom Then Exit Function
     
-    Dim I As Long
+    Dim i As Long
     Dim sColTech As String
     Dim lEachCol As Long
     Dim sFormat As String
     Dim sColType As String
     
-    For I = 0 To dictRptRawType.Count - 1
-        sColTech = dictRptRawType.Keys(I)
+    For i = 0 To dictRptRawType.Count - 1
+        sColTech = dictRptRawType.Keys(i)
         
         If dictRptColAttr(sColTech) = "NOT_SHOW_UP" Then GoTo next_col
         
@@ -1278,7 +1277,7 @@ Function fSetBackNumberFormat2TextForCols(ByRef shtOutput As Worksheet _
 
     If lRowTo < lRowFrom Then Exit Function
     
-    Dim I As Long
+    Dim i As Long
     Dim lEachRow As Long
     Dim sColTech As String
     Dim lEachCol As Long
@@ -1286,8 +1285,8 @@ Function fSetBackNumberFormat2TextForCols(ByRef shtOutput As Worksheet _
     Dim sColType As String
     Dim arrData()
     
-    For I = 0 To dictRptRawType.Count - 1
-        sColTech = dictRptRawType.Keys(I)
+    For i = 0 To dictRptRawType.Count - 1
+        sColTech = dictRptRawType.Keys(i)
         
         If dictRptColAttr(sColTech) = "NOT_SHOW_UP" Then GoTo next_col
         
@@ -1313,9 +1312,8 @@ next_col:
     
 End Function
 
-Function fSetFormatForOddEvenLineByFixColor(ByRef shtOutput As Worksheet _
-                                                            , Optional lRowFrom As Long = 2, Optional lRowTo As Long = 0 _
-                                                            , Optional lMaxCol As Long = 0)
+Function fSetFormatForOddEvenLineByFixColor(ByRef shtOutput As Worksheet, Optional lMaxCol As Long = 0 _
+                                            , Optional lRowFrom As Long = 2, Optional lRowTo As Long = 0)
     If lMaxCol = 0 Then lMaxCol = fGetValidMaxCol(shtOutput)
     If lRowTo = 0 Then lRowTo = fGetValidMaxRow(shtOutput)
 
@@ -1354,9 +1352,138 @@ Function fSetFormatForOddEvenLineByFixColor(ByRef shtOutput As Worksheet _
     Set rgOddLInes = Nothing
 End Function
 
-Function fSetFormatBoldOrangeBorderForRangeEspeciallyForHeader(ByRef rgTarget As Range _
-                                                            , Optional lRowFrom As Long = 2, Optional lRowTo As Long = 0 _
-                                                            , Optional lMaxCol As Long = 0)
+Function fDeleteAllConditionFormatFromSheet(ByRef shtParam As Worksheet)
+    shtParam.Cells.FormatConditions.Delete
+End Function
+Function fSetConditionFormatForOddEvenLine(ByRef shtParam As Worksheet, Optional lMaxCol As Long = 0 _
+                                            , Optional lRowFrom As Long = 2, Optional lRowTo As Long = 0 _
+                                            , Optional arrKeyColsNotBlank _
+                                            , Optional bExtendToMore10ThousRows As Boolean = False)
+'arrKeyColsNotBlank
+'    1. singlecol: 1
+'    1. array(1,2,3)
+    If lMaxCol = 0 Then lMaxCol = fGetValidMaxCol(shtParam)
+    If lRowTo = 0 Then lRowTo = fGetValidMaxRow(shtParam)
+    
+    If lMaxCol <= 0 Then Exit Function
+    
+    If bExtendToMore10ThousRows Then lRowTo = lRowTo + 100000
+
+    If lRowTo < lRowFrom Then Exit Function
+    
+    Dim rngCondFormat As Range
+    Set rngCondFormat = fGetRangeByStartEndPos(shtParam, lRowFrom, 1, lRowTo, lMaxCol)
+    
+    Dim sAddr As String
+    Dim sKeyColsFormula As String
+    Dim sFormula As String
+    Dim lColor As Long
+    Dim i As Integer
+    Dim sColLetter As String
+    Dim aFormatCondition As FormatCondition
+    
+    If Not IsMissing(arrKeyColsNotBlank) Then
+        If IsArray(arrKeyColsNotBlank) Then
+            For i = LBound(arrKeyColsNotBlank) To UBound(arrKeyColsNotBlank)
+                sColLetter = fNum2Letter(arrKeyColsNotBlank(i))
+                sKeyColsFormula = sKeyColsFormula & "," & "len(trim($" & sColLetter & lRowFrom & ")) > 0"
+            Next
+            If Len(sKeyColsFormula) > 0 Then sKeyColsFormula = Right(sKeyColsFormula, Len(sKeyColsFormula) - 1)
+            sKeyColsFormula = sKeyColsFormula & ","
+        Else
+            sColLetter = fNum2Letter(arrKeyColsNotBlank)
+            sKeyColsFormula = "len(trim($" & sColLetter & lRowFrom & ")) > 0"
+            sKeyColsFormula = sKeyColsFormula & ","
+        End If
+    Else
+        sKeyColsFormula = ""
+    End If
+    
+    sFormula = "=And( " & sKeyColsFormula & "mod(row(),2)=0)"
+    
+    Set aFormatCondition = rngCondFormat.FormatConditions.Add(Type:=xlExpression, Formula1:=sFormula)
+    aFormatCondition.SetFirstPriority
+    aFormatCondition.StopIfTrue = False
+    
+    sAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=REPORT_EVEN_LINE_COLOR")
+    lColor = fGetRangeFromExternalAddress(sAddr).Interior.Color
+    aFormatCondition.Interior.Color = lColor
+    
+    sFormula = "=And( " & sKeyColsFormula & "mod(row(),2)<>0)"
+    Set aFormatCondition = rngCondFormat.FormatConditions.Add(Type:=xlExpression, Formula1:=sFormula)
+    aFormatCondition.SetFirstPriority
+    aFormatCondition.StopIfTrue = False
+    
+    sAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=REPORT_ODD_LINE_COLOR")
+    lColor = fGetRangeFromExternalAddress(sAddr).Interior.Color
+    aFormatCondition.Interior.Color = lColor
+    
+    Set aFormatCondition = Nothing
+End Function
+
+Function fSetConditionFormatForBorders(ByRef shtParam As Worksheet, Optional lMaxCol As Long = 0 _
+                                            , Optional lRowFrom As Long = 2, Optional lRowTo As Long = 0 _
+                                            , Optional arrKeyColsNotBlank _
+                                            , Optional bExtendToMore10ThousRows As Boolean = False)
+'arrKeyColsNotBlank
+'    1. singlecol: 1
+'    1. array(1,2,3)
+    If lMaxCol = 0 Then lMaxCol = fGetValidMaxCol(shtParam)
+    If lRowTo = 0 Then lRowTo = fGetValidMaxRow(shtParam)
+    
+    If lMaxCol <= 0 Then Exit Function
+    If bExtendToMore10ThousRows Then lRowTo = lRowTo + 100000
+
+    If lRowTo < lRowFrom Then Exit Function
+    
+    Dim rngCondFormat As Range
+    Set rngCondFormat = fGetRangeByStartEndPos(shtParam, lRowFrom, 1, lRowTo, lMaxCol)
+    
+    Dim sAddr As String
+    Dim sKeyColsFormula As String
+    Dim sFormula As String
+    Dim lColor As Long
+    Dim i As Integer
+    Dim sColLetter As String
+    Dim aFormatCondition As FormatCondition
+    
+    If Not IsMissing(arrKeyColsNotBlank) Then
+        If IsArray(arrKeyColsNotBlank) Then
+            For i = LBound(arrKeyColsNotBlank) To UBound(arrKeyColsNotBlank)
+                sColLetter = fNum2Letter(arrKeyColsNotBlank(i))
+                sKeyColsFormula = sKeyColsFormula & "," & "len(trim($" & sColLetter & lRowFrom & ")) > 0"
+            Next
+            If Len(sKeyColsFormula) > 0 Then sKeyColsFormula = Right(sKeyColsFormula, Len(sKeyColsFormula) - 1)
+        Else
+            sColLetter = fNum2Letter(arrKeyColsNotBlank)
+            sKeyColsFormula = "len(trim($" & sColLetter & lRowFrom & ")) > 0"
+            sKeyColsFormula = sKeyColsFormula & ","
+        End If
+    Else
+        sKeyColsFormula = ""
+    End If
+    
+    sFormula = "=And( " & sKeyColsFormula & ")"
+    
+    Set aFormatCondition = rngCondFormat.FormatConditions.Add(Type:=xlExpression, Formula1:=sFormula)
+    aFormatCondition.SetFirstPriority
+    aFormatCondition.StopIfTrue = False
+    
+    aFormatCondition.Borders(xlLeft).Weight = xlHairline
+    aFormatCondition.Borders(xlRight).Weight = xlHairline
+    aFormatCondition.Borders(xlTop).Weight = xlHairline
+    aFormatCondition.Borders(xlBottom).Weight = xlHairline
+ 
+    Set aFormatCondition = Nothing
+End Function
+Function fSetFormatBoldOrangeBorderForHeader(ByRef sht As Worksheet, Optional lMaxCol As Long = 0 _
+                                            , Optional lHeaderRowFrom As Long = 1, Optional lHeaderRowTo As Long = 1 _
+                                            )
+    If lMaxCol <= 0 Then lMaxCol = fGetValidMaxCol(sht)
+    
+    fSetFormatBoldOrangeBorderForRangeEspeciallyForHeader fGetRangeByStartEndPos(sht, lHeaderRowFrom, 1, lHeaderRowTo, lMaxCol)
+End Function
+Function fSetFormatBoldOrangeBorderForRangeEspeciallyForHeader(ByRef rgTarget As Range)
     Dim lColor As Long
     Dim sAddr As String
     
@@ -1391,24 +1518,47 @@ Function fSetFormatBoldOrangeBorderForRangeEspeciallyForHeader(ByRef rgTarget As
 End Function
 
 Function fCheckIfGotBusinessError() As Boolean
-    If err.Number <> 0 Then
-        If err.Number = vbObjectError + ERROR_NUMBER Then
+    If Err.Number <> 0 Then
+        If Err.Number = vbObjectError + ERROR_NUMBER Then
             fCheckIfGotBusinessError = True
             Exit Function
         End If
     End If
     
+    If gbBusinessError Then fCheckIfGotBusinessError = True:            Exit Function
+    If fNzero(gsBusinessErrorMsg) Then
+        fMsgBox gsBusinessErrorMsg
+        fCheckIfGotBusinessError = True
+        Exit Function
+    End If
+    
     fCheckIfGotBusinessError = False
 End Function
 Function fCheckIfUnCapturedExceptionAbnormalError() As Boolean
-    If err.Number <> 0 Then
+    If Err.Number <> 0 Then
         fMsgBox "Error has occurred:" _
                 & vbCr & vbCr _
-                & "Error Number: " & err.Number & vbCr _
-                & "Error Description:" & err.Description
+                & "Error Number: " & Err.Number & vbCr _
+                & "Error Description:" & Err.Description
         fCheckIfUnCapturedExceptionAbnormalError = True
         Exit Function
     End If
     
     fCheckIfUnCapturedExceptionAbnormalError = False
+End Function
+
+Function fPrepareHeaderToSheet(shtParam As Worksheet, ParamArray arrHeaders())
+    Dim i As Integer
+    Dim iV As Integer
+    Dim arrHeaderHorizontal()
+    
+    ReDim arrHeaderHorizontal(1 To 1, 1 To UBound(arrHeaders) - LBound(arrHeaders) + 1)
+    iV = 0
+    For i = LBound(arrHeaders) To UBound(arrHeaders)
+        iV = iV + 1
+        arrHeaderHorizontal(1, iV) = arrHeaders(i)
+    Next
+    
+    shtParam.Cells(1, 1).Resize(1, iV).Value = arrHeaderHorizontal
+    Erase arrHeaderHorizontal
 End Function

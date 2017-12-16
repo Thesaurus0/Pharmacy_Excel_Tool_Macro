@@ -101,7 +101,7 @@ Function fCommandBarExists(asBarName As String, ByRef cmdBar As CommandBar) As B
     On Error Resume Next
     Set cmdBar = Application.CommandBars(asBarName)
     fCommandBarExists = (Not cmdBar Is Nothing)
-    err.Clear
+    Err.Clear
 End Function
 
 Function fAddNewCommandBar(asBarName As String) As CommandBar
@@ -118,7 +118,7 @@ End Function
 Sub sub_RemoveCommandBar(ByVal asBarName As String)
     On Error Resume Next
     Application.CommandBars(asBarName).Delete
-    err.Clear
+    Err.Clear
 End Sub
 
 Function fAddNewButtonToBarWhenExistsUpdateIt(cmdBar As CommandBar, asBtnCaption As String _
@@ -150,7 +150,7 @@ Function fButtonExistsInCommandBar(cmdBar As CommandBar, asBtnCaption As String,
     Set btn = cmdBar.Controls(asBtnCaption)
     
     fButtonExistsInCommandBar = (Not btn Is Nothing)
-    err.Clear
+    Err.Clear
 End Function
 
 Function fReadConfigCommandBarsInfo() As Variant
@@ -180,7 +180,7 @@ Function fReadConfigCommandBarsInfo() As Variant
                                 )
     
     'Call fValidateDuplicateInArray(arrConfigData, 1, True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(1))
-    Call fValidateDuplicateInArray(arrConfigData, 2, True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(2))
+    Call fValidateDuplicateInArray(arrConfigData, Array(1, 2), False, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(2))
     Call fValidateDuplicateInArray(arrConfigData, 3, True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
     
     Call fValidateBlankInArray(arrConfigData, 1, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(1))
@@ -228,7 +228,7 @@ Function fReadConfigRibbonCommandBarMenuAndCreateCommandBarButton()
 '    Call fValidateBlankInArray(arrConfigData, 1, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(1))
 '    Call fValidateBlankInArray(arrConfigData, 2, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(2))
 '    Call fValidateBlankInArray(arrConfigData, 3, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
-    Dim I As Long
+    Dim i As Long
     Dim sEnv As String
     Dim sCmdBarName As String
     Dim sBtnCap As String
@@ -236,17 +236,17 @@ Function fReadConfigRibbonCommandBarMenuAndCreateCommandBarButton()
     Dim lFaceId As Long
     Dim sTip As String
     
-    For I = LBound(arrConfigData, 1) To UBound(arrConfigData, 1)
-        If fArrayRowIsBlankHasNoData(arrConfigData, I) Then GoTo next_row
+    For i = LBound(arrConfigData, 1) To UBound(arrConfigData, 1)
+        If fArrayRowIsBlankHasNoData(arrConfigData, i) Then GoTo next_row
         
-        sEnv = arrConfigData(I, 5)
+        sEnv = arrConfigData(i, 5)
         
         If sEnv = gsEnv Or sEnv = "SHARED" Then
-            sCmdBarName = arrConfigData(I, 1)
-            sBtnCap = arrConfigData(I, 2)
-            sSub = arrConfigData(I, 3)
-            lFaceId = arrConfigData(I, 4)
-            sTip = arrConfigData(I, 6)
+            sCmdBarName = arrConfigData(i, 1)
+            sBtnCap = arrConfigData(i, 2)
+            sSub = arrConfigData(i, 3)
+            lFaceId = arrConfigData(i, 4)
+            sTip = arrConfigData(i, 6)
             
             Call subAddNewButtonToBarWhenBarNotExistsCreateIt(sCmdBarName, sBtnCap, sSub, lFaceId, sTip)
         End If
@@ -263,13 +263,13 @@ Function fRemoveAllCommandbarsByConfig()
     Dim arrAllCmdBarList()
     arrAllCmdBarList = ThisWorkbook.fGetThisWorkBookVariable("CMDBAR")
     
-    Dim I As Long
+    Dim i As Long
     
-    For I = LBound(arrAllCmdBarList) To UBound(arrAllCmdBarList)
-        Call sub_RemoveCommandBar(arrAllCmdBarList(I))
+    For i = LBound(arrAllCmdBarList) To UBound(arrAllCmdBarList)
+        Call sub_RemoveCommandBar(arrAllCmdBarList(i))
     Next
     
-    err.Clear
+    Err.Clear
 End Function
 
 Function fEnableOrDisableAllCommandBarsByConfig(bValue As Boolean)
@@ -278,11 +278,11 @@ Function fEnableOrDisableAllCommandBarsByConfig(bValue As Boolean)
     Dim arrAllCmdBarList()
     arrAllCmdBarList = ThisWorkbook.fGetThisWorkBookVariable("CMDBAR")
     
-    Dim I As Long
+    Dim i As Long
     
-    For I = LBound(arrAllCmdBarList) To UBound(arrAllCmdBarList)
-        Application.CommandBars(arrAllCmdBarList(I)).Visible = bValue
+    For i = LBound(arrAllCmdBarList) To UBound(arrAllCmdBarList)
+        Application.CommandBars(arrAllCmdBarList(i)).Visible = bValue
     Next
     
-    err.Clear
+    Err.Clear
 End Function
