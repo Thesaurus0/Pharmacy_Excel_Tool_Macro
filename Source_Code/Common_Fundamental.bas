@@ -615,7 +615,7 @@ Function fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData, arrK
         If Len(asKeysDelimiter) > 0 Then sKeyStr = Right(sKeyStr, Len(sKeyStr) - Len(asKeysDelimiter))
         
         If dictOut.Exists(sKeyStr) Then
-            If WhenKeyDuplicateThenError Then fErr "Duplicate key was found "
+            If WhenKeyDuplicateThenError Then fErr "Duplicate key was found " & vbCr & sKeyStr
             GoTo next_row
         End If
         

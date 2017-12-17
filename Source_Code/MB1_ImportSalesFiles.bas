@@ -46,16 +46,10 @@ Sub subMain_ImportSalesInfoFiles()
         If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
             Call fLoadFilesAndRead2Variables
             
-'            If gsCompanyID = "PW" Then
-'                Call fProcessDataQualified
-'            Else
-'                Call fProcessDataAll
-'            End If
-            
             If gsCompanyID = "PW" Then
                 arrMaster = fFileterTwoDimensionArray(arrMaster, dictMstColIndex("RecordType"), "ÏúÊÛ³ö¿â")
             End If
-'
+
             Call fProcessDataAll
             
             Erase arrMaster

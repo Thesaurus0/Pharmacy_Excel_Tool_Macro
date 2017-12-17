@@ -594,6 +594,7 @@ Function fReadSysConfig_InputTxtSheetFile(Optional asReportID As String = "")
     Dim sSource As String
     Dim sDependantFileTag As String
     Dim sDependantFileOrSheet As String
+    Dim sFileSpec As String
     
     For i = 0 To gDictInputFiles.Count - 1
         sFileTag = gDictInputFiles.Keys(i)
@@ -621,11 +622,13 @@ Function fReadSysConfig_InputTxtSheetFile(Optional asReportID As String = "")
             End If
             
             Call fUpdateGDictInputFile_FileName(sFileTag, sDependantFileOrSheet)
+            
+            sFileSpec = fGetOutputReportItem(sDependantFileTag, "FILE_SPEC")
+            Call fUpdateGDictInputFile_FileSpecTag(sFileTag, sFileSpec)
         End If
     Next
     
     Call fCrossValidateInputFileTxtSheetFile
-    
 End Function
 
 Function fReadTxtFileImportConfig(Optional asReportID As String = "")
@@ -1009,8 +1012,20 @@ End Function
 
 Function fGetReneratedReport(Optional asReportID As String = "") As String
     If fZero(asReportID) Then asReportID = gsRptID
+    
     fGetReneratedReport = fGetSpecifiedConfigCellValue(shtSysConf, "[Generate Report File / Sheet]" _
                             , "Genearted File Or Sheet", "Report ID=" & asReportID)
+End Function
+
+Function fGetOutputReportItem(Optional asReportID As String = "", Optional sType As String) As String
+    If fZero(asReportID) Then asReportID = gsRptID
+    
+    If sType = "FILE_SPEC" Then
+        fGetOutputReportItem = fGetSpecifiedConfigCellValue(shtSysConf, "[Output Files]" _
+                            , "File Spec Tag", "Report ID=" & asReportID)
+    Else
+        fErr "wrong param fGetOutputReportItem"
+    End If
 End Function
 
 Function fSetReneratedReport(Optional asReportID As String = "", Optional sRptFile As String = "") As String

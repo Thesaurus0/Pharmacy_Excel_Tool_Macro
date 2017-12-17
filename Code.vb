@@ -1,3 +1,7 @@
+http://club.excelhome.net/forum.php?mod=viewthread&tid=395683&extra=page%3D1&page=1
+http://club.excelhome.net/thread-395683-65-1.html
+
+
 Call fCheckIfSheetHasNodata_RaiseErrToStop(arrMaster)
 
     Select Case sVariable

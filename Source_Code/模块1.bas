@@ -6,6 +6,12 @@ Attribute ºê1.VB_ProcData.VB_Invoke_Func = " \n14"
 '
 
 '
-    Call fModifyMoveActiveXButtonOnSheet(shtSalesRawDataRpt.Cells(1, fGetValidMaxCol(shtSalesRawDataRpt) + 1) _
-                                        , "btnReplaceUnify", 1, 1, , 25, RGB(255, 20, 134), RGB(255, 255, 255))
+'    Call fModifyMoveActiveXButtonOnSheet(shtSalesRawDataRpt.Cells(1, fGetValidMaxCol(shtSalesRawDataRpt) + 1) _
+'                                        , "btnReplaceUnify", 1, 1, , 25, RGB(255, 20, 134), RGB(255, 255, 255))
+
+    Debug.Print ActiveCell.Address(external:=True)
+    
+    Dim a As Range
+    
+    Set a = fGetRangeFromExternalAddress(ActiveCell.Address(external:=True))
 End Sub

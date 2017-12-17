@@ -75,6 +75,28 @@ Sub subMain_ProductUnitRatio()
     'Call fHideAllSheetExcept(shtProductMaster, shtProductProducerReplace, shtProductNameReplace, shtProductSeriesReplace, shtProductUnitRatio)
 End Sub
 
+Sub subMain_SalesMan()
+    fActiveVisibleSwitchSheet shtSalesManMaster, , False
+End Sub
+
+Sub subMain_SelfPurchaseOrder()
+    fActiveVisibleSwitchSheet shtSelfPurchaseOrder, , False
+End Sub
+
+Sub subMain_SelfSalesOrder()
+    fActiveVisibleSwitchSheet shtSelfSalesOrder, , False
+End Sub
+
+
+Sub subMain_FirstLevelCommission()
+    fActiveVisibleSwitchSheet shtFirstLevelCommission, , False
+End Sub
+
+Sub subMain_SecondLevelCommission()
+    fActiveVisibleSwitchSheet shtSecondLevelCommission, , False
+End Sub
+
+
 Sub subMain_InvisibleHideAllBusinessSheets()
     shtMenu.Visible = xlSheetVisible
     
@@ -92,6 +114,12 @@ Sub subMain_InvisibleHideAllBusinessSheets()
     shtProductNameMaster.Visible = xlSheetVeryHidden
     
     shtException.Visible = xlSheetVeryHidden
+    shtProfit.Visible = xlSheetVeryHidden
+    shtSelfSalesOrder.Visible = xlSheetVeryHidden
+    shtSelfPurchaseOrder.Visible = xlSheetVeryHidden
+    shtSalesManMaster.Visible = xlSheetVeryHidden
+    shtFirstLevelCommission.Visible = xlSheetVeryHidden
+    shtSecondLevelCommission.Visible = xlSheetVeryHidden
 End Sub
 
 Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrToSelect As String = "A1" _

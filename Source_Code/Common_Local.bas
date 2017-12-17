@@ -7,6 +7,10 @@ Function fUpdateGDictInputFile_FileName(asFileTag As String, asFileName As Strin
     Call fUpdateDictionaryItemValueForDelimitedElement(gDictInputFiles, asFileTag, InputFile.FilePath - InputFile.FileTag, asFileName)
 End Function
 
+Function fUpdateGDictInputFile_FileSpecTag(asFileTag As String, asFileSpecTag As String)
+    Call fUpdateDictionaryItemValueForDelimitedElement(gDictInputFiles, asFileTag, InputFile.FileSpecTag - InputFile.FileTag, asFileSpecTag)
+End Function
+
 Function fSetValueBackToSysConf_InputFile_FileName(asFileTag As String, asFileName As String)
     Call fSetSpecifiedConfigCellValue(shtSysConf, "[Input Files]", "File Full Path", "File Tag=" & asFileTag, asFileName)
 End Function
@@ -1547,7 +1551,7 @@ Function fCheckIfUnCapturedExceptionAbnormalError() As Boolean
     fCheckIfUnCapturedExceptionAbnormalError = False
 End Function
 
-Function fPrepareHeaderToSheet(shtParam As Worksheet, ParamArray arrHeaders())
+Function fPrepareHeaderToSheet(shtParam As Worksheet, arrHeaders, Optional alHeaderAtRow As Long = 1)
     Dim i As Integer
     Dim iV As Integer
     Dim arrHeaderHorizontal()
@@ -1559,6 +1563,7 @@ Function fPrepareHeaderToSheet(shtParam As Worksheet, ParamArray arrHeaders())
         arrHeaderHorizontal(1, iV) = arrHeaders(i)
     Next
     
-    shtParam.Cells(1, 1).Resize(1, iV).Value = arrHeaderHorizontal
+    shtParam.Cells(alHeaderAtRow, 1).Resize(1, iV).Value = arrHeaderHorizontal
     Erase arrHeaderHorizontal
+    Erase arrHeaders
 End Function

@@ -90,6 +90,9 @@ Function fSetConditionFormatForFundamentalSheets()
     Call fClearConditionFormatAndAdd(shtProductUnitRatio, Array(1, 2, 3, 4), True)
     Call fClearConditionFormatAndAdd(shtProductProducerMaster, Array(1), True)
     Call fClearConditionFormatAndAdd(shtProductNameMaster, Array(1, 2), True)
+    Call fClearConditionFormatAndAdd(shtSalesManMaster, Array(1), True)
+    Call fClearConditionFormatAndAdd(shtFirstLevelCommission, Array(1, 2, 3, 4), True)
+    Call fClearConditionFormatAndAdd(shtSecondLevelCommission, Array(1, 2, 3, 4), True)
     Call fClearConditionFormatAndAdd(shtException, Array(1), True)
 End Function
 

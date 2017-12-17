@@ -465,24 +465,20 @@ End Sub
 
 Sub Sub_RemoveFilterForAcitveSheet()
     Call fRemoveFilterForSheet(ActiveSheet)
-'    Dim lMaxCol As Long
-'    lMaxCol = ActiveSheet.Cells(1, 1).End(xlToRight).Column
-'    Dim lMaxRow As Long
-'    lMaxRow = fGetValidMaxRow(ActiveSheet)
-'
-'    If ActiveSheet.AutoFilterMode Then  'auto filter
-'        ActiveSheet.AutoFilter.ShowAllData
-'    Else
-'        fGetRangeByStartEndPos(ActiveSheet, 1, 1, 1, lMaxCol).AutoFilter
-'    End If
-'
-'    Dim aActiveCellValue
-'    Dim lColToFilter As Long
-'    aActiveCellValue = ActiveCell.Value
-'    lColToFilter = ActiveCell.Column
-'
-'    fGetRangeByStartEndPos(ActiveSheet, 1, 1, lMaxRow, lMaxCol).AutoFilter _
-'                Field:=lColToFilter _
-'                , Criteria1:="=*" & aActiveCellValue & "*" _
-'                , Operator:=xlAnd
+End Sub
+
+Sub sub_SortBySelectColumn()
+    Dim sSelectContent As String
+    Dim lSelectCol As Long
+    sSelectContent = ActiveCell.Value
+    lSelectCol = ActiveCell.Column
+    
+    Call Sub_RemoveFilterForAcitveSheet
+    Call fSortDataInSheetSortSheetData(ActiveSheet, Array(ActiveCell.Column))
+    
+    Dim rgFound As Range
+    Set rgFound = fFindInWorksheet(ActiveSheet.Columns(lSelectCol), sSelectContent, True, True)
+    
+    If Not rgFound Is Nothing Then rgFound.Select
+    Set rgFound = Nothing
 End Sub
