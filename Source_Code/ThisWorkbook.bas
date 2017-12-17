@@ -13,6 +13,16 @@ Option Base 1
 
 Dim arrAllCmdBarList()
 
+Private Sub Workbook_BeforeClose(Cancel As Boolean)
+    Call fRemoveAllCommandbarsByConfig
+        
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.DisplayAlerts = True
+    Application.AskToUpdateLinks = True
+    ThisWorkbook.CheckCompatibility = False
+End Sub
+
 Private Sub Workbook_Open()
     gsEnv = fGetEnvFromSysConf
 
@@ -37,7 +47,7 @@ Sub sub_WorkBookInitialization()
         shtFileSpec.Visible = xlSheetVeryHidden
     End If
 
-    subMain_InvisibleHideAllBusinessSheets
+    Call subMain_InvisibleHideAllBusinessSheets
     Call fSetValidationListForAllSheets
     Call fSetConditionFormatForFundamentalSheets
 End Sub

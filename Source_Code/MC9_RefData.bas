@@ -12,6 +12,23 @@ Enum Company
     Selected = 7
 End Enum
 
+Type TypeSecondLCommDefault
+    ZSY             As Double
+    HR              As Double
+    GKYX            As Double
+    GY              As Double
+    SYY             As Double
+    GZHR            As Double
+    ZHHR            As Double
+    FSGK            As Double
+    GZGK            As Double
+    XT              As Double
+    PW              As Double
+    TY              As Double
+    CZL             As Double
+    SYYDZ           As Double
+End Type
+
 Dim dictHospitalMaster As Dictionary
 Dim dictHospitalReplace As Dictionary
 
@@ -27,7 +44,17 @@ Dim dictProductSeriesReplace As Dictionary
 Dim dictProductUnitRatio As Dictionary
 'Dim dictProductUnitRatio As Dictionary
 
-Function fReadConfigCompanyList() As Dictionary
+Dim dictFirstLevelComm As Dictionary
+Dim dictSecondLevelComm As Dictionary
+
+Dim dictCompanyNameID As Dictionary
+
+Dim bFirstLCommDefaultGot As Boolean
+Dim dblFirstLCommDefault As Double
+Dim bSecondLCommDefaultGot As Boolean
+Dim SecondLCommDefault As TypeSecondLCommDefault
+
+Function fReadConfigCompanyList(Optional ByRef dictCompanyNameID As Dictionary) As Dictionary
     Dim asTag As String
     Dim arrColsName()
     Dim rngToFindIn As Range
@@ -73,6 +100,7 @@ Function fReadConfigCompanyList() As Dictionary
     Dim dictOut As Dictionary
     Set dictOut = New Dictionary
     
+    
     Dim lEachRow As Long
     Dim sFileTag As String
     Dim sValueStr As String
@@ -89,6 +117,8 @@ Function fReadConfigCompanyList() As Dictionary
         sValueStr = fComposeStrForDictCompanyList(arrConfigData, lEachRow)
         
         dictOut.Add sFileTag, sValueStr
+        
+        dictCompanyNameID.Add arrConfigData(lEachRow, Company.Name), arrConfigData(lEachRow, Company.ID)
 next_row:
     Next
     
@@ -338,4 +368,99 @@ Function fGetProductMasterUnit(sProductProducer As String, sProductName As Strin
 End Function
 '------------------------------------------------------------------------------
 
+'====================== 1st Level Commission =================================================================
+Function fReadSheetFirstLevelComm2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    Call fReadSheetDataByConfig("FIRST_LEVEL_COMMISSION", dictColIndex, arrData, , , , , shtFirstLevelCommission)
+    Set dictFirstLevelComm = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
+            , Array(dictColIndex("SalesCompany") _
+                  , dictColIndex("ProductProducer") _
+                  , dictColIndex("ProductName") _
+                  , dictColIndex("ProductSeries") _
+                  , dictColIndex("FromUnit")) _
+            , Array(dictColIndex("Commission")), DELIMITER, DELIMITER)
+    Set dictColIndex = Nothing
+End Function
+Function fGetFirstLevelComm(sSalesCompName As String, sProducer As String, sProductName As String _
+                            , sProductSeries As String, ByRef dblFirstComm As Double) As Boolean
+    If dictFirstLevelComm Is Nothing Then Call fReadSheetFirstLevelComm2Dictionary
+    
+    Dim sKey As String
+    sKey = sSalesCompName & DELIMITER & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+    
+    If dictFirstLevelComm.Exists(sKey) Then
+        dblFirstComm = dictFirstLevelComm(sKey)
+        fGetFirstLevelComm = True
+    Else
+        dblFirstComm = 0
+        fGetFirstLevelComm = False
+    End If
+End Function
+'------------------------------------------------------------------------------
 
+
+'====================== 2nd Level Commission =================================================================
+Function fReadSheetSecondLevelComm2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    Call fReadSheetDataByConfig("SECOND_LEVEL_COMMISSION", dictColIndex, arrData, , , , , shtSecondLevelCommission)
+    Set dictSecondLevelComm = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
+            , Array(dictColIndex("SalesCompany") _
+                  , dictColIndex("ProductProducer") _
+                  , dictColIndex("ProductName") _
+                  , dictColIndex("ProductSeries") _
+                  , dictColIndex("FromUnit")) _
+            , Array(dictColIndex("Commission")), DELIMITER, DELIMITER)
+    Set dictColIndex = Nothing
+End Function
+Function fGetSecondLevelComm(sSalesCompName As String, sHospital, sProducer As String, sProductName As String _
+                            , sProductSeries As String, ByRef dblSecondComm As Double) As Boolean
+    If dictSecondLevelComm Is Nothing Then Call fReadSheetSecondLevelComm2Dictionary
+    
+    Dim sKey As String
+    sKey = sSalesCompName & DELIMITER & sHospital & DELIMITER & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+    
+    If dictSecondLevelComm.Exists(sKey) Then
+        dblSecondComm = dictSecondLevelComm(sKey)
+        fGetSecondLevelComm = True
+    Else
+        dblSecondComm = 0
+        fGetSecondLevelComm = False
+    End If
+End Function
+'------------------------------------------------------------------------------
+
+Function fGetConfigFirstLevelDefaultComm() As Double
+    If Not bFirstLCommDefaultGot Then dblFirstLCommDefault = fGetSpecifiedConfigCellValue(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=FIRST_LEVEL_COMMISSION_DEFAULT")
+    
+    fGetConfigFirstLevelDefaultComm = dblFirstLCommDefault
+End Function
+
+Function fGetConfigSecondLevelDefaultComm(sSalesCompName As String) As Double
+    If Not bSecondLCommDefaultGot Then SecondLCommDefault = fGetConfigSecondLCommDefault
+        
+    Dim dblOut As Double
+    Dim sCompID As String
+    
+    sCompID = fGetCompanyIdByCompanyName(sSalesCompName)
+    
+    fGetConfigFirstLevelDefaultComm = eval("SecondLCommDefault." & sCompID)
+End Function
+
+Function fGetConfigSecondLCommDefault() As TypeSecondLCommDefault
+    Dim typeOut As TypeSecondLCommDefault
+    
+    
+End Function
+
+Function fGetCompanyIdByCompanyName(sSalesCompName As String) As String
+    sSalesCompName = Trim(sSalesCompName)
+    If dictCompanyNameID Is Nothing Then Call fReadConfigCompanyList(dictCompanyNameID)
+    
+    If Not dictCompanyNameID.Exists(sSalesCompName) Then fErr "公司名称有错误，请检查。"
+    
+    fGetCompanyIdByCompanyName = dictCompanyNameID(sSalesCompName)
+End Function

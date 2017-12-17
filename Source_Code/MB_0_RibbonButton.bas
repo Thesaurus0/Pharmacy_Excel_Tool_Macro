@@ -120,6 +120,7 @@ Sub subMain_InvisibleHideAllBusinessSheets()
     shtSalesManMaster.Visible = xlSheetVeryHidden
     shtFirstLevelCommission.Visible = xlSheetVeryHidden
     shtSecondLevelCommission.Visible = xlSheetVeryHidden
+    
 End Sub
 
 Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrToSelect As String = "A1" _

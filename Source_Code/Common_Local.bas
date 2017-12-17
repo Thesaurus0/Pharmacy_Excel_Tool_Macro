@@ -1567,3 +1567,47 @@ Function fPrepareHeaderToSheet(shtParam As Worksheet, arrHeaders, Optional alHea
     Erase arrHeaderHorizontal
     Erase arrHeaders
 End Function
+
+Function fReadInputFileSpecConfigItem(asFileTag As String, asWhatToReturn As String _
+                            , Optional shtData As Worksheet, Optional alDataFromRow As Long = 2)
+    Dim bReadWholeSheetData As Boolean
+    Dim dictLetterIndex As Dictionary
+    Dim dictArrayIndex As Dictionary
+    Dim dictColFormat As Dictionary
+    Dim dictRawType As Dictionary
+    Dim dictDisplayName As Dictionary
+
+    Dim sFileSpecTag As String
+    Dim shtToRead As Worksheet
+    
+    sFileSpecTag = fGetInputFileFileSpecTag(asFileTag)
+    
+    If shtData Is Nothing Then
+        Set shtToRead = fGetInputFileSheetAfterLoadingToThisWorkBook(asFileTag)
+    Else
+        Set shtToRead = shtData
+    End If
+
+    Call fReadInputFileSpecConfig(sFileSpecTag:=sFileSpecTag _
+                                , dictLetterIndex:=dictLetterIndex _
+                                , dictArrayIndex:=dictArrayIndex _
+                                , dictDisplayName:=dictDisplayName _
+                                , dictRawType:=dictRawType _
+                                , dictDataFormat:=dictColFormat _
+                                , bReadWholeSheetData:=bReadWholeSheetData _
+                                , shtData:=shtToRead _
+                                , alHeaderAtRow:=alDataFromRow - 1)
+    Set shtToRead = Nothing
+    
+    If asWhatToReturn = "LETTER_INDEX" Then
+        Set fReadInputFileSpecConfigItem = dictLetterIndex
+    Else
+        fErr "wrong param: " & asWhatToReturn
+    End If
+    
+    Set dictLetterIndex = Nothing
+    Set dictArrayIndex = Nothing
+    Set dictColFormat = Nothing
+    Set dictRawType = Nothing
+End Function
+
