@@ -23,6 +23,7 @@ Sub subMain_CalculateProfit()
     Call fReadSysConfig_InputTxtSheetFile
 
     gsRptFilePath = fReadSysConfig_Output(, gsRptType)
+    
     Call fLoadFilesAndRead2Variables
 
     Call fPrepareOutputSheetHeaderAndTextColumns(shtProfit)
@@ -79,6 +80,12 @@ End Sub
 Private Function fLoadFilesAndRead2Variables()
     'gsCompanyID
     Call fLoadFileByFileTag("UNIFIED_SALES_INFO")
+    
+    Call fSortDataInSheetSortSheetDataByFileSpec("UNIFIED_SALES_INFO", Array("MatchedProductProducer" _
+                                    , "MatchedProductName" _
+                                    , "MatchedProductSeries" _
+                                    , "SalesDate"))
+    
     Call fReadMasterSheetData("UNIFIED_SALES_INFO", , , True)
 End Function
 
@@ -89,14 +96,17 @@ Private Function fProcessData()
     Dim lEachRow As Long
     Dim dictMissedFirstLComm As Dictionary
     Dim dictMissedSecondLComm As Dictionary
+    Dim dictNoValidSelfSales As Dictionary
     
     Dim sCompanyLongID As String
     Dim sCompanyName As String
     
     Dim dblGrossPrice As Double
+    Dim dblCostPrice As Double
     
     Set dictMissedFirstLComm = New Dictionary
     Set dictMissedSecondLComm = New Dictionary
+    Set dictNoValidSelfSales = New Dictionary
     For lEachRow = LBound(arrMaster, 1) To UBound(arrMaster, 1)
         If dictMstColIndex.Exists("OrigSalesInfoID") Then
             arrOutput(lEachRow, dictRptColIndex("OrigSalesInfoID")) = arrMaster(lEachRow, dictMstColIndex("OrigSalesInfoID"))
@@ -118,8 +128,9 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("RecalSellAmount"))
         
         dblGrossPrice = fCalculateGrossPrice(lEachRow, dictMissedFirstLComm, dictMissedSecondLComm)
-        
         arrOutput(lEachRow, dictRptColIndex("GrossPrice")) = dblGrossPrice
+        
+        dblCostPrice = fCalculateCostPrice(lEachRow, dictNoValidSelfSales)
         arrOutput(lEachRow, dictRptColIndex("CostPrice")) = 0
         arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = 0
         arrOutput(lEachRow, dictRptColIndex("GrossProfitAmt")) = 0
@@ -162,6 +173,32 @@ next_sales:
             & vbCr & "您可以查看该表中最后面的数据"
     End If
      
+End Function
+
+Function fCalculateCostPrice(lEachRow As Long, ByRef dictNoValidSelfSales As Dictionary) As Double
+    Dim dblCostPrice As Double
+    
+    Dim sProducer As String
+    Dim sProductName  As String
+    Dim sProductSeries As String
+    Dim dblSalesQuantity As Double
+    
+    Dim sTmpKey As String
+    
+    sProducer = Trim(arrOutput(lEachRow, dictRptColIndex("ProductProducer")))
+    sProductName = Trim(arrOutput(lEachRow, dictRptColIndex("ProductName")))
+    sProductSeries = Trim(arrOutput(lEachRow, dictRptColIndex("ProductSeries")))
+    
+    dblSalesQuantity = arrOutput(lEachRow, dictRptColIndex("Quantity"))
+    
+    If Not fCalculateCostPriceFromSelfSalesOrder(sProducer, sProductName, sProductSeries, dblCostPrice) Then
+        sTmpKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+        dictNoValidSelfSales.Add sTmpKey, lEachRow + 1
+        
+        dblCostPrice = fGetLatestPriceFromProductMaster(sProducer, sProductName, sProductSeries)
+    End If
+
+    fCalculateCostPrice = dblCostPrice
 End Function
 
 Function fCalculateGrossPrice(lEachRow As Long, ByRef dictMissedFirstLComm As Dictionary, ByRef dictMissedSecondLComm As Dictionary) As Double

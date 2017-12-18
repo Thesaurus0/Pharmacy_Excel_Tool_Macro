@@ -11,24 +11,7 @@ Enum Company
     InputFileTextBoxName = 6
     Selected = 7
 End Enum
-
-'Type TypeSecondLCommDefault
-'    ZSY             As Double
-'    HR              As Double
-'    GKYX            As Double
-'    GY              As Double
-'    SYY             As Double
-'    GZHR            As Double
-'    ZHHR            As Double
-'    FSGK            As Double
-'    GZGK            As Double
-'    XT              As Double
-'    PW              As Double
-'    TY              As Double
-'    CZL             As Double
-'    SYYDZ           As Double
-'End Type
-
+ 
 Dim dictHospitalMaster As Dictionary
 Dim dictHospitalReplace As Dictionary
 
@@ -55,6 +38,10 @@ Dim dictDefaultCommConfiged As Dictionary
 'Dim bSecondLCommDefaultGot As Boolean
 'Dim SecondLCommDefault As TypeSecondLCommDefault
 
+Dim dictSelfSalesDeductFrom As Dictionary
+Dim dictSelfSalesColIndex As Dictionary
+Dim arrSelfSales()
+    
 Function fReadConfigCompanyList(Optional ByRef dictCompanyNameID As Dictionary) As Dictionary
     Dim asTag As String
     Dim arrColsName()
@@ -468,3 +455,77 @@ Function fGetCompanyIdByCompanyName(sSalesCompName As String) As String
     
     fGetCompanyIdByCompanyName = Trim(dictCompanyNameID(sSalesCompName))
 End Function
+
+'====================== Self Sales =================================================================
+Function fReadSelfSalesOrder2Dictionary()
+    Dim sTmpKey As String
+    Dim sProducer As String, sProductName As String, sProductSeries As String
+    Dim dblSellQuantity As Double
+    Dim dblHospitalQuantity As Double
+                            
+    Call fSortDataInSheetSortSheetDataByFileSpec("SELF_SALES_ORDER", Array("ProductProducer" _
+                                    , "ProductName" _
+                                    , "ProductSeries" _
+                                    , "SalesDate"))
+    
+    Call fReadSheetDataByConfig("SELF_SALES_ORDER", dictSelfSalesColIndex, arrSelfSales, , , , , shtSelfSalesOrder)
+    
+    For lEachRow = LBound(arrSelfSales, 1) To UBound(arrSelfSales, 1)
+        dblSellQuantity = arrSelfSales(lEachRow, dictSelfSalesColIndex("SellQuantity"))
+        dblHospitalQuantity = arrSelfSales(lEachRow, dictSelfSalesColIndex("HospitalSellQuantity"))
+        
+        
+        If dblSellQuantity < dblHospitalQuantity Then fErr "数据出错，医院销售数量不应该大于出货数量" _
+                        & vbCr & "工作表：" & shtSelfSalesOrder.Name _
+                        & vbCr & "行号：" & lEachRow + 1
+        If dblSellQuantity = dblHospitalQuantity Then GoTo next_row
+        
+        sProducer = arrSelfSales(lEachRow, dictSelfSalesColIndex("ProductProducer"))
+        sProductName = arrSelfSales(lEachRow, dictSelfSalesColIndex("ProductName"))
+        sProductSeries = arrSelfSales(lEachRow, dictSelfSalesColIndex("ProductSeries"))
+        
+        sTmpKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+        
+        If Not dictSelfSalesDeductFrom.Exists(sTmpKey) Then
+            dictSelfSalesDeductFrom.Add sTmpKey, lEachRow
+        End If
+next_row:
+    Next
+    
+    Set dictSelfSalesColIndex = Nothing
+    
+    'dictSelfSalesDeductFrom
+End Function
+Function fCalculateCostPriceFromSelfSalesOrder(sProducer As String, sProductName As String, sProductSeries As String _
+                           , ByRef dblSalesQuantity As Double, ByRef dblSecondComm As Double) As Boolean
+    If dictSelfSalesDeductFrom Is Nothing Then Call fReadSelfSalesOrder2Dictionary
+    
+    Dim bOut As Boolean
+    Dim lDeductStartRow As Long
+    Dim dblSellQuantity As Double
+    Dim dblHospitalQuantity As Double
+    
+    bOut = False
+    
+    Dim sTmpKey As String
+    sTmpKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+    
+    If Not dictSelfSalesDeductFrom.Exists(sTmpKey) Then GoTo exit_fun
+    
+    lDeductStartRow = dictSelfSalesDeductFrom(sTmpKey)
+    
+    For lEachRow = lDeductStartRow To UBound(arrSelfSales)
+        dblSellQuantity = arrSelfSales(lEachRow, dictSelfSalesColIndex("SellQuantity"))
+        dblHospitalQuantity = arrSelfSales(lEachRow, dictSelfSalesColIndex("HospitalSellQuantity"))
+        
+        If dblSellQuantity <= dblHospitalQuantity Then fErr "这一行的日期晚，不应该出现抵扣" _
+                        & vbCr & "工作表：" & shtSelfSalesOrder.Name _
+                        & vbCr & "行号：" & lEachRow + 1
+        
+        arrSelfSales(dictSelfSalesColIndex("HospitalSellQuantity")) = aaaa
+    Next
+    
+exit_fun:
+    fCalculateCostPriceFromSelfSalesOrder = bOut
+End Function
+'------------------------------------------------------------------------------

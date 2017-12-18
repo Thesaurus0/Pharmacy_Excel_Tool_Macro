@@ -5,6 +5,7 @@ ArrayLen
 Base0
 btnBatchImportSaleInfoFiles_Click
 btnReplaceUnify_Click
+btnReplaceUnify_Click
 btnSelect_CZL_Click
 btnSelect_FSGK_Click
 btnSelect_GKYX_Click
@@ -42,6 +43,8 @@ fArrayRowIsBlankHasNoData
 fAutoFilterAutoFitSheet
 fBasicCosmeticFormatSheet
 fButtonExistsInCommandBar
+fCalculateCostPrice
+fCalculateCostPriceFromSelfSalesOrder
 fCalculateGrossPrice
 fCdateStr
 fCheckIfGotBusinessError
@@ -51,6 +54,8 @@ fCleanSheetOutputResetSheetOutput
 fClearConditionFormatAndAdd
 fCloseWorkBookWithoutSave
 fCommandBarExists
+fComposeFirstLevelColumnsStryByConfig
+fComposeSecondLevelColumnsStryByConfig
 fComposeStrForDictCompanyList
 fComposeStrForInputFile
 fConvertDataToTheirRawDataType
@@ -107,11 +112,15 @@ fGetCompany_CompanyLongID
 fGetCompany_CompanyName
 fGetCompany_InputFileTextBoxName
 fGetCompany_UserTicked
+fGetCompanyIdByCompanyName
+fGetConfigFirstLevelDefaultComm
+fGetConfigSecondLevelDefaultComm
 fGetEnvFromSysConf
 fGetFileBaseName
 fGetFileExtension
 fGetFileNetName
 fGetFileParentFolder
+fGetFirstLevelComm
 fGetFSO
 fGetGRegExp
 fGetInputFileFileName
@@ -136,6 +145,7 @@ fGetReadConfigWholePairColsValueAsDictionary
 fGetReadConfigWholeSingleColValueAsArray
 fGetReneratedReport
 fgetReportMaxColumn
+fGetSecondLevelComm
 fGetSheetWhenNotExistsCreate
 fGetSpecifiedConfigCellAddress
 fGetSpecifiedConfigCellValue
@@ -195,14 +205,17 @@ fReadConfigCompanyList
 fReadConfigInputFiles
 fReadConfigOutputFiles
 fReadConfigRibbonCommandBarMenuAndCreateCommandBarButton
+fReadConfigSecondLCommDefault2Dictionary
 fReadConfigWholeColsToDictionary
 fReadConfigWholeMultipleColsToArray
 fReadInputFileSpecConfig
+fReadInputFileSpecConfigItem
 fReadMasterSheetData
 fReadOutputFileSpecConfig
 fReadRangeDataToArray
 fReadRangeDatatoArrayByStartEndPos
 fReadSheetDataByConfig
+fReadSheetFirstLevelComm2Dictionary
 fReadSheetHospitalMaster2Dictionary
 fReadSheetHospitalReplace2Dictionary
 fReadSheetProducerMaster2Dictionary
@@ -212,6 +225,7 @@ fReadSheetProductNameReplace2Dictionary
 fReadSheetProductSeriesMaster2Dictionary
 fReadSheetProductSeriesReplace2Dictionary
 fReadSheetProductUnitRatio2Dictionary
+fReadSheetSecondLevelComm2Dictionary
 fReadSpecifiedColsToArrayByConfig
 fReadSysConfig_InputTxtSheetFile
 fReadSysConfig_Output
@@ -269,6 +283,7 @@ fSortArrayBubbleSortDesc
 fSortArrayQuickSort
 fSortArrayQuickSortDesc
 fSortDataInSheetSortSheetData
+fSortDataInSheetSortSheetDataByFileSpec
 fSplit
 fSplitDataCriteria
 fSplitJoin

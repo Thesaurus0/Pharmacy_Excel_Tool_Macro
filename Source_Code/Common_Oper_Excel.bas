@@ -560,3 +560,35 @@ Function fModifyMoveActiveXButtonOnSheet(rngToPlaceTheButton As Range, sBtnTechN
     Set obj = Nothing
     Set eachObj = Nothing
 End Function
+
+Function fSortDataInSheetSortSheetDataByFileSpec(asFileTag As String, arrSortByColNames, Optional arrAscend _
+                                    , Optional shtData As Worksheet)
+    Dim sFileSpecTag As String
+    Dim shtToRead As Worksheet
+    Dim dictColIndex As Dictionary
+    Dim arrSortByCols()
+    
+    sFileSpecTag = fGetInputFileFileSpecTag(asFileTag)
+    
+    If shtData Is Nothing Then
+        Set shtToRead = fGetInputFileSheetAfterLoadingToThisWorkBook(asFileTag)
+    Else
+        Set shtToRead = shtData
+    End If
+    
+    Dim dictColIndex As Dictionary
+    Set dictColIndex = fReadInputFileSpecConfigItem("FIRST_LEVEL_COMMISSION", "LETTER_INDEX", shtToRead)
+    
+    ReDim arrSortByCols(LBound(arrSortByColNames) To UBound(arrSortByColNames))
+    
+    Dim i As Integer
+    For i = LBound(arrSortByColNames) To UBound(arrSortByColNames)
+        If Not dictColIndex.Exists(arrSortByColNames(i)) Then fErr "Column name does not exists " & arrSortByColNames(i)
+        arrSortByCols(i) = dictColIndex(arrSortByColNames(i))
+    Next
+    
+    Call fSortDataInSheetSortSheetData(shtToRead, arrSortByCols, arrAscend)
+    
+    Set dictColIndex = Nothing
+    Set shtToRead = Nothing
+End Function

@@ -93,6 +93,7 @@ Function fSetConditionFormatForFundamentalSheets()
     Call fClearConditionFormatAndAdd(shtSalesManMaster, Array(1), True)
     Call fClearConditionFormatAndAdd(shtFirstLevelCommission, Array(1, 2, 3, 4), True)
     Call fClearConditionFormatAndAdd(shtSecondLevelCommission, Array(1, 2, 3, 4), True)
+    Call fClearConditionFormatAndAdd(shtSelfSalesOrder, Array(1, 2, 3, 4, 5), True)
     Call fClearConditionFormatAndAdd(shtException, Array(1), True)
 End Function
 

@@ -71,7 +71,6 @@ reset_excel_options:
     End
 End Sub
 
-
 Private Function fLoadFilesAndRead2Variables()
     'gsCompanyID
     Call fLoadFileByFileTag("IMPORTED_DATA")
