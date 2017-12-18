@@ -30,6 +30,7 @@ Private Sub Workbook_Open()
     Call sub_WorkBookInitialization
     Call fSetIntialValueForShtMenuInitialize
 
+    Call sub_RemoveCommandBar("Team")
     ThisWorkbook.Saved = True
     ThisWorkbook.CheckCompatibility = False
 End Sub

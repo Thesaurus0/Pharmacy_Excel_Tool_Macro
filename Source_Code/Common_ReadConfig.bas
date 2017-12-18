@@ -171,7 +171,7 @@ exit_fun:
     Erase arrOut
 End Function
 'Function fReadConfigBlockToArrayNet(asTag As String, rngToFindIn As Range, arrColsName()
-Function fReadConfigBlockToArrayNet(asTag As String, shtParam As Worksheet, arrColsName() _
+Function fReadConfigBlockToArrayNet(asTag As String, shtParam As Worksheet, arrColsName _
                                 , Optional ByRef lConfigStartRow As Long _
                                 , Optional ByRef lConfigStartCol As Long _
                                 , Optional ByRef lConfigEndRow As Long _

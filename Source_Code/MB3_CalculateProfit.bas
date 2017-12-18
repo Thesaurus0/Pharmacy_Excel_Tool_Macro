@@ -9,7 +9,7 @@ Dim dictSecondCommColIndex As Dictionary
 
 Sub subMain_CalculateProfit()
     'If Not fIsDev Then On Error GoTo error_handling
-    On Error GoTo error_handling
+    'On Error GoTo error_handling
     shtSalesRawDataRpt.Visible = xlSheetVisible
     shtException.Visible = xlSheetVeryHidden
     Call fUnProtectSheet(shtProfit)
@@ -141,8 +141,8 @@ next_sales:
         Dim lStartRow As Long
         lStartRow = fGetValidMaxRow(shtFirstLevelCommission) + 1
         
-        Call fAppendArray2Sheet(shtFirstLevelCommission, dictMissedFirstLComm)
-        sErr = fUbound(dictMissedFirstLComm)
+        Call fAppendArray2Sheet(shtFirstLevelCommission, arrMissedFistLComm)
+        sErr = fUbound(arrMissedFistLComm)
         Erase arrMissedFistLComm
         
         fMsgBox sErr & "条销售流向记录的采芝林的配送费没有设置，系统已经自动把它们添加到了【" & shtFirstLevelCommission.Name & "】" _
@@ -150,15 +150,13 @@ next_sales:
     End If
     
     Dim arrMissedSecondLComm()
-    Dim sErr As String
     If dictMissedSecondLComm.Count > 0 Then
-        arrMissedFistLComm = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictMissedSecondLComm, , False)
-        Dim lStartRow As Long
+        arrMissedSecondLComm = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictMissedSecondLComm, , False)
         lStartRow = fGetValidMaxRow(shtSecondLevelCommission) + 1
         
-        Call fAppendArray2Sheet(shtSecondLevelCommission, dictMissedSecondLComm)
-        sErr = fUbound(dictMissedSecondLComm)
-        Erase arrMissedFistLComm
+        Call fAppendArray2Sheet(shtSecondLevelCommission, arrMissedSecondLComm)
+        sErr = fUbound(arrMissedSecondLComm)
+        Erase arrMissedSecondLComm
         
         fMsgBox sErr & "条销售流向记录的商业公司的配送费没有设置，系统已经自动把它们添加到了【" & shtSecondLevelCommission.Name & "】" _
             & vbCr & "您可以查看该表中最后面的数据"
@@ -217,12 +215,12 @@ End Function
 
 Function fComposeFirstLevelColumnsStryByConfig(sSalesCompName As String, sProducer As String _
                     , sProductName As String, sProductSeries As String, dblComm As Double) As String
-    If dictFirstCommColIndex Is Nothing Then dictFirstCommColIndex = fReadInputFileSpecConfigItem("FIRST_LEVEL_COMMISSION", "LETTER_INDEX", shtFirstLevelCommission)
+    If dictFirstCommColIndex Is Nothing Then Set dictFirstCommColIndex = fReadInputFileSpecConfigItem("FIRST_LEVEL_COMMISSION", "LETTER_INDEX", shtFirstLevelCommission)
     
     Dim i As Integer
     Dim arr() As String
     
-    ReDim arr(0 To dictFirstCommColIndex.Count - 1)
+    ReDim arr(1 To dictFirstCommColIndex.Count)
     arr(dictFirstCommColIndex("SalesCompany")) = sSalesCompName
     arr(dictFirstCommColIndex("ProductProducer")) = sProducer
     arr(dictFirstCommColIndex("ProductName")) = sProductName
@@ -235,12 +233,12 @@ End Function
 
 Function fComposeSecondLevelColumnsStryByConfig(sSalesCompName As String, sHospital As String, sProducer As String _
                     , sProductName As String, sProductSeries As String, dblComm As Double) As String
-    If dictSecondCommColIndex Is Nothing Then dictSecondCommColIndex = fReadInputFileSpecConfigItem("SECOND_LEVEL_COMMISSION", "LETTER_INDEX", shtFirstLevelCommission)
+    If dictSecondCommColIndex Is Nothing Then Set dictSecondCommColIndex = fReadInputFileSpecConfigItem("SECOND_LEVEL_COMMISSION", "LETTER_INDEX", shtSecondLevelCommission)
     
     Dim i As Integer
     Dim arr() As String
     
-    ReDim arr(0 To dictSecondCommColIndex.Count - 1)
+    ReDim arr(1 To dictSecondCommColIndex.Count)
     arr(dictSecondCommColIndex("SalesCompany")) = sSalesCompName
     arr(dictSecondCommColIndex("Hospital")) = sHospital
     arr(dictSecondCommColIndex("ProductProducer")) = sProducer

@@ -12,22 +12,22 @@ Enum Company
     Selected = 7
 End Enum
 
-Type TypeSecondLCommDefault
-    ZSY             As Double
-    HR              As Double
-    GKYX            As Double
-    GY              As Double
-    SYY             As Double
-    GZHR            As Double
-    ZHHR            As Double
-    FSGK            As Double
-    GZGK            As Double
-    XT              As Double
-    PW              As Double
-    TY              As Double
-    CZL             As Double
-    SYYDZ           As Double
-End Type
+'Type TypeSecondLCommDefault
+'    ZSY             As Double
+'    HR              As Double
+'    GKYX            As Double
+'    GY              As Double
+'    SYY             As Double
+'    GZHR            As Double
+'    ZHHR            As Double
+'    FSGK            As Double
+'    GZGK            As Double
+'    XT              As Double
+'    PW              As Double
+'    TY              As Double
+'    CZL             As Double
+'    SYYDZ           As Double
+'End Type
 
 Dim dictHospitalMaster As Dictionary
 Dim dictHospitalReplace As Dictionary
@@ -49,10 +49,11 @@ Dim dictSecondLevelComm As Dictionary
 
 Dim dictCompanyNameID As Dictionary
 
-Dim bFirstLCommDefaultGot As Boolean
-Dim dblFirstLCommDefault As Double
-Dim bSecondLCommDefaultGot As Boolean
-Dim SecondLCommDefault As TypeSecondLCommDefault
+'Dim bFirstLCommDefaultGot As Boolean
+'Dim dblFirstLCommDefault As Double
+Dim dictDefaultCommConfiged As Dictionary
+'Dim bSecondLCommDefaultGot As Boolean
+'Dim SecondLCommDefault As TypeSecondLCommDefault
 
 Function fReadConfigCompanyList(Optional ByRef dictCompanyNameID As Dictionary) As Dictionary
     Dim asTag As String
@@ -100,6 +101,7 @@ Function fReadConfigCompanyList(Optional ByRef dictCompanyNameID As Dictionary) 
     Dim dictOut As Dictionary
     Set dictOut = New Dictionary
     
+    Set dictCompanyNameID = New Dictionary
     
     Dim lEachRow As Long
     Dim sFileTag As String
@@ -118,7 +120,7 @@ Function fReadConfigCompanyList(Optional ByRef dictCompanyNameID As Dictionary) 
         
         dictOut.Add sFileTag, sValueStr
         
-        dictCompanyNameID.Add arrConfigData(lEachRow, Company.Name), arrConfigData(lEachRow, Company.ID)
+        dictCompanyNameID.Add arrConfigData(lEachRow, Company.Name), arrConfigData(lEachRow, Company.REPORT_ID)
 next_row:
     Next
     
@@ -378,8 +380,7 @@ Function fReadSheetFirstLevelComm2Dictionary()
             , Array(dictColIndex("SalesCompany") _
                   , dictColIndex("ProductProducer") _
                   , dictColIndex("ProductName") _
-                  , dictColIndex("ProductSeries") _
-                  , dictColIndex("FromUnit")) _
+                  , dictColIndex("ProductSeries")) _
             , Array(dictColIndex("Commission")), DELIMITER, DELIMITER)
     Set dictColIndex = Nothing
 End Function
@@ -409,10 +410,10 @@ Function fReadSheetSecondLevelComm2Dictionary()
     Call fReadSheetDataByConfig("SECOND_LEVEL_COMMISSION", dictColIndex, arrData, , , , , shtSecondLevelCommission)
     Set dictSecondLevelComm = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
             , Array(dictColIndex("SalesCompany") _
+                  , dictColIndex("Hospital") _
                   , dictColIndex("ProductProducer") _
                   , dictColIndex("ProductName") _
-                  , dictColIndex("ProductSeries") _
-                  , dictColIndex("FromUnit")) _
+                  , dictColIndex("ProductSeries")) _
             , Array(dictColIndex("Commission")), DELIMITER, DELIMITER)
     Set dictColIndex = Nothing
 End Function
@@ -434,26 +435,29 @@ End Function
 '------------------------------------------------------------------------------
 
 Function fGetConfigFirstLevelDefaultComm() As Double
-    If Not bFirstLCommDefaultGot Then dblFirstLCommDefault = fGetSpecifiedConfigCellValue(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=FIRST_LEVEL_COMMISSION_DEFAULT")
+    'If Not bFirstLCommDefaultGot Then dblFirstLCommDefault = fGetSpecifiedConfigCellValue(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=FIRST_LEVEL_COMMISSION_DEFAULT")
     
-    fGetConfigFirstLevelDefaultComm = dblFirstLCommDefault
+    If dictDefaultCommConfiged Is Nothing Then Call fReadConfigSecondLCommDefault2Dictionary
+    
+    fGetConfigFirstLevelDefaultComm = dictDefaultCommConfiged("FIRST_LEVEL_COMMISSION_DEFAULT")
 End Function
 
 Function fGetConfigSecondLevelDefaultComm(sSalesCompName As String) As Double
-    If Not bSecondLCommDefaultGot Then SecondLCommDefault = fGetConfigSecondLCommDefault
-        
-    Dim dblOut As Double
+    If dictDefaultCommConfiged Is Nothing Then Call fReadConfigSecondLCommDefault2Dictionary
+
     Dim sCompID As String
     
     sCompID = fGetCompanyIdByCompanyName(sSalesCompName)
     
-    fGetConfigFirstLevelDefaultComm = eval("SecondLCommDefault." & sCompID)
+    fGetConfigSecondLevelDefaultComm = dictDefaultCommConfiged("SECOND_LEVEL_COMMISSION_DEFAULT_" & sCompID)
 End Function
 
-Function fGetConfigSecondLCommDefault() As TypeSecondLCommDefault
-    Dim typeOut As TypeSecondLCommDefault
+Function fReadConfigSecondLCommDefault2Dictionary()
+    Dim arrConfigData()
+    arrConfigData = fReadConfigBlockToArrayNet("[System Misc Settings]", shtSysConf, Array("Setting Item ID", "Value"))
     
-    
+    Set dictDefaultCommConfiged = fReadArray2DictionaryWithSingleCol(arrConfigData, 1, 2)
+    Erase arrConfigData
 End Function
 
 Function fGetCompanyIdByCompanyName(sSalesCompName As String) As String
@@ -462,5 +466,5 @@ Function fGetCompanyIdByCompanyName(sSalesCompName As String) As String
     
     If Not dictCompanyNameID.Exists(sSalesCompName) Then fErr "公司名称有错误，请检查。"
     
-    fGetCompanyIdByCompanyName = dictCompanyNameID(sSalesCompName)
+    fGetCompanyIdByCompanyName = Trim(dictCompanyNameID(sSalesCompName))
 End Function
