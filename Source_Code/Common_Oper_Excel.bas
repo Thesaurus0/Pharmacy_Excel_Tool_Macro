@@ -400,6 +400,8 @@ Function fSortDataInSheetSortSheetData(sht As Worksheet, arrSortByCols, Optional
     
     lMaxRow = fGetValidMaxRow(sht)
     lMaxCol = fGetValidMaxCol(sht)
+    
+    If lMaxRow <= 0 Or lMaxCol <= 0 Then Exit Function
 
     Set rgToSort = fGetRangeByStartEndPos(sht, 1, 1, lMaxRow, lMaxCol)
     
@@ -576,8 +578,7 @@ Function fSortDataInSheetSortSheetDataByFileSpec(asFileTag As String, arrSortByC
         Set shtToRead = shtData
     End If
     
-    Dim dictColIndex As Dictionary
-    Set dictColIndex = fReadInputFileSpecConfigItem("FIRST_LEVEL_COMMISSION", "LETTER_INDEX", shtToRead)
+    Set dictColIndex = fReadInputFileSpecConfigItem(asFileTag, "LETTER_INDEX", shtToRead)
     
     ReDim arrSortByCols(LBound(arrSortByColNames) To UBound(arrSortByColNames))
     

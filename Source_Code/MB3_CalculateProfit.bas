@@ -7,10 +7,13 @@ Option Base 1
 Dim dictFirstCommColIndex As Dictionary
 Dim dictSecondCommColIndex As Dictionary
 
+Dim arrExceptionRows()
+Dim mlExcepCnt As Long
+
 Sub subMain_CalculateProfit()
     'If Not fIsDev Then On Error GoTo error_handling
     'On Error GoTo error_handling
-    shtSalesRawDataRpt.Visible = xlSheetVisible
+    shtSalesInfos.Visible = xlSheetVisible
     shtException.Visible = xlSheetVeryHidden
     Call fUnProtectSheet(shtProfit)
     Call fCleanSheetOutputResetSheetOutput(shtProfit)
@@ -28,7 +31,15 @@ Sub subMain_CalculateProfit()
 
     Call fPrepareOutputSheetHeaderAndTextColumns(shtProfit)
 
+    ReDim arrExceptionRows(1 To UBound(arrMaster, 1) * 2)
+    mlExcepCnt = 0
+    
     Call fProcessData
+    If mlExcepCnt > 0 Then
+        ReDim Preserve arrExceptionRows(1 To mlExcepCnt)
+    Else
+        arrExceptionRows = Array()
+    End If
     
     If Not shtException.Visible = xlSheetVisible Then shtException.Visible = xlSheetVeryHidden
     
@@ -61,14 +72,22 @@ error_handling:
         Call fSetBorderLineForSheet(shtException, lExcepMaxCol)
         Call fBasicCosmeticFormatSheet(shtException, lExcepMaxCol)
         Call fSetFormatForOddEvenLineByFixColor(shtException, lExcepMaxCol)
+        
+        If Not fFindInWorksheet(shtException.Cells, "找不到可扣的本公司出货记录", False) Is Nothing Then
+            'shtException.Columns(4).ColumnWidth = 100
+            Call fFreezeSheet(shtException, , 2)
+        End If
+        
         shtException.Activate
     End If
     
+    If mlExcepCnt > 0 Then Call fSetFormatForExceptionCells(shtProfit, arrExceptionRows, "REPORT_NO_VALID_SELF_SALES_EXCEPTION_COLOR")
+    
+    fMsgBox "计算完成，请检查工作表：[" & shtProfit.Name & "] 中，请检查！", vbInformation
+    Call fSetReneratedReport(, shtProfit.Name)
     If fCheckIfGotBusinessError Then GoTo reset_excel_options
     If fCheckIfUnCapturedExceptionAbnormalError Then GoTo reset_excel_options
-
-    Call fSetReneratedReport(, shtProfit.Name)
-    fMsgBox "计算完成，请检查工作表：[" & shtProfit.Name & "] 中，请检查！", vbInformation
+    
 
 reset_excel_options:
     
@@ -131,9 +150,14 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("GrossPrice")) = dblGrossPrice
         
         dblCostPrice = fCalculateCostPrice(lEachRow, dictNoValidSelfSales)
-        arrOutput(lEachRow, dictRptColIndex("CostPrice")) = 0
-        arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = 0
-        arrOutput(lEachRow, dictRptColIndex("GrossProfitAmt")) = 0
+        arrOutput(lEachRow, dictRptColIndex("CostPrice")) = dblCostPrice
+        
+        arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblGrossPrice - dblCostPrice
+        arrOutput(lEachRow, dictRptColIndex("GrossProfitAmt")) = (dblGrossPrice - dblCostPrice) * arrOutput(lEachRow, dictRptColIndex("Quantity"))
+        arrOutput(lEachRow, dictRptColIndex("TaxAmount")) = arrOutput(lEachRow, dictRptColIndex("GrossProfitAmt")) * fGetTaxRate
+        
+        Call fCalculateSalesManCommission(lEachRow, sSalesMan_1, sSalesMan_2, sSalesMan_3, dblComm_1, dblComm_2, dblComm_3)
+        
         arrOutput(lEachRow, dictRptColIndex("SalesMan_1")) = ""
         arrOutput(lEachRow, dictRptColIndex("SalesMan_2")) = ""
         arrOutput(lEachRow, dictRptColIndex("SalesMan_3")) = ""
@@ -141,7 +165,6 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("SalesCommission_1")) = 0
         arrOutput(lEachRow, dictRptColIndex("SalesCommission_2")) = 0
         arrOutput(lEachRow, dictRptColIndex("SalesCommission_3")) = 0
-
 next_sales:
     Next
     
@@ -172,7 +195,69 @@ next_sales:
         fMsgBox sErr & "条销售流向记录的商业公司的配送费没有设置，系统已经自动把它们添加到了【" & shtSecondLevelCommission.Name & "】" _
             & vbCr & "您可以查看该表中最后面的数据"
     End If
-     
+    
+    Call fSetBackToshtSelfSalesOrderWithDeductedData
+    Call fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales)
+End Function
+
+Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary)
+    Dim arrNewProductSeries()
+    Dim sErr As String
+    Dim lRecCount As Long
+    Dim i As Integer
+    Dim j As Integer
+    Dim arrTmp
+    
+    If dictNoValidSelfSales.Count > 0 Then
+        arrNewProductSeries = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNoValidSelfSales, , False)
+        Dim lStartRow As Long
+        lStartRow = fGetValidMaxRow(shtException)
+        If lStartRow = 0 Then
+            lStartRow = lStartRow + 2
+        Else
+            lStartRow = lStartRow + 6
+        End If
+        
+        shtException.Cells.NumberFormat = "@"
+        shtException.Cells.WrapText = True
+        shtException.Columns(4).ColumnWidth = 100
+        shtException.Cells(lStartRow - 1, 1).Value = "找不到可扣的本公司出货记录"
+        Call fPrepareHeaderToSheet(shtException, Array("药品厂家", "药品名称", "规格", "行号"), lStartRow)
+        shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Color = RGB(255, 0, 0)
+        shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Bold = True
+        Call fAppendArray2Sheet(shtException, arrNewProductSeries)
+        sErr = fUbound(arrNewProductSeries)
+        
+        lRecCount = 0
+        For i = 0 To dictNoValidSelfSales.Count - 1
+            'lRecCount = lRecCount + UBound(Split(dictNoValidSelfSales.Items(i), ",")) - 1
+            arrTmp = Split(dictNoValidSelfSales.Items(i), ",")
+            lRecCount = lRecCount + UBound(arrTmp)
+            
+            For j = 0 To UBound(arrTmp)
+                mlExcepCnt = mlExcepCnt + 1
+                arrExceptionRows(mlExcepCnt) = arrTmp(j)
+                mlExcepCnt = mlExcepCnt + 1
+                arrExceptionRows(mlExcepCnt) = dictRptColIndex("CostPrice")
+            Next
+            
+            Erase arrTmp
+        Next
+        
+        shtException.Cells(lStartRow + 1, 4).Resize(sErr, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNoValidSelfSales)
+        Erase arrNewProductSeries
+        If lStartRow = 2 Then Call fFreezeSheet(shtException, , 2)
+        
+        shtException.Visible = xlSheetVisible
+        shtException.Activate
+        
+        If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
+
+        gsBusinessErrorMsg = gsBusinessErrorMsg & sErr & "个药品" & lRecCount & "条销售流向在本公司出货记录中无出库可扣除，您可能要：" & vbCr _
+            & "(1). 在【本公司出货】中添加一条替换记录" & vbCr _
+            & "(2). 在【药品主表】中修改其最新价格" & vbCr & vbCr _
+            & "计算这些销售流向进行到一半，没有可以扣的出货记录，所以把它们的成本价格标注0，"
+    End If
 End Function
 
 Function fCalculateCostPrice(lEachRow As Long, ByRef dictNoValidSelfSales As Dictionary) As Double
@@ -191,10 +276,14 @@ Function fCalculateCostPrice(lEachRow As Long, ByRef dictNoValidSelfSales As Dic
     
     dblSalesQuantity = arrOutput(lEachRow, dictRptColIndex("Quantity"))
     
-    If Not fCalculateCostPriceFromSelfSalesOrder(sProducer, sProductName, sProductSeries, dblCostPrice) Then
+    If Not fCalculateCostPriceFromSelfSalesOrder(sProducer, sProductName, sProductSeries, dblSalesQuantity, dblCostPrice) Then
         sTmpKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
-        dictNoValidSelfSales.Add sTmpKey, lEachRow + 1
         
+        If Not dictNoValidSelfSales.Exists(sTmpKey) Then
+            dictNoValidSelfSales.Add sTmpKey, lEachRow + 1
+        Else
+            dictNoValidSelfSales(sTmpKey) = dictNoValidSelfSales(sTmpKey) & "," & (lEachRow + 1)
+        End If
         dblCostPrice = fGetLatestPriceFromProductMaster(sProducer, sProductName, sProductSeries)
     End If
 
@@ -287,4 +376,46 @@ Function fComposeSecondLevelColumnsStryByConfig(sSalesCompName As String, sHospi
     Erase arr
 End Function
 
+Function fCalculateSalesManCommission(lEachRow As Long, ByRef sSalesMan_1 As String, ByRef sSalesMan_2 As String, ByRef sSalesMan_3 As String _
+                            , ByRef dblComm_1 As Double, ByRef dblComm_2 As Double, ByRef dblComm_3 As Double)
+    sSalesMan_1 = ""
+    sSalesMan_2 = ""
+    sSalesMan_3 = ""
+    dblComm_1 = 0
+    dblComm_2 = 0
+    dblComm_3 = 0
+    
+    
+    Dim sHospital As String
+    Dim sSalesCompName As String
+    Dim sSalesCompID As String
+    Dim sProducer As String
+    Dim sProductName  As String
+    Dim sProductSeries As String
+    
+    Dim sTmpKey As String
+    
+    sHospital = Trim(arrOutput(lEachRow, dictRptColIndex("Hospital")))
+    sSalesCompName = Trim(arrOutput(lEachRow, dictRptColIndex("SalesCompanyName")))
+    sProducer = Trim(arrOutput(lEachRow, dictRptColIndex("ProductProducer")))
+    sProductName = Trim(arrOutput(lEachRow, dictRptColIndex("ProductName")))
+    sProductSeries = Trim(arrOutput(lEachRow, dictRptColIndex("ProductSeries")))
+    
+    
+    sTmpKey = fComposeFirstLevelColumnsStryByConfig(sSalesCompName, sProducer, sProductName, sProductSeries, dblFirstLevelComm)
+    
+    If Not fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesCompName, sHospital, sProducer, sProductName _
+                                    , sProductSeries, dblSecondLevelComm) Then
+        dblFirstLevelComm = fGetConfigFirstLevelDefaultComm()
+        
+        'sTmpKey = sSalesCompName & DELIMITER & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+        sTmpKey = fComposeFirstLevelColumnsStryByConfig(sSalesCompName, sProducer, sProductName, sProductSeries, dblFirstLevelComm)
+        If Not dictMissedFirstLComm.Exists(sTmpKey) Then
+            dictMissedFirstLComm.Add sTmpKey, lEachRow + 1
+        End If
+    End If
+End Function
 
+Sub subMain_CalculateProfit_MonthEnd()
+    
+End Sub

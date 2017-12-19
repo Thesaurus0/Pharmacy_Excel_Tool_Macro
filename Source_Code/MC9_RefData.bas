@@ -269,7 +269,7 @@ End Function
 
 
 '====================== ProductSeries Master =================================================================
-Function fReadSheetProductSeriesMaster2Dictionary()
+Function fReadSheetProductMaster2Dictionary()
     Dim arrData()
     Dim dictColIndex As Dictionary
     
@@ -278,11 +278,11 @@ Function fReadSheetProductSeriesMaster2Dictionary()
     
     Set dictProductMaster = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
                                     , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries")) _
-                                    , Array(dictColIndex("ProductUnit")), DELIMITER, DELIMITER)
+                                    , Array(dictColIndex("ProductUnit"), dictColIndex("LatestPrice")), DELIMITER, DELIMITER)
     Set dictColIndex = Nothing
 End Function
 Function fProductSeriesExistsInProductMaster(sProductProducer As String, sProductName As String, sProductSeries As String) As Boolean
-    If dictProductMaster Is Nothing Then Call fReadSheetProductSeriesMaster2Dictionary
+    If dictProductMaster Is Nothing Then Call fReadSheetProductMaster2Dictionary
     
     fProductSeriesExistsInProductMaster = dictProductMaster.Exists(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries)
 End Function
@@ -346,14 +346,14 @@ End Function
 Function fGetProductMasterUnit(sProductProducer As String, sProductName As String, sProductSeries As String) As String
     Dim sKey As String
     
-    If dictProductMaster Is Nothing Then Call fReadSheetProductSeriesMaster2Dictionary
+    If dictProductMaster Is Nothing Then Call fReadSheetProductMaster2Dictionary
     
     sKey = sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
     
     If Not dictProductMaster.Exists(sKey) Then _
         fErr "药品厂家+名称+规格 还不存在于药品主表中, 会计单位找不到的情况下，计算无法进行：" & vbCr & sProductProducer & vbCr & sProductName & vbCr & sProductSeries
     
-    fGetProductMasterUnit = dictProductMaster(sKey)
+    fGetProductMasterUnit = Split(dictProductMaster(sKey), DELIMITER)(0)
 End Function
 '------------------------------------------------------------------------------
 
@@ -422,8 +422,6 @@ End Function
 '------------------------------------------------------------------------------
 
 Function fGetConfigFirstLevelDefaultComm() As Double
-    'If Not bFirstLCommDefaultGot Then dblFirstLCommDefault = fGetSpecifiedConfigCellValue(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=FIRST_LEVEL_COMMISSION_DEFAULT")
-    
     If dictDefaultCommConfiged Is Nothing Then Call fReadConfigSecondLCommDefault2Dictionary
     
     fGetConfigFirstLevelDefaultComm = dictDefaultCommConfiged("FIRST_LEVEL_COMMISSION_DEFAULT")
@@ -462,14 +460,18 @@ Function fReadSelfSalesOrder2Dictionary()
     Dim sProducer As String, sProductName As String, sProductSeries As String
     Dim dblSellQuantity As Double
     Dim dblHospitalQuantity As Double
-                            
+    Dim dictSelfSalesDeductTo As Dictionary
+    Dim lEachRow As Long
+
     Call fSortDataInSheetSortSheetDataByFileSpec("SELF_SALES_ORDER", Array("ProductProducer" _
                                     , "ProductName" _
                                     , "ProductSeries" _
-                                    , "SalesDate"))
+                                    , "SalesDate"), , shtSelfSalesOrder)
     
     Call fReadSheetDataByConfig("SELF_SALES_ORDER", dictSelfSalesColIndex, arrSelfSales, , , , , shtSelfSalesOrder)
     
+    Set dictSelfSalesDeductTo = New Dictionary
+    Set dictSelfSalesDeductFrom = New Dictionary
     For lEachRow = LBound(arrSelfSales, 1) To UBound(arrSelfSales, 1)
         dblSellQuantity = arrSelfSales(lEachRow, dictSelfSalesColIndex("SellQuantity"))
         dblHospitalQuantity = arrSelfSales(lEachRow, dictSelfSalesColIndex("HospitalSellQuantity"))
@@ -489,21 +491,33 @@ Function fReadSelfSalesOrder2Dictionary()
         If Not dictSelfSalesDeductFrom.Exists(sTmpKey) Then
             dictSelfSalesDeductFrom.Add sTmpKey, lEachRow
         End If
+        dictSelfSalesDeductTo(sTmpKey) = lEachRow
 next_row:
     Next
     
-    Set dictSelfSalesColIndex = Nothing
+    For lEachRow = 0 To dictSelfSalesDeductFrom.Count - 1
+        dictSelfSalesDeductFrom(dictSelfSalesDeductFrom.Keys(lEachRow)) = dictSelfSalesDeductFrom.Items(lEachRow) _
+                    & DELIMITER & dictSelfSalesDeductTo.Items(lEachRow)
+    Next
     
-    'dictSelfSalesDeductFrom
+   ' Set dictSelfSalesColIndex = Nothing
+    Set dictSelfSalesDeductTo = Nothing
 End Function
 Function fCalculateCostPriceFromSelfSalesOrder(sProducer As String, sProductName As String, sProductSeries As String _
-                           , ByRef dblSalesQuantity As Double, ByRef dblSecondComm As Double) As Boolean
+                           , ByRef dblSalesQuantity As Double, ByRef dblCostPrice As Double) As Boolean
     If dictSelfSalesDeductFrom Is Nothing Then Call fReadSelfSalesOrder2Dictionary
     
     Dim bOut As Boolean
     Dim lDeductStartRow As Long
-    Dim dblSellQuantity As Double
+    Dim lDeductEndRow As Long
+    Dim dblSelfSellQuantity As Double
     Dim dblHospitalQuantity As Double
+    Dim dblBalance As Double
+    Dim dblCurrRowBalance As Double
+    Dim dblToDeduct As Double
+    Dim lEachRow As Long
+    Dim dblAccAmt As Double
+    Dim dblPrice As Double
     
     bOut = False
     
@@ -512,20 +526,96 @@ Function fCalculateCostPriceFromSelfSalesOrder(sProducer As String, sProductName
     
     If Not dictSelfSalesDeductFrom.Exists(sTmpKey) Then GoTo exit_fun
     
-    lDeductStartRow = dictSelfSalesDeductFrom(sTmpKey)
+    lDeductStartRow = Split(dictSelfSalesDeductFrom(sTmpKey), DELIMITER)(0)
+    lDeductEndRow = Split(dictSelfSalesDeductFrom(sTmpKey), DELIMITER)(1)
     
-    For lEachRow = lDeductStartRow To UBound(arrSelfSales)
-        dblSellQuantity = arrSelfSales(lEachRow, dictSelfSalesColIndex("SellQuantity"))
-        dblHospitalQuantity = arrSelfSales(lEachRow, dictSelfSalesColIndex("HospitalSellQuantity"))
+    dblAccAmt = 0
+    dblBalance = dblSalesQuantity
+    For lEachRow = lDeductStartRow To lDeductEndRow
+        If dblBalance <= 0 Then Exit For
         
-        If dblSellQuantity <= dblHospitalQuantity Then fErr "这一行的日期晚，不应该出现抵扣" _
+        dblSelfSellQuantity = arrSelfSales(lEachRow, dictSelfSalesColIndex("SellQuantity"))
+        dblHospitalQuantity = arrSelfSales(lEachRow, dictSelfSalesColIndex("HospitalSellQuantity"))
+        dblPrice = arrSelfSales(lEachRow, dictSelfSalesColIndex("SellPrice"))
+        
+        If dblSelfSellQuantity <= dblHospitalQuantity Then fErr "这一行的日期晚，不应该出现抵扣" _
                         & vbCr & "工作表：" & shtSelfSalesOrder.Name _
                         & vbCr & "行号：" & lEachRow + 1
         
-        arrSelfSales(dictSelfSalesColIndex("HospitalSellQuantity")) = aaaa
+        dblCurrRowBalance = dblSelfSellQuantity - dblHospitalQuantity
+        dblBalance = dblBalance - dblCurrRowBalance
+        
+        If dblBalance > 0 Then  'still has to find next row to deduct
+            dblToDeduct = dblSelfSellQuantity
+            
+            If lEachRow < lDeductEndRow Then
+                dictSelfSalesDeductFrom(sTmpKey) = lEachRow + 1 & DELIMITER & lDeductEndRow
+            Else
+                dictSelfSalesDeductFrom.Remove sTmpKey
+            End If
+            
+            dblAccAmt = dblAccAmt + dblCurrRowBalance * dblPrice
+        Else
+            dblAccAmt = dblAccAmt + (dblCurrRowBalance + dblBalance) * dblPrice
+            dblToDeduct = (dblCurrRowBalance + dblBalance) + dblHospitalQuantity
+        End If
+        
+        arrSelfSales(lEachRow, dictSelfSalesColIndex("HospitalSellQuantity")) = dblToDeduct
     Next
+    
+    If dblBalance <= 0 Then
+        bOut = True
+        
+        dblCostPrice = dblAccAmt / dblSalesQuantity
+    End If
     
 exit_fun:
     fCalculateCostPriceFromSelfSalesOrder = bOut
 End Function
+
+Function fSetBackToshtSelfSalesOrderWithDeductedData()
+    If UBound(arrSelfSales, 1) > 0 Then
+        shtSelfSalesOrder.Range("A2").Resize(UBound(arrSelfSales, 1), UBound(arrSelfSales, 2)).Value2 = arrSelfSales
+    End If
+End Function
 '------------------------------------------------------------------------------
+Function fGetLatestPriceFromProductMaster(sProductProducer As String, sProductName As String, sProductSeries As String) As Double
+    If dictProductMaster Is Nothing Then Call fReadSheetProductMaster2Dictionary
+    
+    Dim sKey As String
+    sKey = sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+    
+    If Not dictProductMaster.Exists(sKey) Then
+        fErr "药品不 存在于药品主表，前面应该已经判断过的。统一后的销售数据可能被人修改过。"
+    End If
+    
+    Dim sLatestPrice
+    sLatestPrice = Split(dictProductMaster(sKey), DELIMITER)(1)
+    
+    If Len(Trim(sLatestPrice)) > 0 Then
+        If Not IsNumeric(sLatestPrice) Then fErr "药品的最新单价不是数值：" & sLatestPrice
+        fGetLatestPriceFromProductMaster = sLatestPrice
+    Else
+        fGetLatestPriceFromProductMaster = 0
+    End If
+End Function
+
+Function fGetTaxRate() As Double
+    If dictDefaultCommConfiged Is Nothing Then Call fReadConfigSecondLCommDefault2Dictionary
+    
+    fGetTaxRate = dictDefaultCommConfiged("TAX_RATE")
+End Function
+
+Function fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesCompName As String, sHospital, sProducer As String _
+                            , sProductName As String _
+                            , sProductSeries As String, ByRef dblSecondComm As Double) As Boolean
+    If dictProductMaster Is Nothing Then Call fReadSheetProductMaster2Dictionary
+    
+    Dim sKey As String
+    sKey = sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+    
+    If Not dictProductMaster.Exists(sKey) Then
+        fErr "药品不 存在于药品主表，前面应该已经判断过的。统一后的销售数据可能被人修改过。"
+    End If
+    
+End Function

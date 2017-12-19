@@ -286,9 +286,12 @@ Function fDeleteRemoveConnections(wb As Workbook)
     Next
 End Function
 
-Function fCheckIfSheetHasNodata_RaiseErrToStop(arr)
+Function fCheckIfSheetHasNodata_RaiseErrToStop(arr, sht As Worksheet)
     gbNoData = fArrayIsEmptyOrNoData(arr)
-    If gbNoData Then fErr "Input File has no qualified data!"
+    
+    Dim sSheet As String
+    If Not sht Is Nothing Then sSheet = sht.Name
+    If gbNoData Then fErr "Input File " & sSheet & " has no qualified data!"
 End Function
 
 Function fFindHeaderAtLineInFileSpec(rngConfigBlock As Range, arrColsName) As Long
@@ -437,6 +440,7 @@ Function fReadInputFileSpecConfig(sFileSpecTag As String, ByRef dictLetterIndex 
     
     If bDynamic Then
         If iCol_TxtFormat > 0 Then fErr "dynamic (COLUMNS_NAME) cannot be specified for Txt Template" & sErrPos
+        If bOutputAsInput Then fErr "dynamic (COLUMNS_NAME) cannot be specified for OutputAsInput Template" & sErrPos
         If shtData Is Nothing Then fErr "dynamic (COLUMNS_NAME), but shtData is not provided(nothing)." & sErrPos
     End If
     
@@ -456,7 +460,9 @@ Function fReadInputFileSpecConfig(sFileSpecTag As String, ByRef dictLetterIndex 
         Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(DISPLAY_NAME), False, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
         'Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(LETTER_INDEX), True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
     Else   'by speicified letter  '"Column Index"     Txt Template
-        Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(LETTER_INDEX), False, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
+        If Not bOutputAsInput Then
+            Call fValidateDuplicateInArray(arrConfigData, arrColsIndex(LETTER_INDEX), False, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
+        End If
     End If
     
     If Not bReadWholeSheetData Then
@@ -670,7 +676,7 @@ Function fReadSheetDataByConfig(asFileTag As String, ByRef dictColIndex As Dicti
                                 , Optional ByRef dictRawType As Dictionary _
                                 , Optional ByRef dictDisplayName As Dictionary _
                                 , Optional alDataFromRow As Long = 2 _
-                                , Optional shtData As Worksheet)
+                                , Optional ByRef shtData As Worksheet)
     Dim sFileSpecTag As String
     Dim shtToRead As Worksheet
     
@@ -678,6 +684,7 @@ Function fReadSheetDataByConfig(asFileTag As String, ByRef dictColIndex As Dicti
     
     If shtData Is Nothing Then
         Set shtToRead = fGetInputFileSheetAfterLoadingToThisWorkBook(asFileTag)
+        Set shtData = shtToRead
     Else
         Set shtToRead = shtData
     End If
@@ -970,7 +977,7 @@ Function fReadMasterSheetData(asFileTag As String, Optional shtData As Worksheet
                                 , dictDisplayName:=dictMstDisplayName _
                                 , alDataFromRow:=asDataFromRow _
                                 , shtData:=shtData)
-    If bNoDataError Then Call fCheckIfSheetHasNodata_RaiseErrToStop(arrMaster)
+    If bNoDataError Then Call fCheckIfSheetHasNodata_RaiseErrToStop(arrMaster, shtData)
 End Function
 
 Function fPrepareOutputSheetHeaderAndTextColumns(shtOutput As Worksheet)
@@ -1128,6 +1135,7 @@ Function fBasicCosmeticFormatSheet(ByRef sht As Worksheet, Optional lMaxCol As L
     ActiveWindow.SplitRow = 1
     ActiveWindow.FreezePanes = True
     ActiveWindow.DisplayGridlines = False
+    'Call fFreezeSheet(sht, alSplitCol, alSplitRow)
     
     fGetRangeByStartEndPos(sht, 1, 1, 1, lMaxCol).AutoFilter
     sht.Cells.EntireColumn.AutoFit
@@ -1611,3 +1619,32 @@ Function fReadInputFileSpecConfigItem(asFileTag As String, asWhatToReturn As Str
     Set dictRawType = Nothing
 End Function
 
+Function fSetFormatForExceptionCells(shtOutput As Worksheet, arrExceptionRows, asColorTag As String)
+    Dim sColorAddr As String
+    Dim lColor  As Long
+    sColorAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=" & asColorTag)
+    lColor = fGetRangeFromExternalAddress(sColorAddr).Interior.Color
+    
+    Dim rgTarget As Range
+    
+    Dim i As Long
+    Dim lEachRow As Long
+    Dim lEachCol As Long
+    
+    For i = LBound(arrExceptionRows) To UBound(arrExceptionRows)
+        lEachRow = arrExceptionRows(i)
+        lEachCol = arrExceptionRows(i + 1)
+        
+        If rgTarget Is Nothing Then
+            Set rgTarget = shtOutput.Cells(lEachRow, lEachCol)
+        Else
+            Set rgTarget = Union(rgTarget, shtOutput.Cells(lEachRow, lEachCol))
+        End If
+        
+        i = i + 1
+    Next
+    
+    If Not rgTarget Is Nothing Then rgTarget.Interior.Color = lColor
+    
+    Set rgTarget = Nothing
+End Function

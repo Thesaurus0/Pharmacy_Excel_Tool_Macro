@@ -78,6 +78,9 @@ End Sub
 Sub subMain_SalesMan()
     fActiveVisibleSwitchSheet shtSalesManMaster, , False
 End Sub
+Sub subMain_SalesManCommissionConfig()
+    fActiveVisibleSwitchSheet shtSalesManCommConfig, , False
+End Sub
 
 Sub subMain_SelfPurchaseOrder()
     fActiveVisibleSwitchSheet shtSelfPurchaseOrder, , False
@@ -120,7 +123,7 @@ Sub subMain_InvisibleHideAllBusinessSheets()
     shtSalesManMaster.Visible = xlSheetVeryHidden
     shtFirstLevelCommission.Visible = xlSheetVeryHidden
     shtSecondLevelCommission.Visible = xlSheetVeryHidden
-    
+    shtSalesManCommConfig.Visible = xlSheetVeryHidden
 End Sub
 
 Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrToSelect As String = "A1" _
