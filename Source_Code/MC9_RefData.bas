@@ -41,7 +41,11 @@ Dim dictDefaultCommConfiged As Dictionary
 Dim dictSelfSalesDeductFrom As Dictionary
 Dim dictSelfSalesColIndex As Dictionary
 Dim arrSelfSales()
-    
+
+Dim dictSalesManCommFrom As Dictionary
+Dim dictSalesManCommColIndex As Dictionary
+Dim arrSalesManComm()
+
 Function fReadConfigCompanyList(Optional ByRef dictCompanyNameID As Dictionary) As Dictionary
     Dim asTag As String
     Dim arrColsName()
@@ -371,20 +375,17 @@ Function fReadSheetFirstLevelComm2Dictionary()
             , Array(dictColIndex("Commission")), DELIMITER, DELIMITER)
     Set dictColIndex = Nothing
 End Function
-Function fGetFirstLevelComm(sSalesCompName As String, sProducer As String, sProductName As String _
-                            , sProductSeries As String, ByRef dblFirstComm As Double) As Boolean
+Function fGetFirstLevelComm(sFirstLevelKey As String, ByRef dblFirstComm As Double) As Boolean
     If dictFirstLevelComm Is Nothing Then Call fReadSheetFirstLevelComm2Dictionary
     
-    Dim sKey As String
-    sKey = sSalesCompName & DELIMITER & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+    Dim bOut As Boolean
     
-    If dictFirstLevelComm.Exists(sKey) Then
-        dblFirstComm = dictFirstLevelComm(sKey)
-        fGetFirstLevelComm = True
-    Else
-        dblFirstComm = 0
-        fGetFirstLevelComm = False
-    End If
+    bOut = dictFirstLevelComm.Exists(sFirstLevelKey)
+    
+    dblFirstComm = 0
+    If bOut Then dblFirstComm = dictFirstLevelComm(sFirstLevelKey)
+    
+    fGetFirstLevelComm = bOut
 End Function
 '------------------------------------------------------------------------------
 
@@ -404,15 +405,12 @@ Function fReadSheetSecondLevelComm2Dictionary()
             , Array(dictColIndex("Commission")), DELIMITER, DELIMITER)
     Set dictColIndex = Nothing
 End Function
-Function fGetSecondLevelComm(sSalesCompName As String, sHospital, sProducer As String, sProductName As String _
-                            , sProductSeries As String, ByRef dblSecondComm As Double) As Boolean
+Function fGetSecondLevelComm(sSecondLevelCommKey As String, ByRef dblSecondComm As Double) As Boolean
     If dictSecondLevelComm Is Nothing Then Call fReadSheetSecondLevelComm2Dictionary
     
-    Dim sKey As String
-    sKey = sSalesCompName & DELIMITER & sHospital & DELIMITER & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
-    
-    If dictSecondLevelComm.Exists(sKey) Then
-        dblSecondComm = dictSecondLevelComm(sKey)
+    If dictSecondLevelComm.Exists(sSecondLevelCommKey) Then
+        dblSecondComm = dictSecondLevelComm(sSecondLevelCommKey)
+        
         fGetSecondLevelComm = True
     Else
         dblSecondComm = 0
@@ -424,6 +422,7 @@ End Function
 Function fGetConfigFirstLevelDefaultComm() As Double
     If dictDefaultCommConfiged Is Nothing Then Call fReadConfigSecondLCommDefault2Dictionary
     
+    If Not dictDefaultCommConfiged.Exists("FIRST_LEVEL_COMMISSION_DEFAULT") Then fErr "配置没有设置采芝林默认配送费：FIRST_LEVEL_COMMISSION_DEFAULT"
     fGetConfigFirstLevelDefaultComm = dictDefaultCommConfiged("FIRST_LEVEL_COMMISSION_DEFAULT")
 End Function
 
@@ -431,18 +430,87 @@ Function fGetConfigSecondLevelDefaultComm(sSalesCompName As String) As Double
     If dictDefaultCommConfiged Is Nothing Then Call fReadConfigSecondLCommDefault2Dictionary
 
     Dim sCompID As String
+    Dim dblDefault As Double
     
     sCompID = fGetCompanyIdByCompanyName(sSalesCompName)
     
-    fGetConfigSecondLevelDefaultComm = dictDefaultCommConfiged("SECOND_LEVEL_COMMISSION_DEFAULT_" & sCompID)
+    dblDefault = dictDefaultCommConfiged("SECOND_LEVEL_COMMISSION_DEFAULT_" & sCompID)
+    
+    If sCompID = "CZL" Then
+        If dblDefault <> 0 Then fMsgBox "这是采芝林公司，但是配送费却不是0， 请检查是否有误。"
+    Else
+        If dblDefault = 0 Then fMsgBox "这是" & sSalesCompName & "公司，但是配送费却是0，请检查是否有误。"
+    End If
+    
+    fGetConfigSecondLevelDefaultComm = dblDefault
 End Function
 
 Function fReadConfigSecondLCommDefault2Dictionary()
+    Dim asTag As String
+    Dim arrColsName(3)
+    Dim rngToFindIn As Range
     Dim arrConfigData()
-    arrConfigData = fReadConfigBlockToArrayNet("[System Misc Settings]", shtSysConf, Array("Setting Item ID", "Value"))
+    Dim arrColsIndex()
+    Dim lConfigStartRow As Long
+    Dim lConfigStartCol As Long
+    Dim lConfigEndRow As Long
+    Dim lConfigHeaderAtRow As Long
+                                
+    asTag = "[System Misc Settings]"
+    arrColsName(1) = "Setting Item ID"
+    arrColsName(2) = "Value"
+    arrColsName(3) = "Value Type"
+                                
+    Call fReadConfigBlockToArray(asTag:=asTag, shtParam:=shtSysConf _
+                                , arrColsName:=arrColsName _
+                                , arrConfigData:=arrConfigData _
+                                , arrColsIndex:=arrColsIndex _
+                                , lConfigStartRow:=lConfigStartRow _
+                                , lConfigStartCol:=lConfigStartCol _
+                                , lConfigEndRow:=lConfigEndRow _
+                                , lOutConfigHeaderAtRow:=lConfigHeaderAtRow _
+                                , abNoDataConfigThenError:=True)
     
-    Set dictDefaultCommConfiged = fReadArray2DictionaryWithSingleCol(arrConfigData, 1, 2)
+    Call fValidateDuplicateInArray(arrConfigData, 1, False, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Setting Item ID")
+    
+    Dim lEachRow As Long
+    Dim lActualRow As Long
+    Dim sKey As String
+    Dim sValueType As String
+    
+    Set dictDefaultCommConfiged = New Dictionary
+    
+    For lEachRow = LBound(arrConfigData, 1) To UBound(arrConfigData, 1)
+        If fArrayRowIsBlankHasNoData(arrConfigData, lEachRow) Then GoTo next_row
+        
+        lActualRow = lConfigHeaderAtRow + lEachRow
+        
+        sKey = Trim(arrConfigData(lEachRow, arrColsIndex(1)))
+        sValueType = Trim(arrConfigData(lEachRow, arrColsIndex(3)))
+        
+        If sValueType = "GET_VALUE" Then
+            dictDefaultCommConfiged.Add sKey, arrConfigData(lEachRow, arrColsIndex(2))
+        ElseIf sValueType = "GET_ADDRESS" Then
+            dictDefaultCommConfiged.Add sKey, shtSysConf.Cells(lActualRow, lConfigStartCol + arrColsIndex(2) - 1).Address(external:=True)
+        Else
+            fErr "the Value Type cannot be blank at row " & lActualRow & vbCr & "sheet:" & shtSysConf.Name
+        End If
+next_row:
+    Next
+    
     Erase arrConfigData
+    Erase arrColsName
+    Erase arrColsIndex
+End Function
+
+Function fGetSysMiscConfig(sSettingItemID As String, Optional sMsgHeader As String = "")
+    If dictDefaultCommConfiged Is Nothing Then Call fReadConfigSecondLCommDefault2Dictionary
+    
+    If Not dictDefaultCommConfiged.Exists(sSettingItemID) Then
+        fErr "[System Misc Settings] has not such config item: " & sSettingItemID & vbCr & vbCr & sMsgHeader
+    End If
+    
+    fGetSysMiscConfig = dictDefaultCommConfiged(sSettingItemID)
 End Function
 
 Function fGetCompanyIdByCompanyName(sSalesCompName As String) As String
@@ -503,8 +571,8 @@ next_row:
    ' Set dictSelfSalesColIndex = Nothing
     Set dictSelfSalesDeductTo = Nothing
 End Function
-Function fCalculateCostPriceFromSelfSalesOrder(sProducer As String, sProductName As String, sProductSeries As String _
-                           , ByRef dblSalesQuantity As Double, ByRef dblCostPrice As Double) As Boolean
+Function fCalculateCostPriceFromSelfSalesOrder(sProductKey As String _
+                    , ByRef dblSalesQuantity As Double, ByRef dblCostPrice As Double) As Boolean
     If dictSelfSalesDeductFrom Is Nothing Then Call fReadSelfSalesOrder2Dictionary
     
     Dim bOut As Boolean
@@ -521,13 +589,10 @@ Function fCalculateCostPriceFromSelfSalesOrder(sProducer As String, sProductName
     
     bOut = False
     
-    Dim sTmpKey As String
-    sTmpKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+    If Not dictSelfSalesDeductFrom.Exists(sProductKey) Then GoTo exit_fun
     
-    If Not dictSelfSalesDeductFrom.Exists(sTmpKey) Then GoTo exit_fun
-    
-    lDeductStartRow = Split(dictSelfSalesDeductFrom(sTmpKey), DELIMITER)(0)
-    lDeductEndRow = Split(dictSelfSalesDeductFrom(sTmpKey), DELIMITER)(1)
+    lDeductStartRow = Split(dictSelfSalesDeductFrom(sProductKey), DELIMITER)(0)
+    lDeductEndRow = Split(dictSelfSalesDeductFrom(sProductKey), DELIMITER)(1)
     
     dblAccAmt = 0
     dblBalance = dblSalesQuantity
@@ -549,9 +614,9 @@ Function fCalculateCostPriceFromSelfSalesOrder(sProducer As String, sProductName
             dblToDeduct = dblSelfSellQuantity
             
             If lEachRow < lDeductEndRow Then
-                dictSelfSalesDeductFrom(sTmpKey) = lEachRow + 1 & DELIMITER & lDeductEndRow
+                dictSelfSalesDeductFrom(sProductKey) = lEachRow + 1 & DELIMITER & lDeductEndRow
             Else
-                dictSelfSalesDeductFrom.Remove sTmpKey
+                dictSelfSalesDeductFrom.Remove sProductKey
             End If
             
             dblAccAmt = dblAccAmt + dblCurrRowBalance * dblPrice
@@ -579,18 +644,15 @@ Function fSetBackToshtSelfSalesOrderWithDeductedData()
     End If
 End Function
 '------------------------------------------------------------------------------
-Function fGetLatestPriceFromProductMaster(sProductProducer As String, sProductName As String, sProductSeries As String) As Double
+Function fGetLatestPriceFromProductMaster(sProductKey As String) As Double
     If dictProductMaster Is Nothing Then Call fReadSheetProductMaster2Dictionary
     
-    Dim sKey As String
-    sKey = sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
-    
-    If Not dictProductMaster.Exists(sKey) Then
-        fErr "药品不 存在于药品主表，前面应该已经判断过的。统一后的销售数据可能被人修改过。"
+    If Not dictProductMaster.Exists(sProductKey) Then
+        fErr "药品不 存在于药品主表，前面应该已经判断过的。统一后的销售数据可能被人修改过。" & vbCr & sProductKey
     End If
     
     Dim sLatestPrice
-    sLatestPrice = Split(dictProductMaster(sKey), DELIMITER)(1)
+    sLatestPrice = Split(dictProductMaster(sProductKey), DELIMITER)(1)
     
     If Len(Trim(sLatestPrice)) > 0 Then
         If Not IsNumeric(sLatestPrice) Then fErr "药品的最新单价不是数值：" & sLatestPrice
@@ -606,16 +668,94 @@ Function fGetTaxRate() As Double
     fGetTaxRate = dictDefaultCommConfiged("TAX_RATE")
 End Function
 
-Function fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesCompName As String, sHospital, sProducer As String _
-                            , sProductName As String _
-                            , sProductSeries As String, ByRef dblSecondComm As Double) As Boolean
-    If dictProductMaster Is Nothing Then Call fReadSheetProductMaster2Dictionary
+'====================== Salesman commssion config =================================================================
+Function fReadSalesManCommissionConfig2Dictionary()
+    Dim sTmpKey As String
+    Dim sSalesCompany As String, sHospital As String
+    Dim sProducer As String, sProductName As String, sProductSeries As String
+    Dim dblSellQuantity As Double
+    Dim dblHospitalQuantity As Double
+    Dim dictSalesManCommTo As Dictionary
+    Dim lEachRow As Long
+
+    Call fSortDataInSheetSortSheetDataByFileSpec("SALESMAN_COMMISSION_CONFIG", Array("SalesCompany", "Hospital", "ProductProducer" _
+                                    , "ProductName" _
+                                    , "ProductSeries" _
+                                    , "SalesMan"), , shtSalesManCommConfig)
     
-    Dim sKey As String
-    sKey = sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+    Call fReadSheetDataByConfig("SALESMAN_COMMISSION_CONFIG", dictSalesManCommColIndex, arrSalesManComm, , , , , shtSalesManCommConfig)
     
-    If Not dictProductMaster.Exists(sKey) Then
-        fErr "药品不 存在于药品主表，前面应该已经判断过的。统一后的销售数据可能被人修改过。"
-    End If
+    Set dictSalesManCommTo = New Dictionary
+    Set dictSalesManCommFrom = New Dictionary
+    For lEachRow = LBound(arrSalesManComm, 1) To UBound(arrSalesManComm, 1)
+        sSalesCompany = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesCompany"))
+        sHospital = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Hospital"))
+        sProducer = arrSalesManComm(lEachRow, dictSalesManCommColIndex("ProductProducer"))
+        sProductName = arrSalesManComm(lEachRow, dictSalesManCommColIndex("ProductName"))
+        sProductSeries = arrSalesManComm(lEachRow, dictSalesManCommColIndex("ProductSeries"))
+        
+        sTmpKey = sSalesCompany & DELIMITER & sHospital & DELIMITER _
+                & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+        
+        If Not dictSalesManCommFrom.Exists(sTmpKey) Then
+            dictSalesManCommFrom.Add sTmpKey, lEachRow
+        End If
+        dictSalesManCommTo(sTmpKey) = lEachRow
+next_row:
+    Next
     
+    For lEachRow = 0 To dictSalesManCommFrom.Count - 1
+        dictSalesManCommFrom(dictSalesManCommFrom.Keys(lEachRow)) = dictSalesManCommFrom.Items(lEachRow) _
+                    & DELIMITER & dictSalesManCommTo.Items(lEachRow)
+    Next
+    
+    Set dictSalesManCommTo = Nothing
 End Function
+
+
+Function fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesManKey As String _
+                            , ByRef sSalesMan_1 As String, ByRef sSalesMan_2 As String, ByRef sSalesMan_3 As String _
+                            , ByRef dblComm_1 As Double, ByRef dblComm_2 As Double, ByRef dblComm_3 As Double) As Boolean
+    If dictSalesManCommFrom Is Nothing Then Call fReadSalesManCommissionConfig2Dictionary
+    
+    Dim bOut  As Boolean
+    Dim lStartRow As Long
+    Dim lEndRow As Long
+    Dim lEachRow As Long
+    Dim iSalesManCnt As Long
+    
+    sSalesMan_1 = ""
+    sSalesMan_2 = ""
+    sSalesMan_3 = ""
+    dblComm_1 = 0
+    dblComm_2 = 0
+    dblComm_3 = 0
+    
+    bOut = dictSalesManCommFrom.Exists(sSalesManKey)
+    If Not bOut Then GoTo exit_fun
+    
+    lStartRow = Split(dictSalesManCommFrom(sSalesManKey), DELIMITER)(0)
+    lEndRow = Split(dictSalesManCommFrom(sSalesManKey), DELIMITER)(1)
+    
+    iSalesManCnt = 0
+    For lEachRow = lStartRow To lEndRow
+        iSalesManCnt = iSalesManCnt + 1
+        
+        If iSalesManCnt = 1 Then
+            sSalesMan_1 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan"))
+            dblComm_1 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission"))
+        ElseIf iSalesManCnt = 2 Then
+            sSalesMan_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan"))
+            dblComm_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission"))
+        ElseIf iSalesManCnt = 3 Then
+            sSalesMan_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan"))
+            dblComm_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission"))
+        Else
+            fErr "最多只能有3个业务员，请从【业务员佣金表】中删除一个。" & vbCr & sSalesManKey & vbCr & "行号：" & lEachRow + 1
+        End If
+    Next
+    
+exit_fun:
+    fCalculateSalesManCommissionFromshtSalesManCommConfig = bOut
+End Function
+'------------------------------------------------------------------------------

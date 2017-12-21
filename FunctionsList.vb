@@ -34,6 +34,7 @@ fAddNewFoundMissedProductSeriesToSheetException
 fAddNewFoundMissedProductUnitToSheetException
 fAddNewSheet
 fAddNewSheetDeleteFirst
+fAddNoSalesManConfToSheetException
 fAddNoValidSelfSalesToSheetException
 fAppendArray2Sheet
 fArrayHasBlankValue
@@ -44,9 +45,8 @@ fArrayRowIsBlankHasNoData
 fAutoFilterAutoFitSheet
 fBasicCosmeticFormatSheet
 fButtonExistsInCommandBar
-fCalculateCostPrice
 fCalculateCostPriceFromSelfSalesOrder
-fCalculateGrossPrice
+fCalculateSalesManCommissionFromshtSalesManCommConfig
 fCdateStr
 fCheckIfGotBusinessError
 fCheckIfSheetHasNodata_RaiseErrToStop
@@ -152,6 +152,7 @@ fGetSheetWhenNotExistsCreate
 fGetSpecifiedConfigCellAddress
 fGetSpecifiedConfigCellValue
 fGetTableLevelConfig
+fGetTaxRate
 fGetThisWorkBookVariable
 fGetTmpSheetInWorkbookWhenNotExistsCreateIt
 fGetValidMaxCol
@@ -216,6 +217,7 @@ fReadMasterSheetData
 fReadOutputFileSpecConfig
 fReadRangeDataToArray
 fReadRangeDatatoArrayByStartEndPos
+fReadSalesManCommissionConfig2Dictionary
 fReadSelfSalesOrder2Dictionary
 fReadSheetDataByConfig
 fReadSheetFirstLevelComm2Dictionary
@@ -354,6 +356,7 @@ subMain_ReplaceSalesInfos
 subMain_Ribbon_ImportSalesInfoFiles
 subMain_SalesInfos
 subMain_SalesMan
+subMain_SalesManCommissionConfig
 subMain_SecondLevelCommission
 subMain_SelfPurchaseOrder
 subMain_SelfSalesOrder

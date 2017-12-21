@@ -147,7 +147,6 @@ Function fGetSpecifiedConfigCellAddress(shtConfig As Worksheet, asTag As String,
                                 , lOutConfigHeaderAtRow:=lOutConfigHeaderAtRow _
                                 , abNoDataConfigThenError:=True _
                                 )
-    
     Dim lMatchRow As Long
     Dim sErr As String
     lMatchRow = fFindMatchDataInArrayWithCriteria(arrConfigData, arrColsIndex, arrColValues, bAllowMultiple, sErr, bDevUatProd)
@@ -256,7 +255,7 @@ Function fWriteArray2Sheet(sht As Worksheet, arrData, Optional lStartRow As Long
     sht.Cells(lStartRow, lStartCol).Resize(UBound(arrData, 1), UBound(arrData, 2)).Value = arrData
 End Function
 
-Function fAppendArray2Sheet(sht As Worksheet, arrData, Optional lStartCol As Long = 1)
+Function fAppendArray2Sheet(sht As Worksheet, ByRef arrData, Optional lStartCol As Long = 1, Optional bEraseArray As Boolean = True)
     If fArrayIsEmptyOrNoData(arrData) Then Exit Function
     
 '    If fGetArrayDimension(arrData) <> 2 Then
@@ -267,6 +266,7 @@ Function fAppendArray2Sheet(sht As Worksheet, arrData, Optional lStartCol As Lon
     lFromRow = fGetValidMaxRow(sht) + 1
     
     sht.Cells(lFromRow, lStartCol).Resize(UBound(arrData, 1), UBound(arrData, 2)).Value = arrData
+    If bEraseArray Then Erase arrData
 End Function
 
 Function fAutoFilterAutoFitSheet(sht As Worksheet, Optional alMaxCol As Long = 0 _

@@ -156,8 +156,11 @@ Sub aaaa()
        'shtSalesRawDataRpt.Close
        
 '    Call fHideAllSheetExcept("1", "2", "6", "24")
-    Dim rngAddr As String
-    rngAddr = fGetRangeByStartEndPos(shtProductMaster, 2, 1, 800, 1).Address(external:=True)
-    rngAddr = "=" & rngAddr
-    Call fSetValidationListForRange(fGetRangeByStartEndPos(shtProductProducerReplace, 2, 1, 1000, 1), rngAddr)
+'    Dim rngAddr As String
+'    rngAddr = fGetRangeByStartEndPos(shtProductMaster, 2, 1, 800, 1).Address(external:=True)
+'    rngAddr = "=" & rngAddr
+'    Call fSetValidationListForRange(fGetRangeByStartEndPos(shtProductProducerReplace, 2, 1, 1000, 1), rngAddr)
+
+    Dim sht ' As Worksheet
+     sht = Evaluate("shtSelfSalesOrder")
 End Sub

@@ -42,6 +42,13 @@ Public Function fGetValidMaxRow(shtParam As Worksheet, Optional abCountInMergedC
         If lEachValidMaxRow > lValidMaxRowSaved Then lValidMaxRowSaved = lEachValidMaxRow
     Next
     
+    If lUsedMaxCol = 1 And lValidMaxRowSaved = 1 Then
+        If Len(shtParam.Range("A1")) <= 0 Then
+            fGetValidMaxRow = 0
+            Exit Function
+        End If
+    End If
+    
     fGetValidMaxRow = lValidMaxRowSaved
 End Function
 
@@ -84,6 +91,13 @@ Public Function fGetValidMaxCol(shtParam As Worksheet, Optional abCountInMergedC
         
         If lEachValidMaxCol > lValidMaxColSaved Then lValidMaxColSaved = lEachValidMaxCol
     Next
+    
+    If lUsedMaxRow = 1 And lValidMaxColSaved = 1 Then
+        If Len(shtParam.Range("A1")) <= 0 Then
+            fGetValidMaxCol = 0
+            Exit Function
+        End If
+    End If
     
     fGetValidMaxCol = lValidMaxColSaved
 End Function

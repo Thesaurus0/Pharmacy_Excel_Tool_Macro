@@ -1353,11 +1353,13 @@ Function fSetFormatForOddEvenLineByFixColor(ByRef shtOutput As Worksheet, Option
     
     Dim sAddr As String
     If Not rgEvenLInes Is Nothing Then
-        sAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=REPORT_EVEN_LINE_COLOR")
+        'sAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=REPORT_EVEN_LINE_COLOR")
+        sAddr = fGetSysMiscConfig("REPORT_EVEN_LINE_COLOR")
         rgEvenLInes.Interior.Color = fGetRangeFromExternalAddress(sAddr).Interior.Color
     End If
     If Not rgOddLInes Is Nothing Then
-        sAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=REPORT_ODD_LINE_COLOR")
+       ' sAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=REPORT_ODD_LINE_COLOR")
+        sAddr = fGetSysMiscConfig("REPORT_ODD_LINE_COLOR")
         rgOddLInes.Interior.Color = fGetRangeFromExternalAddress(sAddr).Interior.Color
     End If
     Set rgEvenLInes = Nothing
@@ -1417,7 +1419,8 @@ Function fSetConditionFormatForOddEvenLine(ByRef shtParam As Worksheet, Optional
     aFormatCondition.SetFirstPriority
     aFormatCondition.StopIfTrue = False
     
-    sAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=REPORT_EVEN_LINE_COLOR")
+    'sAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=REPORT_EVEN_LINE_COLOR")
+    sAddr = fGetSysMiscConfig("REPORT_EVEN_LINE_COLOR")
     lColor = fGetRangeFromExternalAddress(sAddr).Interior.Color
     aFormatCondition.Interior.Color = lColor
     
@@ -1426,7 +1429,8 @@ Function fSetConditionFormatForOddEvenLine(ByRef shtParam As Worksheet, Optional
     aFormatCondition.SetFirstPriority
     aFormatCondition.StopIfTrue = False
     
-    sAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=REPORT_ODD_LINE_COLOR")
+    'sAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=REPORT_ODD_LINE_COLOR")
+    sAddr = fGetSysMiscConfig("REPORT_ODD_LINE_COLOR")
     lColor = fGetRangeFromExternalAddress(sAddr).Interior.Color
     aFormatCondition.Interior.Color = lColor
     
@@ -1499,7 +1503,8 @@ Function fSetFormatBoldOrangeBorderForRangeEspeciallyForHeader(ByRef rgTarget As
     Dim lColor As Long
     Dim sAddr As String
     
-    sAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=REPORT_HEADER_LINE_COLOR")
+    'sAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=REPORT_HEADER_LINE_COLOR")
+    sAddr = fGetSysMiscConfig("REPORT_HEADER_LINE_COLOR")
     lColor = fGetRangeFromExternalAddress(sAddr).Interior.Color
     
     With rgTarget
@@ -1622,7 +1627,8 @@ End Function
 Function fSetFormatForExceptionCells(shtOutput As Worksheet, arrExceptionRows, asColorTag As String)
     Dim sColorAddr As String
     Dim lColor  As Long
-    sColorAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=" & asColorTag)
+    'sColorAddr = fGetSpecifiedConfigCellAddress(shtSysConf, "[System Misc Settings]", "Value", "Setting Item ID=" & asColorTag)
+    sColorAddr = fGetSysMiscConfig(asColorTag)
     lColor = fGetRangeFromExternalAddress(sColorAddr).Interior.Color
     
     Dim rgTarget As Range
@@ -1647,4 +1653,16 @@ Function fSetFormatForExceptionCells(shtOutput As Worksheet, arrExceptionRows, a
     If Not rgTarget Is Nothing Then rgTarget.Interior.Color = lColor
     
     Set rgTarget = Nothing
+End Function
+
+Function fGetDictionayDelimiteredItemsCount(ByRef dict As Dictionary, Optional sDelimiter As String = ",") As Long
+    Dim lCount  As Long
+    Dim i As Long
+    
+    lCount = 0
+    For i = 0 To dict.Count - 1
+        lCount = lCount + UBound(Split(dict.Items(i), sDelimiter)) + 1
+    Next
+    
+    fGetDictionayDelimiteredItemsCount = lCount
 End Function

@@ -2,15 +2,22 @@ Attribute VB_Name = "MB2_ReplaceSalesInfos"
 Option Explicit
 Option Base 1
 
+Dim arrErrRows()
+Dim arrWarningRows()
+Dim alErrCnt As Long
+Dim alWarningCnt As Long
+
 Sub subMain_ReplaceSalesInfos()
     'If Not fIsDev Then On Error GoTo error_handling
     'On Error GoTo error_handling
+    Call fSetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT", 999)
+    
     shtSalesRawDataRpt.Visible = xlSheetVisible
     shtException.Visible = xlSheetVeryHidden
     Call fUnProtectSheet(shtSalesInfos)
     Call fCleanSheetOutputResetSheetOutput(shtSalesInfos)
     Call fCleanSheetOutputResetSheetOutput(shtException)
-
+    
     fInitialization
 
     gsRptID = "REPLACE_UNIFY_SALES_INFO"
@@ -22,7 +29,22 @@ Sub subMain_ReplaceSalesInfos()
 
     Call fPrepareOutputSheetHeaderAndTextColumns(shtSalesInfos)
 
+    ReDim arrErrRows(1 To UBound(arrMaster, 1) * 2)
+    alErrCnt = 0
+    ReDim arrWarningRows(1 To UBound(arrMaster, 1) * 2)
+    alWarningCnt = 0
+    
     Call fProcessData
+    If alErrCnt > 0 Then
+        ReDim Preserve arrErrRows(1 To alErrCnt)
+    Else
+        arrErrRows = Array()
+    End If
+    If alWarningCnt > 0 Then
+        ReDim Preserve arrWarningRows(1 To alWarningCnt)
+    Else
+        arrWarningRows = Array()
+    End If
     
     If Not shtException.Visible = xlSheetVisible Then shtException.Visible = xlSheetVeryHidden
     
@@ -43,6 +65,10 @@ error_handling:
     
        ' Call fProtectSheetAndAllowEdit(shtSalesRawDataRpt, shtSalesRawDataRpt.Columns(4), UBound(arrOutput, 1) + 1, UBound(arrOutput, 2), False)
         Call fPostProcess(shtSalesInfos)
+        
+        If alErrCnt > 0 Then Call fSetFormatForExceptionCells(shtSalesInfos, arrErrRows, "REPORT_ERROR_COLOR")
+        If alWarningCnt > 0 Then Call fSetFormatForExceptionCells(shtSalesInfos, arrWarningRows, "REPORT_WARNING_COLOR")
+        Call fSetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT", CStr(alErrCnt / 2))
     
         shtSalesInfos.Visible = xlSheetVisible
         shtSalesInfos.Activate
@@ -134,40 +160,66 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("SellPrice")) _
                                                             * arrMaster(lEachRow, dictMstColIndex("Quantity"))
         
-        ' Hospital replace -----------------
         sHospital = arrMaster(lEachRow, dictMstColIndex("Hospital"))
         arrOutput(lEachRow, dictRptColIndex("Hospital")) = sHospital
+        sProducer = arrMaster(lEachRow, dictMstColIndex("ProductProducer"))
+        arrOutput(lEachRow, dictRptColIndex("ProductProducer")) = sProducer
+        sProductName = arrMaster(lEachRow, dictMstColIndex("ProductName"))
+        arrOutput(lEachRow, dictRptColIndex("ProductName")) = sProductName
+        sProductSeries = arrMaster(lEachRow, dictMstColIndex("ProductSeries"))
+        arrOutput(lEachRow, dictRptColIndex("ProductSeries")) = sProductSeries
+        sProductUnit = arrMaster(lEachRow, dictMstColIndex("ProductUnit"))
+        arrOutput(lEachRow, dictRptColIndex("ProductUnit")) = sProductUnit
         
+        ' Hospital replace -----------------
         If Not fReplaceAndValidateInHospitalMaster(sHospital, sReplacedHospital) Then
-            If Not dictNewHospital.Exists(sReplacedHospital) Then dictNewHospital.Add sReplacedHospital, 0
+            If Not dictNewHospital.Exists(sReplacedHospital) Then
+                dictNewHospital.Add sReplacedHospital, lEachRow + 1
+            Else
+                dictNewHospital(sReplacedHospital) = dictNewHospital(sReplacedHospital) & "," & (lEachRow + 1)
+            End If
+            
+            alWarningCnt = alWarningCnt + 1
+            arrWarningRows(alWarningCnt) = lEachRow + 1
+            alWarningCnt = alWarningCnt + 1
+            arrWarningRows(alWarningCnt) = dictRptColIndex("Hospital")
         End If
         arrOutput(lEachRow, dictRptColIndex("MatchedHospital")) = sReplacedHospital
         ' Hospital replace end -----------------
         
         ' Product producer replace -----------------
-        sProducer = arrMaster(lEachRow, dictMstColIndex("ProductProducer"))
-        arrOutput(lEachRow, dictRptColIndex("ProductProducer")) = sProducer
-        
         If Not fReplaceAndValidateInProducerMaster(sProducer, sReplacedProducer) Then
-            If Not dictNewProducer.Exists(sReplacedProducer) Then dictNewProducer.Add sReplacedProducer, lEachRow + 1
+            If Not dictNewProducer.Exists(sReplacedProducer) Then
+                dictNewProducer.Add sReplacedProducer, lEachRow + 1
+            Else
+                dictNewProducer(sReplacedProducer) = dictNewProducer(sReplacedProducer) & "," & (lEachRow + 1)
+            End If
             arrOutput(lEachRow, dictRptColIndex("MatchedProductProducer")) = ""
+            
+            alErrCnt = alErrCnt + 1
+            arrErrRows(alErrCnt) = lEachRow + 1
+            alErrCnt = alErrCnt + 1
+            arrErrRows(alErrCnt) = dictRptColIndex("ProductProducer")
             GoTo next_sales
         Else
             arrOutput(lEachRow, dictRptColIndex("MatchedProductProducer")) = sReplacedProducer
         End If
-        
-        'arrOutput(lEachRow, dictRptColIndex("MatchedProductProducer")) = sReplacedProducer
         ' Product producer end -----------------
         
         ' Product Name replace -----------------
-        sProductName = arrMaster(lEachRow, dictMstColIndex("ProductName"))
-        arrOutput(lEachRow, dictRptColIndex("ProductName")) = sProductName
-        
         If Not fReplaceAndValidateInProductNameMaster(sReplacedProducer, sProductName, sReplacedProductName) Then
-            If Not dictNewProductName.Exists(sReplacedProducer & DELIMITER & sReplacedProductName) Then
-                dictNewProductName.Add sReplacedProducer & DELIMITER & sReplacedProductName, lEachRow + 1
+            sTmpKey = sReplacedProducer & DELIMITER & sReplacedProductName
+            If Not dictNewProductName.Exists(sTmpKey) Then
+                dictNewProductName.Add sTmpKey, lEachRow + 1
+            Else
+                dictNewProductName(sTmpKey) = dictNewProductName(sTmpKey) & "," & lEachRow + 1
             End If
             arrOutput(lEachRow, dictRptColIndex("MatchedProductName")) = ""
+            
+            alErrCnt = alErrCnt + 1
+            arrErrRows(alErrCnt) = lEachRow + 1
+            alErrCnt = alErrCnt + 1
+            arrErrRows(alErrCnt) = dictRptColIndex("ProductName")
             GoTo next_sales
         Else
             arrOutput(lEachRow, dictRptColIndex("MatchedProductName")) = sReplacedProductName
@@ -175,14 +227,19 @@ Private Function fProcessData()
         ' Product Name end -----------------
         
         ' Product Series replace -----------------
-        sProductSeries = arrMaster(lEachRow, dictMstColIndex("ProductSeries"))
-        arrOutput(lEachRow, dictRptColIndex("ProductSeries")) = sProductSeries
-        
         If Not fReplaceAndValidateInProductSeriesMaster(sReplacedProducer, sReplacedProductName, sProductSeries, sReplacedProductSeries) Then
-            If Not dictNewProductSeries.Exists(sReplacedProducer & DELIMITER & sReplacedProductName & DELIMITER & sReplacedProductSeries) Then
-                dictNewProductSeries.Add sReplacedProducer & DELIMITER & sReplacedProductName & DELIMITER & sReplacedProductSeries, lEachRow + 1
+            sTmpKey = sReplacedProducer & DELIMITER & sReplacedProductName & DELIMITER & sReplacedProductSeries
+            If Not dictNewProductSeries.Exists(sTmpKey) Then
+                dictNewProductSeries.Add sTmpKey, lEachRow + 1
+            Else
+                dictNewProductSeries(sTmpKey) = dictNewProductSeries(sTmpKey) & "," & (lEachRow + 1)
             End If
             arrOutput(lEachRow, dictRptColIndex("MatchedProductSeries")) = ""
+            
+            alErrCnt = alErrCnt + 1
+            arrErrRows(alErrCnt) = lEachRow + 1
+            alErrCnt = alErrCnt + 1
+            arrErrRows(alErrCnt) = dictRptColIndex("ProductSeries")
             GoTo next_sales
         Else
             arrOutput(lEachRow, dictRptColIndex("MatchedProductSeries")) = sReplacedProductSeries
@@ -190,9 +247,6 @@ Private Function fProcessData()
         ' Product Series end -----------------
         
         ' Product Unit ration -----------------
-        sProductUnit = arrMaster(lEachRow, dictMstColIndex("ProductUnit"))
-        arrOutput(lEachRow, dictRptColIndex("ProductUnit")) = sProductUnit
-        
 '        Call fGetConvertUnitAndUnitRatio
 
         sProductMasterUnit = fGetProductMasterUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries)
@@ -231,9 +285,16 @@ Private Function fProcessData()
                                 & sProductMasterUnit & DELIMITER & sReplacedProductUnit
                 If Not dictNewProductUnit.Exists(sTmpKey) Then
                     dictNewProductUnit.Add sTmpKey, lEachRow + 1
+                Else
+                    dictNewProductUnit(sTmpKey) = dictNewProductUnit(sTmpKey) & "," & (lEachRow + 1)
                 End If
 
                 arrOutput(lEachRow, dictRptColIndex("MatchedProductUnit")) = ""
+            
+                alErrCnt = alErrCnt + 1
+                arrErrRows(alErrCnt) = lEachRow + 1
+                alErrCnt = alErrCnt + 1
+                arrErrRows(alErrCnt) = dictRptColIndex("ProductUnit")
                 GoTo next_sales
             End If
 
@@ -249,21 +310,20 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("ConvertSellPrice")) = arrMaster(lEachRow, dictMstColIndex("SellPrice")) / dblRatio
         arrOutput(lEachRow, dictRptColIndex("RecalSellAmount")) = arrOutput(lEachRow, dictRptColIndex("ConvertQuantity")) _
                                                                 * arrOutput(lEachRow, dictRptColIndex("ConvertSellPrice"))
-        
 next_sales:
     Next
     
-    Call fAddNewFoundMissedHospitalToSheet(dictNewHospital)
+    Call fAddNewFoundMissedHospitalToSheet(dictNewHospital, False)
+    Call fAddNewFoundHospitalToSheetException(dictNewHospital, True)
     Call fAddNewFoundMissedProducerToSheetException(dictNewProducer)
     Call fAddNewFoundMissedProductNameToSheetException(dictNewProductName)
     Call fAddNewFoundMissedProductSeriesToSheetException(dictNewProductSeries)
     Call fAddNewFoundMissedProductUnitToSheetException(dictNewProductUnit)
 End Function
 
-Function fAddNewFoundMissedHospitalToSheet(dictNewHospital As Dictionary)
-    '======= Hospitals paste to master sheet  ===============================================
+Function fAddNewFoundMissedHospitalToSheet(dictNewHospital As Dictionary, Optional bSetDictToNothing As Boolean = True)
     Dim arrNewHospital()
-    arrNewHospital = fConvertDictionaryKeysTo2DimenArrayForPaste(dictNewHospital)
+    arrNewHospital = fConvertDictionaryKeysTo2DimenArrayForPaste(dictNewHospital, bSetDictToNothing)
     Call fAppendArray2Sheet(shtHospital, arrNewHospital)
     
     If fUbound(arrNewHospital, 1) > 0 Then
@@ -272,24 +332,78 @@ Function fAddNewFoundMissedHospitalToSheet(dictNewHospital As Dictionary)
                 & ""
     End If
     Erase arrNewHospital
-    '======= Hospitals paste to master sheet   end ===============================================
+End Function
+Function fAddNewFoundHospitalToSheetException(ByRef dictNewHospital As Dictionary, Optional bSetDictToNothing As Boolean = True)
+    Dim arrNewHospital()
+    'Dim sErr As String
+    Dim lStartRow As Long
+    Dim lRecCount As Long
+    
+    lRecCount = fGetDictionayDelimiteredItemsCount(dictNewHospital)
+        
+    If lRecCount > 0 Then
+        shtException.Cells.NumberFormat = "@"
+        shtException.Cells.WrapText = True
+        
+        arrNewHospital = fConvertDictionaryKeysTo2DimenArrayForPaste(dictNewHospital, False)
+        lStartRow = fGetValidMaxRow(shtException)
+        If lStartRow = 0 Then
+            lStartRow = lStartRow + 1
+        Else
+            lStartRow = lStartRow + 5
+        End If
+        
+        Call fPrepareHeaderToSheet(shtException, Array("本系统中找不到的医院", "行号"), lStartRow)
+        
+        shtException.Rows(lStartRow).Font.Color = RGB(255, 0, 0)
+        shtException.Rows(lStartRow).Font.Bold = True
+        
+        Call fAppendArray2Sheet(shtException, arrNewHospital)
+        shtException.Cells(lStartRow + 1, 2).Resize(dictNewHospital.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewHospital, False)
+
+        Call fFreezeSheet(shtException)
+        
+'        shtException.Visible = xlSheetVisible
+'        shtException.Activate
+        
+        If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
+        
+        gsBusinessErrorMsg = gsBusinessErrorMsg & lRecCount & "个【医院】在本系统中找不到，您可能要：" & vbCr _
+            & "(1). 在【药品厂家替换表】中添加一条替换记录" & vbCr _
+            & "(2). 在【药品厂家主表】中新增一个厂家" & vbCr & vbCr _
+            & "本次导入失败，完善数据后，请再次点击按钮进行【匹配替换统一】"
+    End If
 End Function
 
 Function fAddNewFoundMissedProducerToSheetException(dictNewProducer As Dictionary)
     '======= Producer Validation ===============================================
     Dim arrNewProducer()
-    Dim sErr As String
-    If dictNewProducer.Count > 0 Then
-        arrNewProducer = fConvertDictionaryKeysTo2DimenArrayForPaste(dictNewProducer, False)
-        Call fPrepareHeaderToSheet(shtException, Array("本系统中找不到的药品生产厂家", "行号"))
+    'Dim sErr As String
+    Dim lStartRow As Long
+    Dim lRecCount As Long
+    
+    lRecCount = fGetDictionayDelimiteredItemsCount(dictNewProducer)
+    If lRecCount > 0 Then
+        shtException.Cells.NumberFormat = "@"
+        shtException.Cells.WrapText = True
         
-        shtException.Rows(1).Font.Color = RGB(255, 0, 0)
-        shtException.Rows(1).Font.Bold = True
+        arrNewProducer = fConvertDictionaryKeysTo2DimenArrayForPaste(dictNewProducer, False)
+        lStartRow = fGetValidMaxRow(shtException)
+        If lStartRow = 0 Then
+            lStartRow = lStartRow + 1
+        Else
+            lStartRow = lStartRow + 5
+        End If
+        
+        Call fPrepareHeaderToSheet(shtException, Array("本系统中找不到的药品生产厂家", "行号"), lStartRow)
+        
+        shtException.Rows(lStartRow).Font.Color = RGB(255, 0, 0)
+        shtException.Rows(lStartRow).Font.Bold = True
         
         Call fAppendArray2Sheet(shtException, arrNewProducer)
-        sErr = fUbound(arrNewProducer)
-        shtException.Cells(2, 2).Resize(sErr, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProducer)
-        Erase arrNewProducer
+        'sErr = fUbound(arrNewProducer)
+        shtException.Cells(lStartRow + 1, 2).Resize(dictNewProducer.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProducer, False)
+       ' Erase arrNewProducer
         Call fFreezeSheet(shtException)
         
         shtException.Visible = xlSheetVisible
@@ -297,7 +411,7 @@ Function fAddNewFoundMissedProducerToSheetException(dictNewProducer As Dictionar
         
         If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
         
-        gsBusinessErrorMsg = gsBusinessErrorMsg & sErr & "个药品【生产厂家】在本系统中找不到，您可能要：" & vbCr _
+        gsBusinessErrorMsg = gsBusinessErrorMsg & lRecCount & "个药品【生产厂家】在本系统中找不到，您可能要：" & vbCr _
             & "(1). 在【药品厂家替换表】中添加一条替换记录" & vbCr _
             & "(2). 在【药品厂家主表】中新增一个厂家" & vbCr & vbCr _
             & "本次导入失败，完善数据后，请再次点击按钮进行【匹配替换统一】"
@@ -308,10 +422,17 @@ End Function
 Function fAddNewFoundMissedProductNameToSheetException(dictNewProductName As Dictionary)
     '======= ProductName Validation ===============================================
     Dim arrNewProductName()
-    Dim sErr As String
-    If dictNewProductName.Count > 0 Then
+    'Dim sErr As String
+    Dim lStartRow As Long
+    Dim lRecCount As Long
+    
+    lRecCount = fGetDictionayDelimiteredItemsCount(dictNewProductName)
+        
+    If lRecCount > 0 Then
+        shtException.Cells.NumberFormat = "@"
+        shtException.Cells.WrapText = True
+        
         arrNewProductName = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNewProductName, , False)
-        Dim lStartRow As Long
         lStartRow = fGetValidMaxRow(shtException)
         If lStartRow = 0 Then
             lStartRow = lStartRow + 1
@@ -323,18 +444,17 @@ Function fAddNewFoundMissedProductNameToSheetException(dictNewProductName As Dic
         shtException.Rows(lStartRow).Font.Color = RGB(255, 0, 0)
         shtException.Rows(lStartRow).Font.Bold = True
         Call fAppendArray2Sheet(shtException, arrNewProductName)
-        sErr = fUbound(arrNewProductName)
-        
-        shtException.Cells(lStartRow + 1, 3).Resize(sErr, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductName)
-        Erase arrNewProductName
+        'sErr = fUbound(arrNewProductName)
+        shtException.Cells(lStartRow + 1, 3).Resize(dictNewProductName.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductName, False)
+        'Erase arrNewProductName
         Call fFreezeSheet(shtException)
         
-        shtException.Visible = xlSheetVisible
-        shtException.Activate
+'        shtException.Visible = xlSheetVisible
+'        shtException.Activate
         
         If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
         
-        gsBusinessErrorMsg = gsBusinessErrorMsg & sErr & "个药品【名称】在本系统中找不到，您可能要：" & vbCr _
+        gsBusinessErrorMsg = gsBusinessErrorMsg & lRecCount & "个药品【名称】在本系统中找不到，您可能要：" & vbCr _
             & "(1). 在【药品名称替换表】中添加一条替换记录" & vbCr _
             & "(2). 在【药品名称主表】中新增一个名称" & vbCr _
             & "** 请注意：药品厂家没有问题，都匹配到了。" & vbCr & vbCr _
@@ -346,8 +466,14 @@ End Function
 Function fAddNewFoundMissedProductSeriesToSheetException(dictNewProductSeries As Dictionary)
     '======= ProductSeries Validation ===============================================
     Dim arrNewProductSeries()
-    Dim sErr As String
-    If dictNewProductSeries.Count > 0 Then
+    'Dim sErr As String
+    Dim lRecCount As Long
+    
+    lRecCount = fGetDictionayDelimiteredItemsCount(dictNewProductSeries)
+    If lRecCount > 0 Then
+        shtException.Cells.NumberFormat = "@"
+        shtException.Cells.WrapText = True
+        
         arrNewProductSeries = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNewProductSeries, , False)
         Dim lStartRow As Long
         lStartRow = fGetValidMaxRow(shtException)
@@ -361,31 +487,36 @@ Function fAddNewFoundMissedProductSeriesToSheetException(dictNewProductSeries As
         shtException.Rows(lStartRow).Font.Color = RGB(255, 0, 0)
         shtException.Rows(lStartRow).Font.Bold = True
         Call fAppendArray2Sheet(shtException, arrNewProductSeries)
-        sErr = fUbound(arrNewProductSeries)
+        'sErr = fUbound(arrNewProductSeries)
         
-        shtException.Cells(lStartRow + 1, 4).Resize(sErr, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductSeries)
-        Erase arrNewProductSeries
+        shtException.Cells(lStartRow + 1, 4).Resize(dictNewProductSeries.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductSeries, False)
+       ' Erase arrNewProductSeries
         Call fFreezeSheet(shtException)
         
-        shtException.Visible = xlSheetVisible
-        shtException.Activate
+'        shtException.Visible = xlSheetVisible
+'        shtException.Activate
         
         If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
 
-        gsBusinessErrorMsg = gsBusinessErrorMsg & sErr & "个药品【规格】在本系统中找不到，您可能要：" & vbCr _
+        gsBusinessErrorMsg = gsBusinessErrorMsg & lRecCount & "个药品【规格】在本系统中找不到，您可能要：" & vbCr _
             & "(1). 在【药品规格替换表】中添加一条替换记录" & vbCr _
             & "(2). 在【药品主表】中新增一个规格" & vbCr _
             & "** 请注意：药品厂家和药品名称没有问题，都匹配到了。" & vbCr & vbCr _
             & "本次导入失败，完善数据后，请再次点击按钮进行【匹配替换统一】"
     End If
-    '======= ProductSeries end ===============================================
 End Function
 
 Function fAddNewFoundMissedProductUnitToSheetException(dictNewProductUnit As Dictionary)
-    '======= ProductUnit Validation ===============================================
     Dim arrNewProductUnit()
-    Dim sErr As String
-    If dictNewProductUnit.Count > 0 Then
+    'Dim sErr As String
+    Dim lRecCount As Long
+    
+    lRecCount = fGetDictionayDelimiteredItemsCount(dictNewProductUnit)
+    
+    If lRecCount > 0 Then
+        shtException.Cells.NumberFormat = "@"
+        shtException.Cells.WrapText = True
+        
         arrNewProductUnit = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNewProductUnit, , False)
         Dim lStartRow As Long
         lStartRow = fGetValidMaxRow(shtException)
@@ -399,18 +530,18 @@ Function fAddNewFoundMissedProductUnitToSheetException(dictNewProductUnit As Dic
         shtException.Rows(lStartRow).Font.Color = RGB(255, 0, 0)
         shtException.Rows(lStartRow).Font.Bold = True
         Call fAppendArray2Sheet(shtException, arrNewProductUnit)
-        sErr = fUbound(arrNewProductUnit)
+        'sErr = fUbound(arrNewProductUnit)
         
-        shtException.Cells(lStartRow + 1, 6).Resize(sErr, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductUnit)
-        Erase arrNewProductUnit
+        shtException.Cells(lStartRow + 1, 6).Resize(dictNewProductUnit.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductUnit, False)
+       ' Erase arrNewProductUnit
         Call fFreezeSheet(shtException)
         
-        shtException.Visible = xlSheetVisible
-        shtException.Activate
+'        shtException.Visible = xlSheetVisible
+'        shtException.Activate
         
         If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
 
-        gsBusinessErrorMsg = gsBusinessErrorMsg & sErr & "个药品【单位】和设定的会计单位不一致，您可能要：" & vbCr _
+        gsBusinessErrorMsg = gsBusinessErrorMsg & lRecCount & "个药品【单位】和设定的会计单位不一致，您可能要：" & vbCr _
             & "(1). 在【药品单位倍数表】中添加一条记录" & vbCr _
             & "(2). 在【药品主表】中修改其单位" & vbCr _
             & "** 请注意：药品厂家、名称、规格没有问题，都匹配到了。" & vbCr & vbCr _
