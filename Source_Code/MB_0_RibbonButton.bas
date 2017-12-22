@@ -21,6 +21,10 @@ Sub subMain_HospitalReplacement()
     'Call fHideAllSheetExcept(shtHospital, shtHospitalReplace)
 End Sub
 
+Sub subMain_Exception()
+    fActiveVisibleSwitchSheet shtException, , False
+    'Call fHideAllSheetExcept(shtHospital, shtHospitalReplace)
+End Sub
 Sub subMain_RawSalesInfos()
     fActiveVisibleSwitchSheet shtSalesRawDataRpt, , False
 End Sub

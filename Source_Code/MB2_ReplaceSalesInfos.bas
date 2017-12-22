@@ -10,13 +10,15 @@ Dim alWarningCnt As Long
 Sub subMain_ReplaceSalesInfos()
     'If Not fIsDev Then On Error GoTo error_handling
     'On Error GoTo error_handling
-    Call fSetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT", 999)
+    Call fSetReplaceUnifyErrorRowCount(999)
     
     shtSalesRawDataRpt.Visible = xlSheetVisible
     shtException.Visible = xlSheetVeryHidden
     Call fUnProtectSheet(shtSalesInfos)
     Call fCleanSheetOutputResetSheetOutput(shtSalesInfos)
     Call fCleanSheetOutputResetSheetOutput(shtException)
+    shtException.Cells.NumberFormat = "@"
+    shtException.Cells.WrapText = True
     
     fInitialization
 
@@ -46,7 +48,9 @@ Sub subMain_ReplaceSalesInfos()
         arrWarningRows = Array()
     End If
     
-    If Not shtException.Visible = xlSheetVisible Then shtException.Visible = xlSheetVeryHidden
+    If alErrCnt > 0 Or alWarningCnt > 0 Then
+        shtException.Visible = xlSheetVisible
+    End If
     
 error_handling:
     'If shtException.Visible = xlSheetVisible Then
@@ -68,7 +72,7 @@ error_handling:
         
         If alErrCnt > 0 Then Call fSetFormatForExceptionCells(shtSalesInfos, arrErrRows, "REPORT_ERROR_COLOR")
         If alWarningCnt > 0 Then Call fSetFormatForExceptionCells(shtSalesInfos, arrWarningRows, "REPORT_WARNING_COLOR")
-        Call fSetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT", CStr(alErrCnt / 2))
+        Call fSetReplaceUnifyErrorRowCount(alErrCnt / 2)
     
         shtSalesInfos.Visible = xlSheetVisible
         shtSalesInfos.Activate
@@ -152,14 +156,11 @@ Private Function fProcessData()
         
         arrOutput(lEachRow, dictRptColIndex("SalesCompanyName")) = arrMaster(lEachRow, dictMstColIndex("SalesCompanyName"))
         arrOutput(lEachRow, dictRptColIndex("SalesDate")) = arrMaster(lEachRow, dictMstColIndex("SalesDate"))
-        
-        
         arrOutput(lEachRow, dictRptColIndex("Quantity")) = arrMaster(lEachRow, dictMstColIndex("Quantity"))
         arrOutput(lEachRow, dictRptColIndex("SellPrice")) = arrMaster(lEachRow, dictMstColIndex("SellPrice"))
         'arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("SellAmount"))
         arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("SellPrice")) _
                                                             * arrMaster(lEachRow, dictMstColIndex("Quantity"))
-        
         sHospital = arrMaster(lEachRow, dictMstColIndex("Hospital"))
         arrOutput(lEachRow, dictRptColIndex("Hospital")) = sHospital
         sProducer = arrMaster(lEachRow, dictMstColIndex("ProductProducer"))
@@ -342,16 +343,17 @@ Function fAddNewFoundHospitalToSheetException(ByRef dictNewHospital As Dictionar
     lRecCount = fGetDictionayDelimiteredItemsCount(dictNewHospital)
         
     If lRecCount > 0 Then
-        shtException.Cells.NumberFormat = "@"
-        shtException.Cells.WrapText = True
+'        shtException.Cells.NumberFormat = "@"
+'        shtException.Cells.WrapText = True
         
+        lStartRow = fGetshtExceptionNewRow
         arrNewHospital = fConvertDictionaryKeysTo2DimenArrayForPaste(dictNewHospital, False)
-        lStartRow = fGetValidMaxRow(shtException)
-        If lStartRow = 0 Then
-            lStartRow = lStartRow + 1
-        Else
-            lStartRow = lStartRow + 5
-        End If
+'        lStartRow = fGetValidMaxRow(shtException)
+'        If lStartRow = 0 Then
+'            lStartRow = lStartRow + 1
+'        Else
+'            lStartRow = lStartRow + 5
+'        End If
         
         Call fPrepareHeaderToSheet(shtException, Array("本系统中找不到的医院", "行号"), lStartRow)
         
@@ -384,16 +386,17 @@ Function fAddNewFoundMissedProducerToSheetException(dictNewProducer As Dictionar
     
     lRecCount = fGetDictionayDelimiteredItemsCount(dictNewProducer)
     If lRecCount > 0 Then
-        shtException.Cells.NumberFormat = "@"
-        shtException.Cells.WrapText = True
+'        shtException.Cells.NumberFormat = "@"
+'        shtException.Cells.WrapText = True
         
+        lStartRow = fGetshtExceptionNewRow
         arrNewProducer = fConvertDictionaryKeysTo2DimenArrayForPaste(dictNewProducer, False)
-        lStartRow = fGetValidMaxRow(shtException)
-        If lStartRow = 0 Then
-            lStartRow = lStartRow + 1
-        Else
-            lStartRow = lStartRow + 5
-        End If
+'        lStartRow = fGetValidMaxRow(shtException)
+'        If lStartRow = 0 Then
+'            lStartRow = lStartRow + 1
+'        Else
+'            lStartRow = lStartRow + 5
+'        End If
         
         Call fPrepareHeaderToSheet(shtException, Array("本系统中找不到的药品生产厂家", "行号"), lStartRow)
         
@@ -429,16 +432,17 @@ Function fAddNewFoundMissedProductNameToSheetException(dictNewProductName As Dic
     lRecCount = fGetDictionayDelimiteredItemsCount(dictNewProductName)
         
     If lRecCount > 0 Then
-        shtException.Cells.NumberFormat = "@"
-        shtException.Cells.WrapText = True
+'        shtException.Cells.NumberFormat = "@"
+'        shtException.Cells.WrapText = True
+        lStartRow = fGetshtExceptionNewRow
         
         arrNewProductName = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNewProductName, , False)
-        lStartRow = fGetValidMaxRow(shtException)
-        If lStartRow = 0 Then
-            lStartRow = lStartRow + 1
-        Else
-            lStartRow = lStartRow + 5
-        End If
+'        lStartRow = fGetValidMaxRow(shtException)
+'        If lStartRow = 0 Then
+'            lStartRow = lStartRow + 1
+'        Else
+'            lStartRow = lStartRow + 5
+'        End If
         
         Call fPrepareHeaderToSheet(shtException, Array("药品厂家", "本系统中找不到的药品名称", "行号"), lStartRow)
         shtException.Rows(lStartRow).Font.Color = RGB(255, 0, 0)
@@ -468,20 +472,13 @@ Function fAddNewFoundMissedProductSeriesToSheetException(dictNewProductSeries As
     Dim arrNewProductSeries()
     'Dim sErr As String
     Dim lRecCount As Long
+        Dim lStartRow As Long
     
     lRecCount = fGetDictionayDelimiteredItemsCount(dictNewProductSeries)
     If lRecCount > 0 Then
-        shtException.Cells.NumberFormat = "@"
-        shtException.Cells.WrapText = True
+        lStartRow = fGetshtExceptionNewRow
         
         arrNewProductSeries = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNewProductSeries, , False)
-        Dim lStartRow As Long
-        lStartRow = fGetValidMaxRow(shtException)
-        If lStartRow = 0 Then
-            lStartRow = lStartRow + 1
-        Else
-            lStartRow = lStartRow + 5
-        End If
         
         Call fPrepareHeaderToSheet(shtException, Array("药品厂家", "药品名称", "本系统中找不到的药品【规格】", "行号"), lStartRow)
         shtException.Rows(lStartRow).Font.Color = RGB(255, 0, 0)
@@ -510,21 +507,22 @@ Function fAddNewFoundMissedProductUnitToSheetException(dictNewProductUnit As Dic
     Dim arrNewProductUnit()
     'Dim sErr As String
     Dim lRecCount As Long
+        Dim lStartRow As Long
     
     lRecCount = fGetDictionayDelimiteredItemsCount(dictNewProductUnit)
     
     If lRecCount > 0 Then
-        shtException.Cells.NumberFormat = "@"
-        shtException.Cells.WrapText = True
+'        shtException.Cells.NumberFormat = "@"
+'        shtException.Cells.WrapText = True
+        lStartRow = fGetshtExceptionNewRow
         
         arrNewProductUnit = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNewProductUnit, , False)
-        Dim lStartRow As Long
-        lStartRow = fGetValidMaxRow(shtException)
-        If lStartRow = 0 Then
-            lStartRow = lStartRow + 1
-        Else
-            lStartRow = lStartRow + 5
-        End If
+'        lStartRow = fGetValidMaxRow(shtException)
+'        If lStartRow = 0 Then
+'            lStartRow = lStartRow + 1
+'        Else
+'            lStartRow = lStartRow + 5
+'        End If
         
         Call fPrepareHeaderToSheet(shtException, Array("药品厂家", "药品名称", "药品规格", "药品会计单位", "原始文件单位", "行号"), lStartRow)
         shtException.Rows(lStartRow).Font.Color = RGB(255, 0, 0)

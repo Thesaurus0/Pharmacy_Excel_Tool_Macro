@@ -14,9 +14,10 @@ Sub subMain_CalculateProfit()
     'If Not fIsDev Then On Error GoTo error_handling
     'On Error GoTo error_handling
     
-    If CLng(fGetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT")) > 0 Then
+    If fGetReplaceUnifyErrorRowCount > 0 Then
         fMsgBox "销售流向数据中有药品在系统中找不到，无法计算利润和佣金，请先处理这些错误。"
-        shtSalesInfos.Visible = xlSheetVisible: shtSalesInfos.Activate
+        shtSalesInfos.Visible = xlSheetVisible
+        shtException.Visible = xlSheetVisible:         shtException.Activate
         End
     End If
     
@@ -25,6 +26,8 @@ Sub subMain_CalculateProfit()
     Call fUnProtectSheet(shtProfit)
     Call fCleanSheetOutputResetSheetOutput(shtProfit)
     Call fCleanSheetOutputResetSheetOutput(shtException)
+    shtException.Cells.NumberFormat = "@"
+    shtException.Cells.WrapText = True
 
     fInitialization
 
@@ -307,24 +310,17 @@ End Function
 
 Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary)
     Dim arrNewProductSeries()
-    Dim sErr As String
+    Dim lUniqRecCnt As Long
     Dim lRecCount As Long
     Dim i As Integer
     Dim j As Integer
+        Dim lStartRow As Long
     'Dim arrTmp
     
-    If dictNoValidSelfSales.Count > 0 Then
-        shtException.Cells.NumberFormat = "@"
-        shtException.Cells.WrapText = True
-        
+    lUniqRecCnt = dictNoValidSelfSales.Count
+    If lUniqRecCnt > 0 Then
+        lStartRow = fGetshtExceptionNewRow
         arrNewProductSeries = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNoValidSelfSales, , False)
-        Dim lStartRow As Long
-        lStartRow = fGetValidMaxRow(shtException)
-        If lStartRow = 0 Then
-            lStartRow = lStartRow + 2
-        Else
-            lStartRow = lStartRow + 6
-        End If
         
         shtException.Cells.NumberFormat = "@"
         shtException.Cells.WrapText = True
@@ -341,7 +337,7 @@ Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary
 '            lRecCount = lRecCount + UBound(Split(dictNoValidSelfSales.Items(i), ",")) + 1
 '        Next
         
-        shtException.Cells(lStartRow + 1, 4).Resize(sErr, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNoValidSelfSales)
+        shtException.Cells(lStartRow + 1, 4).Resize(dictNoValidSelfSales.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNoValidSelfSales, False)
         Erase arrNewProductSeries
         If lStartRow = 2 Then Call fFreezeSheet(shtException, , 2)
         
@@ -359,45 +355,31 @@ End Function
 
 Function fAddNoSalesManConfToSheetException(dictNoSalesManConf As Dictionary)
     Dim arrNoSalesMan()
-    Dim sErr As String
-    Dim lRecCount As Long
+    Dim lUniqRecCnt As Long
+    'Dim lRecCount As Long
     Dim i As Integer
     Dim j As Integer
-'    Dim arrTmp
-    
-    If dictNoSalesManConf.Count > 0 Then
-        shtException.Cells.NumberFormat = "@"
-        shtException.Cells.WrapText = True
+    Dim lStartRow As Long
+            
+    lUniqRecCnt = dictNoSalesManConf.Count
+    If lUniqRecCnt > 0 Then
+        lStartRow = fGetshtExceptionNewRow
         
-        arrNoSalesMan = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNoSalesManConf, , False)
-        Dim lStartRow As Long
-        lStartRow = fGetValidMaxRow(shtException)
-        If lStartRow = 0 Then
-            lStartRow = lStartRow + 2
-        Else
-            lStartRow = lStartRow + 6
-        End If
-        
-        shtException.Cells.NumberFormat = "@"
-        shtException.Cells.WrapText = True
-        'shtException.Columns(4).ColumnWidth = 100
         shtException.Cells(lStartRow - 1, 1).Value = "找不到业务员的记录"
         Call fPrepareHeaderToSheet(shtException, Array("商业公司", "医院", "药品厂家", "药品名称", "规格", "行号"), lStartRow)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Color = RGB(255, 0, 0)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Bold = True
+        
+        arrNoSalesMan = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNoSalesManConf, , False)
         Call fAppendArray2Sheet(shtException, arrNoSalesMan)
-        sErr = fUbound(arrNoSalesMan)
         
-        shtException.Cells(lStartRow + 1, 6).Resize(sErr, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNoSalesManConf)
-        Erase arrNoSalesMan
+        shtException.Cells(lStartRow + 1, 6).Resize(lUniqRecCnt, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNoSalesManConf)
+
         If lStartRow = 2 Then Call fFreezeSheet(shtException, , 2)
-        
-        shtException.Visible = xlSheetVisible
-        shtException.Activate
         
         If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
         
-        gsBusinessErrorMsg = gsBusinessErrorMsg & sErr & "条销售流向找不到业务员的记录，您需要：" & vbCr _
+        gsBusinessErrorMsg = gsBusinessErrorMsg & lUniqRecCnt & "条销售流向找不到业务员的记录，您需要：" & vbCr _
             & "(1). 在【业务员佣金设置】中添加业务员佣金设置"
     End If
 End Function
@@ -556,6 +538,18 @@ End Function
 '        Call fAppendArray2Sheet(sht, arr)
 '    End If
 'End Function
+
+Function fGetshtExceptionNewRow()
+    Dim lNewRow As Long
+    lNewRow = fGetValidMaxRow(shtException)
+    If lNewRow = 0 Then
+        lNewRow = lNewRow + 2
+    Else
+        lNewRow = lNewRow + 5
+    End If
+    
+    fGetshtExceptionNewRow = lNewRow
+End Function
 
 Sub subMain_CalculateProfit_MonthEnd()
     

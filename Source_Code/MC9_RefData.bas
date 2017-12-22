@@ -759,3 +759,12 @@ exit_fun:
     fCalculateSalesManCommissionFromshtSalesManCommConfig = bOut
 End Function
 '------------------------------------------------------------------------------
+
+Function fGetReplaceUnifyErrorRowCount() As Long
+    fGetReplaceUnifyErrorRowCount = CLng(fGetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT"))
+End Function
+
+Function fSetReplaceUnifyErrorRowCount(ByVal rowCnt As Long) As Long
+    Call fSetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT", CStr(rowCnt))
+End Function
+
