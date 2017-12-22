@@ -86,6 +86,15 @@ Sub subMain_SalesManCommissionConfig()
     fActiveVisibleSwitchSheet shtSalesManCommConfig, , False
 End Sub
 
+Sub subMain_Profit()
+    fActiveVisibleSwitchSheet shtProfit, , False
+End Sub
+
+Sub subMain_SelfSalesPreDeduct()
+    fActiveVisibleSwitchSheet shtSelfSalesPreDeduct, , False
+End Sub
+
+
 Sub subMain_SelfPurchaseOrder()
     fActiveVisibleSwitchSheet shtSelfPurchaseOrder, , False
 End Sub
@@ -123,6 +132,7 @@ Sub subMain_InvisibleHideAllBusinessSheets()
     shtException.Visible = xlSheetVeryHidden
     shtProfit.Visible = xlSheetVeryHidden
     shtSelfSalesOrder.Visible = xlSheetVeryHidden
+    shtSelfSalesPreDeduct.Visible = xlSheetVeryHidden
     shtSelfPurchaseOrder.Visible = xlSheetVeryHidden
     shtSalesManMaster.Visible = xlSheetVeryHidden
     shtFirstLevelCommission.Visible = xlSheetVeryHidden

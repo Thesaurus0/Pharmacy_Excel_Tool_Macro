@@ -463,6 +463,46 @@ Sub Sub_FilterByActiveCell()
                 , Operator:=xlAnd
 End Sub
 
+Sub Sub_FilterBySelectedCells()
+    Dim rngSelected As Range
+    
+    Set rngSelected = Selection
+    If fIfSelectedMoreThanOneRow(rngSelected) Then
+        fMsgBox "不能选多行，只能选一行。"
+        End
+    End If
+
+    Call Sub_RemoveFilterForAcitveSheet
+    
+    Dim lMaxRow As Long
+    Dim lMaxCol As Long
+    lMaxRow = fGetValidMaxRow(ActiveSheet)
+    lMaxCol = fGetValidMaxCol(ActiveSheet)
+
+'    If ActiveSheet.AutoFilterMode Then  'auto filter
+'        ActiveSheet.AutoFilter.ShowAllData
+'    Else
+'        fGetRangeByStartEndPos(ActiveSheet, 1, 1, 1, lMaxCol).AutoFilter
+'    End If
+    
+    Dim eachCol As Integer
+    Dim rgData As Range
+    Set rgData = fGetRangeByStartEndPos(ActiveSheet, 1, 1, lMaxRow, lMaxCol)
+    
+    Dim rngEachArea As Range
+    Dim eachCell As Range
+    
+    For Each rngEachArea In rngSelected.Areas
+        For Each eachCell In rngEachArea
+            If eachCell.Column > lMaxCol Then Exit For
+            rgData.AutoFilter Field:=eachCell.Column _
+                , Criteria1:="=*" & eachCell.Value & "*" _
+                , Operator:=xlAnd
+        Next
+    Next
+    
+    End
+End Sub
 Sub Sub_RemoveFilterForAcitveSheet()
     Call fRemoveFilterForSheet(ActiveSheet)
 End Sub
@@ -482,3 +522,62 @@ Sub sub_SortBySelectColumn()
     If Not rgFound Is Nothing Then rgFound.Select
     Set rgFound = Nothing
 End Sub
+
+Sub sub_SortBySelectedCells()
+    Dim rngSelected As Range
+    Dim sFirstValue
+    Dim arrSortCol()
+    
+    Set rngSelected = Selection
+'    If fIfSelectedMoreThanOneRow(rngSelected) Then
+'        fMsgBox "不能选多行，只能选一行。"
+'        End
+'    End If
+    
+    sFirstValue = rngSelected.Cells(1, 1).Value
+
+    Call Sub_RemoveFilterForAcitveSheet
+    
+    Dim lMaxRow As Long
+    Dim lMaxCol As Long
+    lMaxRow = fGetValidMaxRow(ActiveSheet)
+    lMaxCol = fGetValidMaxCol(ActiveSheet)
+
+    Dim eachCol As Integer
+    Dim rgData As Range
+    Set rgData = fGetRangeByStartEndPos(ActiveSheet, 1, 1, lMaxRow, lMaxCol)
+    
+    Dim rngEachArea As Range
+    'Dim eachCell As Range
+    Dim i As Integer
+    Dim j As Integer
+    
+    i = 0
+    For Each rngEachArea In rngSelected.Areas
+        For j = rngEachArea.Column To rngEachArea.Column + rngEachArea.Columns.Count - 1
+            If j > lMaxCol Then Exit For
+            
+            i = i + 1
+            ReDim Preserve arrSortCol(i)
+            arrSortCol(i) = j
+        Next
+'        For Each eachCell In rngEachArea
+'            If eachCell.Column > lMaxCol Then Exit For
+'
+'            i = i + 1
+'            ReDim Preserve arrSortCol(i)
+'            arrSortCol(i) = eachCell.Column
+'        Next
+    Next
+    
+    If i > 0 Then Call fSortDataInSheetSortSheetData(ActiveSheet, arrSortCol)
+    
+    Dim rgFound As Range
+    Set rgFound = fFindInWorksheet(ActiveSheet.Cells, CStr(sFirstValue), True, True)
+    
+    Debug.Print rngSelected.Cells(1, 1).Value
+    If Not rgFound Is Nothing Then rgFound.Select
+    Set rgFound = Nothing
+    End
+End Sub
+

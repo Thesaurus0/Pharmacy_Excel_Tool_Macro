@@ -21,7 +21,6 @@ Private Sub btnValidateProducerMaster_Click()
     
     Call fValidateDuplicateInArray(arrData, dictColIndex("ProductProducer"), False, shtProductProducerMaster, 1, 1, "生产厂家")
     
-    
     fMsgBox "没有发现错误", vbInformation
 exit_sub:
     fEnableExcelOptionsAll

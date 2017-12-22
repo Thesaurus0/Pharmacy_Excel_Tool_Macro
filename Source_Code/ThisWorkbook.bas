@@ -38,6 +38,7 @@ End Sub
 Sub sub_WorkBookInitialization()
     Call fReadConfigRibbonCommandBarMenuAndCreateCommandBarButton
 
+    
     If fIsDev() Then
         shtSysConf.Visible = xlSheetVisible
         shtStaticData.Visible = xlSheetVisible
@@ -48,6 +49,9 @@ Sub sub_WorkBookInitialization()
         shtFileSpec.Visible = xlSheetVeryHidden
     End If
 
+    Call fRemoveFilterForAllSheets
+    Call fDeleteBlankRowsFromAllSheets
+    
     Call subMain_InvisibleHideAllBusinessSheets
     Call fSetValidationListForAllSheets
     Call fSetConditionFormatForFundamentalSheets

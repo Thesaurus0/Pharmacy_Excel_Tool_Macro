@@ -878,7 +878,7 @@ Function fValidateDuplicateInArrayForCombineCols(arrParam, arrKeyCols _
         
         If dict.Exists(sKeyStr) Then
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
-            fErr "Duplicate key [" & sKeyStr & " was found:" & sPos
+            fErr "Duplicate key was found:" & vbCr & sKeyStr & vbCr & sPos
         Else
             dict.Add sKeyStr, 0
         End If

@@ -534,9 +534,9 @@ Function fReadSelfSalesOrder2Dictionary()
     Call fSortDataInSheetSortSheetDataByFileSpec("SELF_SALES_ORDER", Array("ProductProducer" _
                                     , "ProductName" _
                                     , "ProductSeries" _
-                                    , "SalesDate"), , shtSelfSalesOrder)
+                                    , "SalesDate"), , shtSelfSalesCal)
     
-    Call fReadSheetDataByConfig("SELF_SALES_ORDER", dictSelfSalesColIndex, arrSelfSales, , , , , shtSelfSalesOrder)
+    Call fReadSheetDataByConfig("SELF_SALES_ORDER", dictSelfSalesColIndex, arrSelfSales, , , , , shtSelfSalesCal)
     
     Set dictSelfSalesDeductTo = New Dictionary
     Set dictSelfSalesDeductFrom = New Dictionary
@@ -546,7 +546,7 @@ Function fReadSelfSalesOrder2Dictionary()
         
         
         If dblSellQuantity < dblHospitalQuantity Then fErr "数据出错，医院销售数量不应该大于出货数量" _
-                        & vbCr & "工作表：" & shtSelfSalesOrder.Name _
+                        & vbCr & "工作表：" & shtSelfSalesCal.Name _
                         & vbCr & "行号：" & lEachRow + 1
         If dblSellQuantity = dblHospitalQuantity Then GoTo next_row
         
@@ -604,7 +604,7 @@ Function fCalculateCostPriceFromSelfSalesOrder(sProductKey As String _
         dblPrice = arrSelfSales(lEachRow, dictSelfSalesColIndex("SellPrice"))
         
         If dblSelfSellQuantity <= dblHospitalQuantity Then fErr "这一行的日期晚，不应该出现抵扣" _
-                        & vbCr & "工作表：" & shtSelfSalesOrder.Name _
+                        & vbCr & "工作表：" & shtSelfSalesCal.Name _
                         & vbCr & "行号：" & lEachRow + 1
         
         dblCurrRowBalance = dblSelfSellQuantity - dblHospitalQuantity
@@ -630,7 +630,6 @@ Function fCalculateCostPriceFromSelfSalesOrder(sProductKey As String _
     
     If dblBalance <= 0 Then
         bOut = True
-        
         dblCostPrice = dblAccAmt / dblSalesQuantity
     End If
     
@@ -638,9 +637,9 @@ exit_fun:
     fCalculateCostPriceFromSelfSalesOrder = bOut
 End Function
 
-Function fSetBackToshtSelfSalesOrderWithDeductedData()
+Function fSetBackToshtSelfSalesCalWithDeductedData()
     If UBound(arrSelfSales, 1) > 0 Then
-        shtSelfSalesOrder.Range("A2").Resize(UBound(arrSelfSales, 1), UBound(arrSelfSales, 2)).Value2 = arrSelfSales
+        shtSelfSalesCal.Range("A2").Resize(UBound(arrSelfSales, 1), UBound(arrSelfSales, 2)).Value2 = arrSelfSales
     End If
 End Function
 '------------------------------------------------------------------------------

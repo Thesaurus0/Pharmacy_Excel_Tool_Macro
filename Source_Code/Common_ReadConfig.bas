@@ -995,6 +995,7 @@ Function fGetInputFileSourceType(asFileTag As String) As String
     fGetInputFileSourceType = Split(gDictInputFiles(asFileTag), DELIMITER)(InputFile.Source - InputFile.ReportID - 2)
 End Function
 Function fGetInputFileFileSpecTag(asFileTag As String) As String
+    If Not gDictInputFiles.Exists(asFileTag) Then fErr asFileTag & " does not exist in " & Join(gDictInputFiles.Keys, vbCr)
     fGetInputFileFileSpecTag = Split(gDictInputFiles(asFileTag), DELIMITER)(InputFile.FileSpecTag - InputFile.ReportID - 2)
 End Function
 Function fGetInputFileRowNo(asFileTag As String) As String

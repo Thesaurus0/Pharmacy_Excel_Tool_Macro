@@ -314,8 +314,32 @@ Function fRemoveFilterForAllSheets(Optional wb As Workbook, Optional ByVal asDeg
     
     Set sht = Nothing
 End Function
+Function fDeleteBlankRowsFromAllSheets(Optional wb As Workbook)
+    If wb Is Nothing Then Set wb = ThisWorkbook
+    
+    Dim sht As Worksheet
+    For Each sht In wb.Worksheets
+        Call fDeleteBlankRowsFromSheet(sht)
+    Next
+    
+    Set sht = Nothing
+End Function
+Function fDeleteBlankRowsFromSheet(sht As Worksheet)
+    Dim lUsedRangMaxRow As Long
+    Dim lValidMaxRow As Long
+    
+    lUsedRangMaxRow = sht.UsedRange.Row + sht.UsedRange.Rows.Count - 1
+    lValidMaxRow = fGetValidMaxRow(sht)
+    
+    If lUsedRangMaxRow > lValidMaxRow Then
+        sht.Rows((lValidMaxRow + 1) & ":" & lUsedRangMaxRow).Delete shift:=xlUp
+    End If
+End Function
 Function fRemoveFilterForSheet(sht As Worksheet, Optional ByVal asDegree As String = "SHOW_ALL_DATA")
     asDegree = UCase(Trim(asDegree))
+    
+    Dim rgActiveCell As Range
+    Set rgActiveCell = ActiveCell
     
     If sht.FilterMode Then  'advanced filter
         sht.ShowAllData
@@ -328,6 +352,8 @@ Function fRemoveFilterForSheet(sht As Worksheet, Optional ByVal asDegree As Stri
             sht.AutoFilterMode = False
         End If
     End If
+    
+    rgActiveCell.Select
 End Function
 
 Function fActiveXControlExistsInSheet(sht As Worksheet, asControlName As String, ByRef objOut As Object) As Boolean
@@ -592,4 +618,44 @@ Function fSortDataInSheetSortSheetDataByFileSpec(asFileTag As String, arrSortByC
     
     Set dictColIndex = Nothing
     Set shtToRead = Nothing
+End Function
+
+Function fGetSelectedRowCount(rngParam As Range)
+'    Dim eachArea As Range
+'    Dim lRowCnt As Long
+'
+'    lRowCnt = 0
+'    For Each eachArea In rngParam.Areas
+'        lRowCnt = lRowCnt + eachArea.Rows.Count
+'    Next
+'    Set eachArea = Nothing
+'
+'    fGetSelectedRowCount = lRowCnt
+End Function
+
+Function fIfSelectedMoreThanOneRow(rngParam As Range) As Boolean
+    Dim eachArea As Range
+    Dim lRowNoSaved As Long
+    Dim bOut As Boolean
+    
+    bOut = False
+    lRowNoSaved = 0
+    For Each eachArea In rngParam.Areas
+        If eachArea.Rows.Count > 1 Then
+            bOut = True
+            Exit For
+        Else
+            If lRowNoSaved = 0 Then
+                lRowNoSaved = eachArea.Row
+            Else
+                If eachArea.Row <> lRowNoSaved Then
+                    bOut = True
+                    Exit For
+                End If
+            End If
+        End If
+    Next
+    Set eachArea = Nothing
+    
+    fIfSelectedMoreThanOneRow = bOut
 End Function

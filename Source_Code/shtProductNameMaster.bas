@@ -7,6 +7,30 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
+Private Sub btnProductNameMasterValid_Click()
+    On Error GoTo exit_sub
+    
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    fInitialization
+    gsRptID = "REPLACE_UNIFY_SALES_INFO"
+    Call fReadSysConfig_InputTxtSheetFile
+    
+    Call fReadSheetDataByConfig("PRODUCER_NAME_MASTER", dictColIndex, arrData, , , , , shtProductNameMaster)
+    
+    Call fValidateDuplicateInArray(arrData, Array(dictColIndex("ProductProducer"), dictColIndex("ProductName")) _
+                    , False, shtProductNameMaster, 1, 1, "生产厂家+药品名称")
+    
+    Call fValidateBlankInArray(arrData, dictColIndex("ProductProducer"), shtProductNameMaster, 1, 1, "生产厂家")
+    Call fValidateBlankInArray(arrData, dictColIndex("ProductName"), shtProductNameMaster, 1, 1, "药品名称")
+    
+    fMsgBox "没有发现错误", vbInformation
+exit_sub:
+    fEnableExcelOptionsAll
+    Set dictColIndex = Nothing
+End Sub
+
 Private Sub Worksheet_Change(ByVal Target As Range)
 '    Dim sProducerCol As String
 '    Dim rgIntersect As Range
