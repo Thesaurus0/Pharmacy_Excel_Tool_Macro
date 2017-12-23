@@ -7,6 +7,11 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
+Option Explicit
+Option Base 1
+
+Dim dictProductNameMaster As Dictionary
+
 Private Sub btnValidateProductMaster_Click()
     On Error GoTo exit_sub
     
@@ -21,21 +26,43 @@ Private Sub btnValidateProductMaster_Click()
     
     Call fValidateDuplicateInArray(arrData, Array(dictColIndex("ProductProducer") _
                                                 , dictColIndex("ProductName") _
-                                                , dictColIndex("ProductSeries") _
-                                                , dictColIndex("ProductUnit")) _
-                , False, shtProductProducerMaster, 1, 1, "厂家+名称+规格+单位")
+                                                , dictColIndex("ProductSeries")) _
+                , False, shtProductProducerMaster, 1, 1, "厂家+名称+规格")
     Call fValidateBlankInArray(arrData, dictColIndex("ProductProducer"), shtProductMaster, 1, 1, "药品厂家")
     Call fValidateBlankInArray(arrData, dictColIndex("ProductName"), shtProductMaster, 1, 1, "药品名称")
     Call fValidateBlankInArray(arrData, dictColIndex("ProductSeries"), shtProductMaster, 1, 1, "药品规格")
     Call fValidateBlankInArray(arrData, dictColIndex("ProductUnit"), shtProductMaster, 1, 1, "药品单位")
     
-    '?????????????????????  to do
+    Dim lEachRow As Long
+    For lEachRow = LBound(arrData, 1) To UBound(arrData, 1)
+        If Not fProductNameExistsInProductNameMaster(CStr(arrData(lEachRow, dictColIndex("ProductProducer"))) _
+                                            , CStr(arrData(lEachRow, dictColIndex("ProductName")))) Then
+            fErr "【药品厂家 + 药品名称】不存在于药品名称主表中。" & vbCr & "行号：" & lEachRow + 1
+        End If
+    Next
     
     fMsgBox "没有发现错误", vbInformation
 exit_sub:
     Set dictColIndex = Nothing
     fEnableExcelOptionsAll
+    End
 End Sub
+
+Function fReadSheetProductNameMaster2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    Call fReadSheetDataByConfig("PRODUCT_NAME_MASTER", dictColIndex, arrData, , , , , shtProductNameMaster)
+    Set dictProductNameMaster = fReadArray2DictionaryMultipleKeysWithKeysOnly(arrData _
+                                    , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName")) _
+                                    , DELIMITER)
+    Set dictColIndex = Nothing
+End Function
+Function fProductNameExistsInProductNameMaster(sProductProducer As String, sProductName As String) As Boolean
+    If dictProductNameMaster Is Nothing Then Call fReadSheetProductNameMaster2Dictionary
+    
+    fProductNameExistsInProductNameMaster = dictProductNameMaster.Exists(sProductProducer & DELIMITER & sProductName)
+End Function
 
 Private Sub Worksheet_Change(ByVal Target As Range)
 '    Dim sProducerCol As String

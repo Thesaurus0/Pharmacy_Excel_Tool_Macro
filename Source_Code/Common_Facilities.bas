@@ -100,6 +100,8 @@ Sub sub_ResetOnError_Initialize()
     Call fEnableExcelOptionsAll
     Call sub_RemoveAllCommandBars
     
+    Call fDeleteAllConditionFormatForAllSheets
+    
    ' Call ThisWorkbook.fRefreshGetAllCommandbarsList
     
     Call ThisWorkbook.sub_WorkBookInitialization
@@ -580,4 +582,36 @@ Sub sub_SortBySelectedCells()
     Set rgFound = Nothing
     End
 End Sub
+
+Function fSetFilterForSheet(sht As Worksheet, colToFilter As Integer, aValue)
+    Dim lMaxRow As Long
+    Dim lMaxCol As Long
+    lMaxCol = sht.Cells(1, 1).End(xlToRight).Column
+    lMaxRow = fGetValidMaxRow(sht)
+
+    If sht.AutoFilterMode Then  'auto filter
+        sht.AutoFilter.ShowAllData
+    Else
+        fGetRangeByStartEndPos(sht, 1, 1, 1, lMaxCol).AutoFilter
+    End If
+
+    fGetRangeByStartEndPos(sht, 1, 1, lMaxRow, lMaxCol).AutoFilter _
+                Field:=colToFilter _
+                , Criteria1:="=*" & aValue & "*" _
+                , Operator:=xlAnd
+End Function
+
+Function fCopyFilteredDataToRange(sht As Worksheet, colFiltered As Integer)
+    Dim lMaxRow As Long
+    lMaxRow = fGetValidMaxRow(sht)
+    
+    shtDataStage.Columns("A").ClearContents
+    
+    If lMaxRow < 2 Then Exit Function
+    
+    fGetRangeByStartEndPos(sht, 2, CLng(colFiltered), lMaxRow, CLng(colFiltered)).Copy
+    shtDataStage.Range("A1").PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+    Application.CutCopyMode = False
+End Function
 

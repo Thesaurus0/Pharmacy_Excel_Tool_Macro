@@ -33,11 +33,12 @@ Private Sub Workbook_Open()
     Call sub_RemoveCommandBar("Team")
     ThisWorkbook.Saved = True
     ThisWorkbook.CheckCompatibility = False
+    
+    End
 End Sub
 
 Sub sub_WorkBookInitialization()
     Call fReadConfigRibbonCommandBarMenuAndCreateCommandBarButton
-
     
     If fIsDev() Then
         shtSysConf.Visible = xlSheetVisible
@@ -61,7 +62,7 @@ Function fRefreshGetAllCommandbarsList()
     Dim arrCBarsInfo()
     Dim dict As Dictionary
 
-    Debug.Print "fRefreshGetAllCommandbarsList" & Now()
+    Debug.Print "fRefreshGetAllCommandbarsList " & vbTab & Now()
 
     arrCBarsInfo = fReadConfigCommandBarsInfo
 

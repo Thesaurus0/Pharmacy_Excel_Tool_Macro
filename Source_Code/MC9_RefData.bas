@@ -290,6 +290,9 @@ Function fProductSeriesExistsInProductMaster(sProductProducer As String, sProduc
     
     fProductSeriesExistsInProductMaster = dictProductMaster.Exists(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries)
 End Function
+Function fProductKeysExistsInProductMaster(sProductProducer As String, sProductName As String, sProductSeries As String) As Boolean
+    fProductKeysExistsInProductMaster = fProductSeriesExistsInProductMaster(sProductProducer, sProductName, sProductSeries)
+End Function
 '------------------------------------------------------------------------------
 
 '====================== ProductSeries Replacement =================================================================

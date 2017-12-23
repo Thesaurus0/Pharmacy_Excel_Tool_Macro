@@ -8,20 +8,20 @@ Function fSetValidationListForAllSheets()
     Call fSetValidationListForshtSecondLevelCommission_SalesCompany("=rngStaticSalesCompanyNames")
     Call fSetValidationListForshtSalesManCommConfig_SalesCompany("=rngStaticSalesCompanyNames")
     '----------------------------------------------------------------------------------------
-    
+
     '============== Hospital ========================================
     Dim sHospitalAddr As String
     sHospitalAddr = fGetHospitalMasterColumnAddress_Hospital
-    
+
     Call fSetValidationListForshtHospitalReplace_Hospital(sHospitalAddr)
     Call fSetValidationListForshtSalesManCommConfig_Hospital(sHospitalAddr)
     Call fSetValidationListForshtSecondLevelCommission_Hospital(sHospitalAddr)
     '----------------------------------------------------------------------------------------
-    
+
     '============== producer ========================================
     Dim sProducerAddr As String
     sProducerAddr = fGetProducerMasterColumnAddress_Producer
- 
+
     Call fSetValidationListForshtProductMaster_Producer(sProducerAddr)
     Call fSetValidationListForshtProductNameMaster_Producer(sProducerAddr)
     Call fSetValidationListForshtSalesManCommConfig_Producer(sProducerAddr)
@@ -33,11 +33,11 @@ Function fSetValidationListForAllSheets()
     Call fSetValidationListForshtProductUnitRatio_Producer(sProducerAddr)
     Call fSetValidationListForshtSelfSalesOrder_Producer(sProducerAddr)
     '----------------------------------------------------------------------------------------
-    
+
     '============== productName ========================================
     Dim sProductNameAddr As String
     sProductNameAddr = fGetProductNameMasterColumnAddress_ProductName
- 
+
     Call fSetValidationListForshtProductMaster_ProductName(sProductNameAddr)
     Call fSetValidationListForshtSalesManCommConfig_ProductName(sProductNameAddr)
     Call fSetValidationListForshtFirstLevelCommission_ProductName(sProductNameAddr)
@@ -47,11 +47,11 @@ Function fSetValidationListForAllSheets()
     Call fSetValidationListForshtProductUnitRatio_ProductName(sProductNameAddr)
     Call fSetValidationListForshtSelfSalesOrder_ProductName(sProductNameAddr)
     '----------------------------------------------------------------------------------------
-    
+
     '============== ProductSeries ========================================
     Dim sProductSeriesAddr As String
     sProductSeriesAddr = fGetProductSeriesMasterColumnAddress_ProductSeries
- 
+
     Call fSetValidationListForshtSalesManCommConfig_ProductSeries(sProductSeriesAddr)
     Call fSetValidationListForshtFirstLevelCommission_ProductSeries(sProductSeriesAddr)
     Call fSetValidationListForshtSecondLevelCommission_ProductSeries(sProductSeriesAddr)
@@ -63,7 +63,7 @@ Function fSetValidationListForAllSheets()
     '============== ProductUnit ========================================
     Dim sProductUnitAddr As String
     sProductUnitAddr = fGetProductUnitMasterColumnAddress_ProductUnit
- 
+
     Call fSetValidationListForshtProductUnitRatio_ProductUnit(sProductUnitAddr)
     Call fSetValidationListForshtSelfSalesOrder_ProductUnit(sProductUnitAddr)
     '----------------------------------------------------------------------------------------
@@ -391,12 +391,16 @@ Function fSetValidationListForshtSecondLevelCommission_ProductName(sValidationLi
                                     , sValidationListAddr)
 End Function
 
-Function fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr As String)
+Function fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr As String, Optional iCol As Integer = 0)
     Dim sTargetCol As String
     Dim lMaxRow As Long
     
-    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - PRODUCT_NAME_REPLACE_SHEET]" _
+    If iCol = 0 Then
+        sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - PRODUCT_NAME_REPLACE_SHEET]" _
                                             , "Column Index", "Column Tech Name=ToProductName")
+    Else
+        sTargetCol = fNum2Letter(iCol)
+    End If
     
     lMaxRow = shtProductNameReplace.Columns(sTargetCol).End(xlDown).Row + 100000
     If lMaxRow > Rows.Count Then lMaxRow = 100000

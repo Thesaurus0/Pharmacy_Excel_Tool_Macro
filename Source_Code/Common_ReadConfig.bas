@@ -966,14 +966,14 @@ Function fCrossValidateInputFileTxtSheetFile()
         If sSource = "FILE_BINDED_IN_MACRO" Or sSource = "READ_FROM_DRIVE" Then
             fIfExcelFileOpenedToCloseIt fGetInputFileFileName(sFileTag)
         ElseIf sSource = "PARSE_AS_TEXT" Then
-            If Not gDictTxtFileSpec Is Nothing Then
-                If Not gDictTxtFileSpec.Exists(sFileTag) Then
-                    lActualRow = fGetInputFileRowNo(sFileTag)
-                    fErr "The file Tag below is configured as " & sSource & ", but [TXT File Importing Specification] does not have one, pls check." _
-                        & vbCr & "File Tag: " & sFileTag _
-                        & vbCr & "Row: " & lActualRow
-                End If
-            End If
+'            If Not gDictTxtFileSpec Is Nothing Then
+'                If Not gDictTxtFileSpec.Exists(sFileTag) Then
+'                    lActualRow = fGetInputFileRowNo(sFileTag)
+'                    fErr "The file Tag below is configured as " & sSource & ", but [TXT File Importing Specification] does not have one, pls check." _
+'                        & vbCr & "File Tag: " & sFileTag _
+'                        & vbCr & "Row: " & lActualRow
+'                End If
+'            End If
         End If
     Next
     

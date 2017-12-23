@@ -370,10 +370,10 @@ Function fAddNewFoundHospitalToSheetException(ByRef dictNewHospital As Dictionar
         
         If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
         
-        gsBusinessErrorMsg = gsBusinessErrorMsg & lRecCount & "个【医院】在本系统中找不到，您可能要：" & vbCr _
-            & "(1). 在【药品厂家替换表】中添加一条替换记录" & vbCr _
-            & "(2). 在【药品厂家主表】中新增一个厂家" & vbCr & vbCr _
-            & "本次导入失败，完善数据后，请再次点击按钮进行【匹配替换统一】"
+        gsBusinessErrorMsg = gsBusinessErrorMsg & lRecCount & "个【医院】在本系统中找不到，" & vbCr _
+            & "但是它们都被自动加入到了【医院】主表中" & vbCr _
+            & "您需要在【医院替换】表中增加替换，并尝试运行，这样医院就会趋向统一。" & vbCr & vbCr _
+            & "并把医院主表中的不用的记录删除掉"
     End If
 End Function
 

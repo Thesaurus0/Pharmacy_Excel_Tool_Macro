@@ -650,6 +650,50 @@ exit_fun:
     Set fReadArray2DictionaryMultipleKeysWithMultipleColsCombined = dictOut
     Set dictOut = Nothing
 End Function
+
+Function fReadArray2DictionaryMultipleKeysWithKeysOnly(arrData, arrKeyCols _
+                , Optional asKeysDelimiter As String = "" _
+                , Optional IgnoreBlankKeys As Boolean = False _
+                , Optional WhenKeyDuplicateThenError As Boolean = True) As Dictionary
+    Dim dictOut As Dictionary
+    
+    Set dictOut = New Dictionary
+    
+    If fArrayIsEmptyOrNoData(arrData) Then GoTo exit_fun
+    If fArrayIsEmptyOrNoData(arrKeyCols) Then fErr "arrKeyCols is empty !"
+    If fArrayHasDuplicateElement(arrKeyCols) Then fErr "arrKeyCols has duplicate element"
+    
+    If InStr(asKeysDelimiter, " ") > 0 Then fErr "asKeysDelimiter cannot be space or contains space"
+    
+    Dim i As Long
+    Dim j As Integer
+    Dim sKeyStr As String
+    For i = LBound(arrData, 1) To UBound(arrData, 1)
+        sKeyStr = ""
+        For j = LBound(arrKeyCols) To UBound(arrKeyCols)
+            sKeyStr = sKeyStr & asKeysDelimiter & Trim(CStr(arrData(i, arrKeyCols(j))))
+        Next
+        
+        If fZero(Replace(sKeyStr, asKeysDelimiter, "")) Then
+            If Not IgnoreBlankKeys Then fErr "IgnoreBlankKeys is false, but a keystr is blank"
+            GoTo next_row
+        End If
+        
+        If Len(asKeysDelimiter) > 0 Then sKeyStr = Right(sKeyStr, Len(sKeyStr) - Len(asKeysDelimiter))
+        
+        If dictOut.Exists(sKeyStr) Then
+            If WhenKeyDuplicateThenError Then fErr "Duplicate key was found " & vbCr & sKeyStr
+            GoTo next_row
+        End If
+        
+        dictOut.Add sKeyStr, 1
+next_row:
+    Next
+    
+exit_fun:
+    Set fReadArray2DictionaryMultipleKeysWithKeysOnly = dictOut
+    Set dictOut = Nothing
+End Function
 Function fReadArray2DictionaryWithMultipleColsCombined(arrData, lKeyCol As Long, arrItemCols _
                 , Optional asDelimiter As String = "" _
                 , Optional IgnoreBlankKeys As Boolean = False _

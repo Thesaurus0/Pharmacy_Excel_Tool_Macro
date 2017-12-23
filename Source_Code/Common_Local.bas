@@ -1174,7 +1174,7 @@ Function fFormatReportByConfigByCopyFormat(ByRef shtOutput As Worksheet, Optiona
         
         If rgFrom.Interior.Color <> RGB(255, 255, 255) Or Not bOddEvenColor Then
             rgFrom.Copy
-            rgTo.PasteSpecial Paste:=xlPasteFormats, operation:=xlNone, skipblanks:=False, Transpose:=False
+            rgTo.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
             Application.CutCopyMode = False
         Else
             Set oDisFormat = rgFrom.DisplayFormat
@@ -1368,6 +1368,16 @@ End Function
 
 Function fDeleteAllConditionFormatFromSheet(ByRef shtParam As Worksheet)
     shtParam.Cells.FormatConditions.Delete
+End Function
+Function fDeleteAllConditionFormatForAllSheets(Optional wb As Workbook)
+    If wb Is Nothing Then Set wb = ThisWorkbook
+    
+    Dim sht As Worksheet
+    For Each sht In wb.Worksheets
+        Call fDeleteAllConditionFormatFromSheet(sht)
+    Next
+    
+    Set sht = Nothing
 End Function
 Function fSetConditionFormatForOddEvenLine(ByRef shtParam As Worksheet, Optional lMaxCol As Long = 0 _
                                             , Optional lRowFrom As Long = 2, Optional lRowTo As Long = 0 _
