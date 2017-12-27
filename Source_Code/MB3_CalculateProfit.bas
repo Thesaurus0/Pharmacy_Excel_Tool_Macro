@@ -335,7 +335,7 @@ Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary
         arrNewProductSeries = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNoValidSelfSales, , False)
         
         shtException.Columns(4).ColumnWidth = 100
-        shtException.Cells(lStartRow - 1, 1).Value = "找不到可扣的本公司出货记录"
+        shtException.Cells(lStartRow - 1, 1).Value = "找不到可扣的本公司出货记录(若为退货，则是找不到医院销售抵扣)"
         Call fPrepareHeaderToSheet(shtException, Array("药品厂家", "药品名称", "规格", "行号"), lStartRow)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Color = RGB(255, 0, 0)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Bold = True
@@ -353,7 +353,7 @@ Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary
         
         If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
 
-        gsBusinessErrorMsg = gsBusinessErrorMsg & lUniqRecCnt & "个药品" & lRecCount & "条销售流向在本公司出货记录中无出库可扣除，您可能要：" & vbCr _
+        gsBusinessErrorMsg = gsBusinessErrorMsg & lUniqRecCnt & "个药品" & lRecCount & "条销售流向在本公司出货记录中无出库可扣除(若为退货，则是找不到医院销售抵扣)，您可能要：" & vbCr _
             & "(1). 在【本公司出货】中添加一条替换记录" & vbCr _
             & "(2). 在【药品主表】中修改其最新价格" & vbCr & vbCr _
             & "计算这些销售流向进行到一半，没有可以扣的出货记录，所以把它们的成本价格标注0，"
@@ -572,6 +572,7 @@ End Sub
 Sub subMain_CalculateProfit_PreCal()
     Set shtSelfSalesCal = shtSelfSalesPreDeduct
     Call fRemoveFilterForSheet(shtSelfSalesOrder)
+    Call fRemoveFilterForSheet(shtSelfSalesPreDeduct)
     shtSelfSalesOrder.Cells.Copy shtSelfSalesCal.Cells
     Call subMain_CalculateProfit
 End Sub

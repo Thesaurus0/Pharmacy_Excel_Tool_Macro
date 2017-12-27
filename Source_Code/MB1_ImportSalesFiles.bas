@@ -2,11 +2,11 @@ Attribute VB_Name = "MB1_ImportSalesFiles"
 Option Explicit
 Option Base 1
 
+Dim arrQualifiedRows()
 Public gsCompanyID As String
 Public dictCompList As Dictionary
 
 Sub subMain_ImportSalesInfoFiles()
-    'If Not fIsDev Then On Error GoTo error_handling
     'On Error GoTo error_handling
     
     fInitialization
@@ -46,12 +46,13 @@ Sub subMain_ImportSalesInfoFiles()
         If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
             Call fLoadFilesAndRead2Variables
             
-            If gsCompanyID = "PW" Then
-                arrMaster = fFileterTwoDimensionArray(arrMaster, dictMstColIndex("RecordType"), "销售出库")
-            ElseIf gsCompanyID = "SYY" Then
-                arrMaster = fFileterOutTwoDimensionArray(arrMaster, dictMstColIndex("Hospital"), "广州医药有限公司大众药品销售分公司")
-            End If
+'            If gsCompanyID = "PW" Then
+'                arrMaster = fFileterTwoDimensionArray(arrMaster, dictMstColIndex("RecordType"), "销售出库")
+'            ElseIf gsCompanyID = "SYY" Then
+'                arrMaster = fFileterOutTwoDimensionArray(arrMaster, dictMstColIndex("Hospital"), "广州医药有限公司大众药品销售分公司")
+'            End If
 
+            Call fGetQualfiedRows
             Call fProcessDataAll
             
             Erase arrMaster
@@ -102,31 +103,13 @@ reset_excel_options:
     End
 End Sub
 
-'Function fImportAllSalesInfoFiles()
-'    Dim i As Integer
-'
-'    For i = LBound(arrSalesCompanys, 1) To UBound(arrSalesCompanys, 1)
-'        Call fImportSalesInfoFileForComapnay(CStr(arrSalesCompanys(i, 0)) _
-'                                            , CStr(arrSalesCompanys(i, 1)) _
-'                                            , CStr(arrSalesCompanys(i, 2)))
-'    Next
-'End Function
-
 Private Function fLoadFilesAndRead2Variables()
     'gsCompanyID
     Call fLoadFileByFileTag(gsCompanyID)
     Call fReadMasterSheetData(gsCompanyID)
 
 End Function
- 
 
-'Function fImportSalesInfoFileForComapnay(asCompanyID As String, asCompanyName As String, sSalesInfoFile As String)
-'    Dim sTmpSht As String
-'    sTmpSht = fGenRandomUniqueString
-'
-'
-'
-'End Function
 
 
 Function fValidateUserInputAndSetToConfigSheet()
@@ -157,42 +140,92 @@ End Function
 'End Function
 
 Private Function fProcessDataAll()
-    
-    Call fRedimArrOutputBaseArrMaster
-    
-    Dim lEachRow As Long
+    Dim lEachOutputRow As Long
+    Dim lEachSourceRow As Long
     Dim sCompanyLongID As String
     Dim sCompanyName As String
-    Dim iCnt As Long
+'    Dim iCnt As Long
+    
+    If fUbound(arrQualifiedRows) <= 0 Then Exit Function
+    
+    'Call fRedimArrOutputBaseArrMaster
+    ReDim arrOutput(1 To fUbound(arrQualifiedRows), 1 To fGetReportMaxColumn())
     
     sCompanyLongID = fGetCompany_CompanyLongID(gsCompanyID)
     sCompanyName = fGetCompany_CompanyName(gsCompanyID)
     
-    iCnt = 0
-    For lEachRow = LBound(arrMaster, 1) To UBound(arrMaster, 1)
-        arrOutput(lEachRow, dictRptColIndex("SalesCompanyID")) = sCompanyLongID
-        arrOutput(lEachRow, dictRptColIndex("SalesCompanyName")) = sCompanyName
-        arrOutput(lEachRow, dictRptColIndex("OrigSalesInfoID")) = Left(sCompanyLongID & String(15, "_"), 12) _
-                                                                & Format(arrMaster(lEachRow, dictMstColIndex("SalesDate")), "YYYYMMDD") _
-                                                                & Format(lEachRow, "00000")
-        arrOutput(lEachRow, dictRptColIndex("SeqNo")) = lEachRow
+'    iCnt = 0
+'    For lEachRow = LBound(arrMaster, 1) To UBound(arrMaster, 1)
+    For lEachOutputRow = LBound(arrQualifiedRows) To UBound(arrQualifiedRows)
+        lEachSourceRow = arrQualifiedRows(lEachOutputRow)
         
-        arrOutput(lEachRow, dictRptColIndex("SalesDate")) = arrMaster(lEachRow, dictMstColIndex("SalesDate"))
-        arrOutput(lEachRow, dictRptColIndex("ProductProducer")) = arrMaster(lEachRow, dictMstColIndex("ProductProducer"))
-        arrOutput(lEachRow, dictRptColIndex("ProductName")) = arrMaster(lEachRow, dictMstColIndex("ProductName"))
-        arrOutput(lEachRow, dictRptColIndex("ProductSeries")) = arrMaster(lEachRow, dictMstColIndex("ProductSeries"))
-        arrOutput(lEachRow, dictRptColIndex("Hospital")) = arrMaster(lEachRow, dictMstColIndex("Hospital"))
-        arrOutput(lEachRow, dictRptColIndex("Quantity")) = arrMaster(lEachRow, dictMstColIndex("Quantity"))
-        arrOutput(lEachRow, dictRptColIndex("SellPrice")) = arrMaster(lEachRow, dictMstColIndex("SellPrice"))
+        arrOutput(lEachOutputRow, dictRptColIndex("SalesCompanyID")) = sCompanyLongID
+        arrOutput(lEachOutputRow, dictRptColIndex("SalesCompanyName")) = sCompanyName
+        arrOutput(lEachOutputRow, dictRptColIndex("OrigSalesInfoID")) = Left(sCompanyLongID & String(15, "_"), 12) _
+                                                                & Format(arrMaster(lEachSourceRow, dictMstColIndex("SalesDate")), "YYYYMMDD") _
+                                                                & Format(lEachSourceRow, "00000")
+        arrOutput(lEachOutputRow, dictRptColIndex("SeqNo")) = lEachOutputRow
+        
+        arrOutput(lEachOutputRow, dictRptColIndex("SalesDate")) = arrMaster(lEachSourceRow, dictMstColIndex("SalesDate"))
+        arrOutput(lEachOutputRow, dictRptColIndex("ProductProducer")) = Trim(arrMaster(lEachSourceRow, dictMstColIndex("ProductProducer")))
+        arrOutput(lEachOutputRow, dictRptColIndex("ProductName")) = Trim(arrMaster(lEachSourceRow, dictMstColIndex("ProductName")))
+        arrOutput(lEachOutputRow, dictRptColIndex("ProductSeries")) = Trim(arrMaster(lEachSourceRow, dictMstColIndex("ProductSeries")))
+        arrOutput(lEachOutputRow, dictRptColIndex("Hospital")) = Trim(arrMaster(lEachSourceRow, dictMstColIndex("Hospital")))
+        arrOutput(lEachOutputRow, dictRptColIndex("Quantity")) = arrMaster(lEachSourceRow, dictMstColIndex("Quantity"))
+        arrOutput(lEachOutputRow, dictRptColIndex("SellPrice")) = arrMaster(lEachSourceRow, dictMstColIndex("SellPrice"))
         
         If dictMstColIndex.Exists("ProductUnit") Then
-            arrOutput(lEachRow, dictRptColIndex("ProductUnit")) = arrMaster(lEachRow, dictMstColIndex("ProductUnit"))
+            arrOutput(lEachOutputRow, dictRptColIndex("ProductUnit")) = arrMaster(lEachSourceRow, dictMstColIndex("ProductUnit"))
         End If
         
         If dictMstColIndex.Exists("SellAmount") Then
-            arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("SellAmount"))
+            arrOutput(lEachOutputRow, dictRptColIndex("SellAmount")) = arrMaster(lEachSourceRow, dictMstColIndex("SellAmount"))
         End If
     Next
+End Function
+
+Function fGetQualfiedRows()
+    Dim sProductProducer As String
+    Dim sProductName As String
+    Dim sProductSeries As String
+    Dim iQualifiedCnt As Long
+    Dim lEachRow As Long
+    
+    ReDim arrQualifiedRows(LBound(arrMaster, 1) To UBound(arrMaster, 1))
+    
+    iQualifiedCnt = 0
+    
+    For lEachRow = LBound(arrMaster, 1) To UBound(arrMaster, 1)
+        If gsCompanyID = "PW" Then
+            If Trim(arrMaster(lEachRow, dictMstColIndex("RecordType"))) = "销售出库" Then
+            Else
+                GoTo next_row
+            End If
+        ElseIf gsCompanyID = "SYY" Then
+            If Trim(arrMaster(lEachRow, dictMstColIndex("Hospital"))) = "广州医药有限公司大众药品销售分公司" Then
+                GoTo next_row
+            End If
+        Else
+        End If
+        
+        sProductProducer = Trim(arrMaster(lEachRow, dictMstColIndex("ProductProducer")))
+        sProductName = Trim(arrMaster(lEachRow, dictMstColIndex("ProductName")))
+        sProductSeries = Trim(arrMaster(lEachRow, dictMstColIndex("ProductSeries")))
+        
+        If sProductProducer = "津金世" And sProductName = "金世力德(匹多莫德颗粒)" And sProductSeries = "2g:0.4g*6袋" Then
+            GoTo next_row
+        End If
+        
+        iQualifiedCnt = iQualifiedCnt + 1
+        arrQualifiedRows(iQualifiedCnt) = lEachRow
+next_row:
+    Next
+    
+    If iQualifiedCnt > 0 Then
+        ReDim Preserve arrQualifiedRows(1 To iQualifiedCnt)
+    Else
+        arrQualifiedRows = Array()
+    End If
 End Function
 
 Function fReSequenceSeqNo()

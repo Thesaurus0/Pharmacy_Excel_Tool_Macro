@@ -495,6 +495,10 @@ Function fReadInputFileSpecConfig(sFileSpecTag As String, ByRef dictLetterIndex 
         If fArrayRowIsBlankHasNoData(arrConfigData, lEachRow) Then GoTo next_row
         
         lActualRow = lConfigHeaderAtRow + lEachRow
+        sColTechName = Trim(arrConfigData(lEachRow, arrColsIndex(TECH_NAME)))
+        sDisplayName = Trim(arrConfigData(lEachRow, arrColsIndex(DISPLAY_NAME)))
+        sArrayIndex = Trim(arrConfigData(lEachRow, arrColsIndex(ARRAY_INDEX)))
+        sLetterIndex = Trim(arrConfigData(lEachRow, arrColsIndex(LETTER_INDEX)))
         
         If bOutputAsInput Then
             If Trim(arrConfigData(lEachRow, arrColsIndex(iCol_OutputAsInput))) = "NOT_SHOW_UP" Then
@@ -504,11 +508,6 @@ Function fReadInputFileSpecConfig(sFileSpecTag As String, ByRef dictLetterIndex 
                 GoTo next_row
             End If
         End If
-        
-        sColTechName = Trim(arrConfigData(lEachRow, arrColsIndex(TECH_NAME)))
-        sDisplayName = Trim(arrConfigData(lEachRow, arrColsIndex(DISPLAY_NAME)))
-        sLetterIndex = Trim(arrConfigData(lEachRow, arrColsIndex(LETTER_INDEX)))
-        sArrayIndex = Trim(arrConfigData(lEachRow, arrColsIndex(ARRAY_INDEX)))
         
         If bTxtTemplate Then
             If Trim(arrConfigData(lEachRow, arrColsIndex(iCol_TxtFormat))) = "xlSkipColumn" Then
@@ -1090,12 +1089,12 @@ Function fCleanSheetOutputResetSheetOutput(ByRef shtOutput As Worksheet)
 End Function
 Function fRedimArrOutputBaseArrMaster()
     Dim lMaxCol As Long
-    lMaxCol = fgetReportMaxColumn()
+    lMaxCol = fGetReportMaxColumn()
     ReDim arrOutput(1 To UBound(arrMaster, 1), 1 To lMaxCol)
 End Function
 
-Function fgetReportMaxColumn() As Long
-    fgetReportMaxColumn = WorksheetFunction.Max(dictRptColIndex.Items)
+Function fGetReportMaxColumn() As Long
+    fGetReportMaxColumn = WorksheetFunction.Max(dictRptColIndex.Items)
 End Function
 
 Function fFormatOutputSheet(ByRef shtOutput As Worksheet, Optional lRowFrom As Long = 2)

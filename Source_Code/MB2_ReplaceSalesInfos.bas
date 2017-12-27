@@ -9,7 +9,7 @@ Dim alWarningCnt As Long
 
 Sub subMain_ReplaceSalesInfos()
     'If Not fIsDev Then On Error GoTo error_handling
-    On Error GoTo error_handling
+   'On Error GoTo error_handling
     Call fSetReplaceUnifyErrorRowCount(999)
     
     shtSalesRawDataRpt.Visible = xlSheetVisible

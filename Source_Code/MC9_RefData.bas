@@ -576,6 +576,16 @@ next_row:
 End Function
 Function fCalculateCostPriceFromSelfSalesOrder(sProductKey As String _
                     , ByRef dblSalesQuantity As Double, ByRef dblCostPrice As Double) As Boolean
+    If dblSalesQuantity > 0 Then
+        fCalculateCostPriceFromSelfSalesOrder = fCalculateCostPriceFromSelfSalesOrderNoraml(sProductKey, dblSalesQuantity, dblCostPrice)
+    ElseIf dblSalesQuantity < 0 Then
+        fCalculateCostPriceFromSelfSalesOrder = fCalculateCostPriceFromSelfSalesOrderWithdraw(sProductKey, dblSalesQuantity, dblCostPrice)
+    Else
+        fErr "销售数量为0"
+    End If
+End Function
+Function fCalculateCostPriceFromSelfSalesOrderNoraml(sProductKey As String _
+                    , ByRef dblSalesQuantity As Double, ByRef dblCostPrice As Double) As Boolean
     If dictSelfSalesDeductFrom Is Nothing Then Call fReadSelfSalesOrder2Dictionary
     
     Dim bOut As Boolean
@@ -637,9 +647,80 @@ Function fCalculateCostPriceFromSelfSalesOrder(sProductKey As String _
     End If
     
 exit_fun:
-    fCalculateCostPriceFromSelfSalesOrder = bOut
+    fCalculateCostPriceFromSelfSalesOrderNoraml = bOut
 End Function
 
+
+
+
+Function fCalculateCostPriceFromSelfSalesOrderWithdraw(sProductKey As String _
+                    , ByRef dblSalesQuantity As Double, ByRef dblCostPrice As Double) As Boolean
+    If dictSelfSalesDeductFrom Is Nothing Then Call fReadSelfSalesOrder2Dictionary
+    
+    Dim bOut As Boolean
+    Dim lDeductStartRow As Long
+    Dim lDeductEndRow As Long
+    Dim dblSelfSellQuantity As Double
+    Dim dblHospitalQuantity As Double
+    Dim dblBalance As Double
+    Dim dblCurrRowBalance As Double
+    Dim dblToDeduct As Double
+    Dim lEachRow As Long
+    Dim dblAccAmt As Double
+    Dim dblPrice As Double
+    
+    bOut = False
+    
+    If Not dictSelfSalesDeductFrom.Exists(sProductKey) Then GoTo exit_fun
+    
+    lDeductStartRow = Split(dictSelfSalesDeductFrom(sProductKey), DELIMITER)(0)
+    lDeductEndRow = Split(dictSelfSalesDeductFrom(sProductKey), DELIMITER)(1)
+    
+    dblAccAmt = 0
+    dblBalance = dblSalesQuantity
+    For lEachRow = lDeductEndRow To lDeductStartRow Step -1
+        If dblBalance >= 0 Then Exit For
+        
+        dblSelfSellQuantity = arrSelfSales(lEachRow, dictSelfSalesColIndex("SellQuantity"))
+        dblHospitalQuantity = arrSelfSales(lEachRow, dictSelfSalesColIndex("HospitalSellQuantity"))
+        dblPrice = arrSelfSales(lEachRow, dictSelfSalesColIndex("SellPrice"))
+        
+        If dblSelfSellQuantity <= dblHospitalQuantity Then fErr "这一行的日期晚，不应该出现抵扣" _
+                        & vbCr & "工作表：" & shtSelfSalesCal.Name _
+                        & vbCr & "行号：" & lEachRow + 1
+        
+        'dblCurrRowBalance = dblSelfSellQuantity - dblHospitalQuantity
+        dblCurrRowBalance = dblHospitalQuantity
+        dblBalance = dblBalance + dblCurrRowBalance
+        
+        If dblBalance < 0 Then  'still has to find next row to deduct
+'            dblToDeduct = dblSelfSellQuantity
+            dblToDeduct = 0
+            
+'            If lEachRow < lDeductEndRow Then
+'                dictSelfSalesDeductFrom(sProductKey) = lEachRow + 1 & DELIMITER & lDeductEndRow
+'            Else
+'                dictSelfSalesDeductFrom.Remove sProductKey
+'            End If
+            
+            dblAccAmt = dblAccAmt + dblCurrRowBalance * dblPrice
+        Else
+            'dblAccAmt = dblAccAmt + (dblCurrRowBalance + dblBalance) * dblPrice
+            dblAccAmt = dblAccAmt + (dblCurrRowBalance - dblBalance) * dblPrice
+            dblToDeduct = (dblCurrRowBalance - dblBalance) + dblHospitalQuantity
+        End If
+        
+        arrSelfSales(lEachRow, dictSelfSalesColIndex("HospitalSellQuantity")) = dblToDeduct
+    Next
+    
+    If dblBalance >= 0 Then
+        bOut = True
+        dblCostPrice = dblAccAmt / dblSalesQuantity
+    End If
+    
+exit_fun:
+    fCalculateCostPriceFromSelfSalesOrderWithdraw = bOut
+End Function
 Function fSetBackToshtSelfSalesCalWithDeductedData()
     If UBound(arrSelfSales, 1) > 0 Then
         shtSelfSalesCal.Range("A2").Resize(UBound(arrSelfSales, 1), UBound(arrSelfSales, 2)).Value2 = arrSelfSales
