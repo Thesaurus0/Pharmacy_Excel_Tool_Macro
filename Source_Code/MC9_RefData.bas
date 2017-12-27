@@ -678,29 +678,33 @@ Function fReadSalesManCommissionConfig2Dictionary()
     Dim dblSellQuantity As Double
     Dim dblHospitalQuantity As Double
     Dim dictSalesManCommTo As Dictionary
+    Dim dblBidPrice As Double
     Dim lEachRow As Long
 
     Call fSortDataInSheetSortSheetDataByFileSpec("SALESMAN_COMMISSION_CONFIG", Array("SalesCompany", "Hospital", "ProductProducer" _
                                     , "ProductName" _
                                     , "ProductSeries" _
-                                    , "SalesMan"), , shtSalesManCommConfig)
+                                    , "BidPrice"), , shtSalesManCommConfig)
     
     Call fReadSheetDataByConfig("SALESMAN_COMMISSION_CONFIG", dictSalesManCommColIndex, arrSalesManComm, , , , , shtSalesManCommConfig)
     
     Set dictSalesManCommTo = New Dictionary
     Set dictSalesManCommFrom = New Dictionary
     For lEachRow = LBound(arrSalesManComm, 1) To UBound(arrSalesManComm, 1)
-        sSalesCompany = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesCompany"))
-        sHospital = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Hospital"))
-        sProducer = arrSalesManComm(lEachRow, dictSalesManCommColIndex("ProductProducer"))
-        sProductName = arrSalesManComm(lEachRow, dictSalesManCommColIndex("ProductName"))
-        sProductSeries = arrSalesManComm(lEachRow, dictSalesManCommColIndex("ProductSeries"))
+        sSalesCompany = Trim(arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesCompany")))
+        sHospital = Trim(arrSalesManComm(lEachRow, dictSalesManCommColIndex("Hospital")))
+        sProducer = Trim(arrSalesManComm(lEachRow, dictSalesManCommColIndex("ProductProducer")))
+        sProductName = Trim(arrSalesManComm(lEachRow, dictSalesManCommColIndex("ProductName")))
+        sProductSeries = Trim(arrSalesManComm(lEachRow, dictSalesManCommColIndex("ProductSeries")))
+        dblBidPrice = arrSalesManComm(lEachRow, dictSalesManCommColIndex("BidPrice"))
         
         sTmpKey = sSalesCompany & DELIMITER & sHospital & DELIMITER _
-                & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+                & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries & DELIMITER & dblBidPrice
         
         If Not dictSalesManCommFrom.Exists(sTmpKey) Then
             dictSalesManCommFrom.Add sTmpKey, lEachRow
+        Else
+            fErr "一个中标价只能有一条记录三个业务员设置！请检查业务员佣金设置表" & vbCr & sTmpKey
         End If
         dictSalesManCommTo(sTmpKey) = lEachRow
 next_row:
@@ -714,7 +718,6 @@ next_row:
     Set dictSalesManCommTo = Nothing
 End Function
 
-
 Function fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesManKey As String _
                             , ByRef sSalesMan_1 As String, ByRef sSalesMan_2 As String, ByRef sSalesMan_3 As String _
                             , ByRef dblComm_1 As Double, ByRef dblComm_2 As Double, ByRef dblComm_3 As Double) As Boolean
@@ -724,7 +727,7 @@ Function fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesManKey As S
     Dim lStartRow As Long
     Dim lEndRow As Long
     Dim lEachRow As Long
-    Dim iSalesManCnt As Long
+    'Dim iSalesManCnt As Long
     
     sSalesMan_1 = ""
     sSalesMan_2 = ""
@@ -739,22 +742,29 @@ Function fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesManKey As S
     lStartRow = Split(dictSalesManCommFrom(sSalesManKey), DELIMITER)(0)
     lEndRow = Split(dictSalesManCommFrom(sSalesManKey), DELIMITER)(1)
     
-    iSalesManCnt = 0
+'    iSalesManCnt = 0
     For lEachRow = lStartRow To lEndRow
-        iSalesManCnt = iSalesManCnt + 1
+'        iSalesManCnt = iSalesManCnt + 1
         
-        If iSalesManCnt = 1 Then
-            sSalesMan_1 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan"))
-            dblComm_1 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission"))
-        ElseIf iSalesManCnt = 2 Then
-            sSalesMan_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan"))
-            dblComm_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission"))
-        ElseIf iSalesManCnt = 3 Then
-            sSalesMan_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan"))
-            dblComm_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission"))
-        Else
-            fErr "最多只能有3个业务员，请从【业务员佣金表】中删除一个。" & vbCr & sSalesManKey & vbCr & "行号：" & lEachRow + 1
-        End If
+'        If iSalesManCnt = 1 Then
+'            sSalesMan_1 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan"))
+'            dblComm_1 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission"))
+'        ElseIf iSalesManCnt = 2 Then
+'            sSalesMan_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan"))
+'            dblComm_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission"))
+'        ElseIf iSalesManCnt = 3 Then
+'            sSalesMan_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan"))
+'            dblComm_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission"))
+'        Else
+'            fErr "最多只能有3个业务员，请从【业务员佣金表】中删除一个。" & vbCr & sSalesManKey & vbCr & "行号：" & lEachRow + 1
+'        End If
+
+        sSalesMan_1 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan1"))
+        dblComm_1 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission1"))
+        sSalesMan_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan2"))
+        dblComm_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission2"))
+        sSalesMan_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan3"))
+        dblComm_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission3"))
     Next
     
 exit_fun:

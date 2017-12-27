@@ -9,7 +9,7 @@ Dim alWarningCnt As Long
 
 Sub subMain_ReplaceSalesInfos()
     'If Not fIsDev Then On Error GoTo error_handling
-    'On Error GoTo error_handling
+    On Error GoTo error_handling
     Call fSetReplaceUnifyErrorRowCount(999)
     
     shtSalesRawDataRpt.Visible = xlSheetVisible
@@ -17,7 +17,7 @@ Sub subMain_ReplaceSalesInfos()
     Call fUnProtectSheet(shtSalesInfos)
     Call fCleanSheetOutputResetSheetOutput(shtSalesInfos)
     Call fCleanSheetOutputResetSheetOutput(shtException)
-    shtException.Cells.NumberFormat = "@"
+    'shtException.Cells.NumberFormat = "@"
     shtException.Cells.WrapText = True
     
     fInitialization
@@ -161,15 +161,15 @@ Private Function fProcessData()
         'arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("SellAmount"))
         arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("SellPrice")) _
                                                             * arrMaster(lEachRow, dictMstColIndex("Quantity"))
-        sHospital = arrMaster(lEachRow, dictMstColIndex("Hospital"))
+        sHospital = Trim(arrMaster(lEachRow, dictMstColIndex("Hospital")))
         arrOutput(lEachRow, dictRptColIndex("Hospital")) = sHospital
-        sProducer = arrMaster(lEachRow, dictMstColIndex("ProductProducer"))
+        sProducer = Trim(arrMaster(lEachRow, dictMstColIndex("ProductProducer")))
         arrOutput(lEachRow, dictRptColIndex("ProductProducer")) = sProducer
-        sProductName = arrMaster(lEachRow, dictMstColIndex("ProductName"))
+        sProductName = Trim(arrMaster(lEachRow, dictMstColIndex("ProductName")))
         arrOutput(lEachRow, dictRptColIndex("ProductName")) = sProductName
-        sProductSeries = arrMaster(lEachRow, dictMstColIndex("ProductSeries"))
+        sProductSeries = Trim(arrMaster(lEachRow, dictMstColIndex("ProductSeries")))
         arrOutput(lEachRow, dictRptColIndex("ProductSeries")) = sProductSeries
-        sProductUnit = arrMaster(lEachRow, dictMstColIndex("ProductUnit"))
+        sProductUnit = Trim(arrMaster(lEachRow, dictMstColIndex("ProductUnit")))
         arrOutput(lEachRow, dictRptColIndex("ProductUnit")) = sProductUnit
         
         ' Hospital replace -----------------
@@ -272,7 +272,7 @@ Private Function fProcessData()
                 End If
 
                 If sProductUnit = sProductMasterUnit Then
-                    If dblRatio = 1 Then
+                    If dblRatio <> 1 Then
                         fErr "原始文件单位和会计单位一样，但是倍数却不是1，请检查【" & shtProductUnitRatio.Name & "】" _
                             & vbCr & sReplacedProducer _
                             & vbCr & sReplacedProductName _
@@ -283,7 +283,7 @@ Private Function fProcessData()
 
             If sReplacedProductUnit <> sProductMasterUnit Then
                 sTmpKey = sReplacedProducer & DELIMITER & sReplacedProductName & DELIMITER & sReplacedProductSeries & DELIMITER _
-                                & sProductMasterUnit & DELIMITER & sReplacedProductUnit
+                                & sProductMasterUnit '& DELIMITER & sReplacedProductUnit
                 If Not dictNewProductUnit.Exists(sTmpKey) Then
                     dictNewProductUnit.Add sTmpKey, lEachRow + 1
                 Else

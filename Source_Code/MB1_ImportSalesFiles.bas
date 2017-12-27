@@ -48,6 +48,8 @@ Sub subMain_ImportSalesInfoFiles()
             
             If gsCompanyID = "PW" Then
                 arrMaster = fFileterTwoDimensionArray(arrMaster, dictMstColIndex("RecordType"), "销售出库")
+            ElseIf gsCompanyID = "SYY" Then
+                arrMaster = fFileterOutTwoDimensionArray(arrMaster, dictMstColIndex("Hospital"), "广州医药有限公司大众药品销售分公司")
             End If
 
             Call fProcessDataAll

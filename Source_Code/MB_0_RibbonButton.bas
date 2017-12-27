@@ -145,8 +145,8 @@ Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrTo
     Dim shtCurr As Worksheet
     Set shtCurr = ActiveSheet
 
-    On Error Resume Next
-
+    'On Error Resume Next
+    
     If shtToSwitch.Visible = xlSheetVisible Then
         If Not ActiveSheet Is shtToSwitch Then
             shtToSwitch.Visible = xlSheetVisible

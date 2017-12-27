@@ -28,7 +28,7 @@ Sub subMain_CalculateProfit()
     Call fUnProtectSheet(shtProfit)
     Call fCleanSheetOutputResetSheetOutput(shtProfit)
     Call fCleanSheetOutputResetSheetOutput(shtException)
-    shtException.Cells.NumberFormat = "@"
+    'shtException.Cells.NumberFormat = "@"
     shtException.Cells.WrapText = True
 
     fInitialization
@@ -47,6 +47,7 @@ Sub subMain_CalculateProfit()
     mlExcepCnt = 0
     
     Call fProcessData
+    
     If mlExcepCnt > 0 Then
         ReDim Preserve arrExceptionRows(1 To mlExcepCnt)
     Else
@@ -246,18 +247,18 @@ Private Function fProcessData()
         End If
         
         arrOutput(lEachRow, dictRptColIndex("CostPrice")) = dblCostPrice
+        arrOutput(lEachRow, dictRptColIndex("TaxAmount")) = dblGrossPrice * fGetTaxRate
         
-        arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblGrossPrice - dblCostPrice
+        arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblGrossPrice - dblCostPrice - arrOutput(lEachRow, dictRptColIndex("TaxAmount"))
         
-        dblGrossProfitAmt = (dblGrossPrice - dblCostPrice) * dblQuantity
+        dblGrossProfitAmt = arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) * dblQuantity
         arrOutput(lEachRow, dictRptColIndex("GrossProfitAmt")) = dblGrossProfitAmt
         '-----------------------------------------------------------------------------------------------
         
-        arrOutput(lEachRow, dictRptColIndex("TaxAmount")) = dblGrossProfitAmt * fGetTaxRate
         
         '==== salesman commission ==========================================
         sSalesManKey = sSalesCompName & DELIMITER & sHospital & DELIMITER _
-                    & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+                    & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries & DELIMITER & dblSellPrice
         If Not fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesManKey _
                                 , sSalesMan_1, sSalesMan_2, sSalesMan_3, dblComm_1, dblComm_2, dblComm_3) Then
             If Not dictNoSalesManConf.Exists(sSalesManKey) Then
@@ -273,16 +274,15 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("SalesMan_1")) = sSalesMan_1
         arrOutput(lEachRow, dictRptColIndex("SalesMan_2")) = sSalesMan_2
         arrOutput(lEachRow, dictRptColIndex("SalesMan_3")) = sSalesMan_3
-        arrOutput(lEachRow, dictRptColIndex("SalesManList")) = IIf(Len(sSalesMan_1) > 0, sSalesMan_1 & ", ", "") _
-                                                             & IIf(Len(sSalesMan_2) > 0, sSalesMan_2 & ", ", "") _
-                                                             & IIf(Len(sSalesMan_3) > 0, sSalesMan_3 & ", ", "")
-        arrOutput(lEachRow, dictRptColIndex("SalesCommission_1")) = dblComm_1 * dblQuantity
-        arrOutput(lEachRow, dictRptColIndex("SalesCommission_2")) = dblComm_2 * dblQuantity
-        arrOutput(lEachRow, dictRptColIndex("SalesCommission_3")) = dblComm_3 * dblQuantity
+        arrOutput(lEachRow, dictRptColIndex("SalesManList")) = sSalesMan_1 _
+                                                             & IIf(Len(sSalesMan_2) > 0, ", " & sSalesMan_2, "") _
+                                                             & IIf(Len(sSalesMan_3) > 0, ", " & sSalesMan_3, "")
+        arrOutput(lEachRow, dictRptColIndex("SalesCommission_1")) = dblComm_1
+        arrOutput(lEachRow, dictRptColIndex("SalesCommission_2")) = dblComm_2
+        arrOutput(lEachRow, dictRptColIndex("SalesCommission_3")) = dblComm_3
         '-----------------------------------------------------------------------------------------------
         
-        arrOutput(lEachRow, dictRptColIndex("NetProfit")) = dblGrossProfitAmt _
-                                            - arrOutput(lEachRow, dictRptColIndex("TaxAmount")) _
+        arrOutput(lEachRow, dictRptColIndex("NetProfit")) = arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) _
                                             - arrOutput(lEachRow, dictRptColIndex("SalesCommission_1")) _
                                             - arrOutput(lEachRow, dictRptColIndex("SalesCommission_2")) _
                                             - arrOutput(lEachRow, dictRptColIndex("SalesCommission_3"))
@@ -373,14 +373,14 @@ Function fAddNoSalesManConfToSheetException(dictNoSalesManConf As Dictionary)
         lStartRow = fGetshtExceptionNewRow
         
         shtException.Cells(lStartRow - 1, 1).Value = "找不到业务员的记录"
-        Call fPrepareHeaderToSheet(shtException, Array("商业公司", "医院", "药品厂家", "药品名称", "规格", "行号"), lStartRow)
+        Call fPrepareHeaderToSheet(shtException, Array("商业公司", "医院", "药品厂家", "药品名称", "规格", "中标价", "行号"), lStartRow)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Color = RGB(255, 0, 0)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Bold = True
         
         arrNoSalesMan = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNoSalesManConf, , False)
         Call fAppendArray2Sheet(shtException, arrNoSalesMan)
         
-        shtException.Cells(lStartRow + 1, 6).Resize(lUniqRecCnt, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNoSalesManConf)
+        shtException.Cells(lStartRow + 1, 7).Resize(lUniqRecCnt, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNoSalesManConf)
 
         If lStartRow = 2 Then Call fFreezeSheet(shtException, , 2)
         

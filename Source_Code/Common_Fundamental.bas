@@ -1632,6 +1632,9 @@ Function fFileterTwoDimensionArray(arrSource(), lCol As Long, sValue) As Variant
     
     If Base0(arrSource) Then fErr "base0(arrSource) is 0"
     
+    Dim start
+    start = Timer
+    
     arrOut = Array()
     iCnt = 0
     ReDim arrQualifiedRows(LBound(arrSource, 1) To UBound(arrSource, 1))
@@ -1660,8 +1663,54 @@ Function fFileterTwoDimensionArray(arrSource(), lCol As Long, sValue) As Variant
 exit_fun:
     fFileterTwoDimensionArray = arrOut
     Erase arrOut
+    
+    Debug.Print "fFileterOutTwoDimensionArray: " & Format(Timer - start, "00:00")
 End Function
 
+Function fFileterOutTwoDimensionArray(arrSource(), lCol As Long, sValue) As Variant
+    Dim arrOut()
+    Dim arrQualifiedRows()
+    Dim iCnt As Long
+    Dim lEachRow As Long
+    Dim iEachCol As Long
+    Dim i As Long
+    
+    If Base0(arrSource) Then fErr "base0(arrSource) is 0"
+    
+    Dim start
+    start = Timer
+    
+    arrOut = Array()
+    iCnt = 0
+    ReDim arrQualifiedRows(LBound(arrSource, 1) To UBound(arrSource, 1))
+    For lEachRow = LBound(arrSource, 1) To UBound(arrSource, 1)
+        If arrSource(lEachRow, lCol) <> sValue Then
+            iCnt = iCnt + 1
+            arrQualifiedRows(iCnt) = lEachRow
+        End If
+    Next
+    
+    ReDim Preserve arrQualifiedRows(1 To iCnt)
+    
+    If iCnt > 0 Then
+        ReDim arrOut(1 To iCnt, LBound(arrSource, 2) To UBound(arrSource, 2))
+        
+        For i = LBound(arrQualifiedRows) To UBound(arrQualifiedRows)
+            lEachRow = arrQualifiedRows(i)
+            For iEachCol = LBound(arrSource, 2) To UBound(arrSource, 2)
+                arrOut(i, iEachCol) = arrSource(lEachRow, iEachCol)
+            Next
+        Next
+        
+    Else
+        GoTo exit_fun
+    End If
+exit_fun:
+    fFileterOutTwoDimensionArray = arrOut
+    Erase arrOut
+    
+    Debug.Print "fFileterOutTwoDimensionArray: " & Timer - start & vbCr & Format(Timer - start, "00:00")
+End Function
 Function fTranspose1DimenArrayTo2DimenArrayVertically(arrParam) As Variant
     Dim i As Long
     Dim iNew As Long

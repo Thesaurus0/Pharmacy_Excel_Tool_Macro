@@ -56,7 +56,6 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Dim rgIntersect As Range
     Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
     
-    
     If Not rgIntersect Is Nothing Then
         If rgIntersect.Areas.Count > 1 Then fErr "不能选多个"
             
@@ -77,5 +76,5 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
 exit_sub:
     fEnableExcelOptionsAll
     Application.ScreenUpdating = True
-    End
+   ' End
 End Sub
