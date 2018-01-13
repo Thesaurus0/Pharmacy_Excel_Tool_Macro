@@ -49,6 +49,8 @@ Sub sub_WorkBookInitialization()
         shtStaticData.Visible = xlSheetVeryHidden
         shtFileSpec.Visible = xlSheetVeryHidden
     End If
+    
+    fHideSheet shtDataStage
 
     Call fRemoveFilterForAllSheets
     Call fDeleteBlankRowsFromAllSheets
@@ -56,6 +58,16 @@ Sub sub_WorkBookInitialization()
     Call subMain_InvisibleHideAllBusinessSheets
     Call fSetValidationListForAllSheets
     Call fSetConditionFormatForFundamentalSheets
+    
+        
+'    Application.CommandBars("cell").FindControl(ID:=19).OnAction = "fGetCopyAddress"
+'    Application.OnKey "^c", "fGetCopyAddress"
+    shtDataStage.UsedRange.ClearComments
+    shtDataStage.UsedRange.ClearContents
+    shtDataStage.UsedRange.ClearFormats
+    shtDataStage.UsedRange.ClearHyperlinks
+    shtDataStage.UsedRange.ClearNotes
+    shtDataStage.UsedRange.ClearOutline
 End Sub
 
 Function fRefreshGetAllCommandbarsList()
@@ -95,6 +107,8 @@ Private Sub Workbook_Deactivate()
     Call fEnableOrDisableAllCommandBarsByConfig(False)
 End Sub
 
+
+
 Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)
     Application.EnableEvents = False
 
@@ -109,3 +123,10 @@ exit_function:
     Application.EnableEvents = True
 End Sub
 
+Private Sub Workbook_SheetActivate(ByVal Sh As Object)
+End Sub
+Private Sub Workbook_SheetDeactivate(ByVal Sh As Object)
+    'If Sh.Parent Is ThisWorkbook Then
+        Call fAppendDataToLastCellOfColumn(shtDataStage, 2, Sh.Name)
+    'End If
+End Sub

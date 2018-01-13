@@ -433,11 +433,29 @@ Function fSortDataInSheetSortSheetData(sht As Worksheet, arrSortByCols, Optional
     
     sht.Sort.SortFields.Clear
     
-    For i = LBound(arrSortByCols) To UBound(arrSortByCols)
-        lSortCol = arrSortByCols(i)
+    If IsArray(arrSortByCols) Then
+        For i = LBound(arrSortByCols) To UBound(arrSortByCols)
+            lSortCol = arrSortByCols(i)
+            
+            If Not IsMissing(arrAscend) Then
+                If arrAscend(i) Then
+                    iSortOrder = xlAscending
+                Else
+                    iSortOrder = xlDescending
+                End If
+            Else
+                iSortOrder = xlAscending
+            End If
+            
+            Set rgSortBy = fGetRangeByStartEndPos(sht, 2, lSortCol, lMaxRow, lSortCol)
+            sht.Sort.SortFields.Add Key:=rgSortBy, SortOn:=xlSortOnValues _
+                    , Order:=iSortOrder, DataOption:=xlSortNormal
+        Next
+    Else
+        lSortCol = arrSortByCols
         
         If Not IsMissing(arrAscend) Then
-            If arrAscend(i) Then
+            If arrAscend Then
                 iSortOrder = xlAscending
             Else
                 iSortOrder = xlDescending
@@ -445,11 +463,11 @@ Function fSortDataInSheetSortSheetData(sht As Worksheet, arrSortByCols, Optional
         Else
             iSortOrder = xlAscending
         End If
-        
+            
         Set rgSortBy = fGetRangeByStartEndPos(sht, 2, lSortCol, lMaxRow, lSortCol)
         sht.Sort.SortFields.Add Key:=rgSortBy, SortOn:=xlSortOnValues _
                 , Order:=iSortOrder, DataOption:=xlSortNormal
-    Next
+    End If
     
     sht.Sort.SetRange rgToSort
     sht.Sort.Header = xlYes
@@ -659,3 +677,17 @@ Function fIfSelectedMoreThanOneRow(rngParam As Range) As Boolean
     
     fIfSelectedMoreThanOneRow = bOut
 End Function
+
+Function fVeryHideSheet(ByRef sht As Worksheet)
+    sht.Visible = xlSheetVeryHidden
+End Function
+
+Function fHideSheet(ByRef sht As Worksheet)
+    sht.Visible = xlSheetHidden
+End Function
+
+Function fShowSheet(ByRef sht As Worksheet)
+    sht.Visible = xlSheetVisible
+End Function
+
+

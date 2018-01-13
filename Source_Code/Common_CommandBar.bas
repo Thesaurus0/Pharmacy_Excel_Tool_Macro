@@ -32,6 +32,80 @@ Sub sub_ListAllCommandBars()
     MsgBox iCnt & "CommandBars: " & sStr
 End Sub
 
+Sub sub_ListAllCommandBarsAndButtons()
+    Dim shtOutput As Worksheet
+    If Not fGetTmpSheetInWorkbookWhenNotExistsCreateIt(shtOutput) Then Exit Sub
+    
+    'Dim arrData()
+    Dim sStr As String
+    Dim iCmdBarCnt As Long
+    Dim iButtonCnt As Long
+    
+    Dim arrCmdBars()
+    Dim arrButtons()
+    
+    Dim tmpBar As CommandBar
+    Dim eachBtn As CommandBarControl
+    
+    'ReDim arrCmdBars(1 To 100)
+
+    iCmdBarCnt = 0
+    iButtonCnt = 0
+    For Each tmpBar In Application.CommandBars
+        'If Not tmpBar.BuiltIn Then
+        'If tmpBar.BuiltIn Then
+            iCmdBarCnt = iCmdBarCnt + 1
+            'arrCmdBars(iCmdBarCnt) = tmpBar.Name
+            
+            For Each eachBtn In tmpBar.Controls
+                iButtonCnt = iButtonCnt + 1
+            Next
+        'End If
+    Next
+    
+    ReDim arrButtons(1 To iButtonCnt, 7)
+    
+    iButtonCnt = 0
+    For Each tmpBar In Application.CommandBars
+        'If Not tmpBar.BuiltIn Then
+        'If tmpBar.BuiltIn Then
+            iCmdBarCnt = iCmdBarCnt + 1
+            'arrCmdBars(iCmdBarCnt) = tmpBar.Name
+            
+                
+            For Each eachBtn In tmpBar.Controls
+                iButtonCnt = iButtonCnt + 1
+                arrButtons(iButtonCnt, 1) = tmpBar.Name
+                arrButtons(iButtonCnt, 2) = tmpBar.Index
+                arrButtons(iButtonCnt, 3) = tmpBar.RowIndex
+                arrButtons(iButtonCnt, 4) = eachBtn.ID
+                arrButtons(iButtonCnt, 5) = eachBtn.Caption
+                arrButtons(iButtonCnt, 6) = eachBtn.Index
+                'arrButtons(iButtonCnt, 7) = eachBtn.OnAction
+                
+            Next
+       ' End If
+    Next
+    
+    Call fWriteArray2Sheet(shtOutput, arrButtons)
+    
+    Erase arrButtons: Erase arrButtons
+    
+    shtOutput.Cells(1, 1) = "CmdBar"
+    shtOutput.Cells(1, 2) = "Index"
+    shtOutput.Cells(1, 3) = "RowIndex"
+    shtOutput.Cells(1, 4) = "eachBtn.ID"
+    shtOutput.Cells(1, 5) = "eachBtn.Caption"
+    shtOutput.Cells(1, 6) = "eachBtn.Index"
+    
+    Call fAutoFilterAutoFitSheet(shtOutput)
+    Call fFreezeSheet(shtOutput)
+    Call fSortDataInSheetSortSheetData(shtOutput, Array(1, 2, 3, 4, 5))
+    
+    Set shtOutput = Nothing
+End Sub
+
+
 '
 'Sub sub_add_new_bar(as_bar_name As String)
 '    Dim lcb_new_commdbar As CommandBar
@@ -181,7 +255,7 @@ Function fReadConfigCommandBarsInfo() As Variant
     
     'Call fValidateDuplicateInArray(arrConfigData, 1, True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(1))
     Call fValidateDuplicateInArray(arrConfigData, Array(1, 2), False, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(2))
-    Call fValidateDuplicateInArray(arrConfigData, 3, True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
+    'Call fValidateDuplicateInArray(arrConfigData, 3, True, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(3))
     
     Call fValidateBlankInArray(arrConfigData, 1, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(1))
     Call fValidateBlankInArray(arrConfigData, 2, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, arrColsName(2))

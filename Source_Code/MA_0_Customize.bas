@@ -65,7 +65,9 @@ End Function
 Function fInitialization()
     Err.Clear
     gbNoData = False
-    gbBusinessError = False
+   ' gbBusinessError = False
+    gErrNum = 0
+    gErrMsg = ""
     gsBusinessErrorMsg = ""
     gbUserCanceled = False
     gbCheckCompatibility = True

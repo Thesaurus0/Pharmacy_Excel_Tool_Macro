@@ -175,7 +175,7 @@ Private Function fProcessData()
         ' Hospital replace -----------------
         If Not fReplaceAndValidateInHospitalMaster(sHospital, sReplacedHospital) Then
             If Not dictNewHospital.Exists(sReplacedHospital) Then
-                dictNewHospital.Add sReplacedHospital, lEachRow + 1
+                dictNewHospital.Add sReplacedHospital, "'" & (lEachRow + 1)
             Else
                 dictNewHospital(sReplacedHospital) = dictNewHospital(sReplacedHospital) & "," & (lEachRow + 1)
             End If
@@ -191,7 +191,7 @@ Private Function fProcessData()
         ' Product producer replace -----------------
         If Not fReplaceAndValidateInProducerMaster(sProducer, sReplacedProducer) Then
             If Not dictNewProducer.Exists(sReplacedProducer) Then
-                dictNewProducer.Add sReplacedProducer, lEachRow + 1
+                dictNewProducer.Add sReplacedProducer, "'" & (lEachRow + 1)
             Else
                 dictNewProducer(sReplacedProducer) = dictNewProducer(sReplacedProducer) & "," & (lEachRow + 1)
             End If
@@ -211,7 +211,7 @@ Private Function fProcessData()
         If Not fReplaceAndValidateInProductNameMaster(sReplacedProducer, sProductName, sReplacedProductName) Then
             sTmpKey = sReplacedProducer & DELIMITER & sReplacedProductName
             If Not dictNewProductName.Exists(sTmpKey) Then
-                dictNewProductName.Add sTmpKey, lEachRow + 1
+                dictNewProductName.Add sTmpKey, "'" & (lEachRow + 1)
             Else
                 dictNewProductName(sTmpKey) = dictNewProductName(sTmpKey) & "," & lEachRow + 1
             End If
@@ -231,7 +231,7 @@ Private Function fProcessData()
         If Not fReplaceAndValidateInProductSeriesMaster(sReplacedProducer, sReplacedProductName, sProductSeries, sReplacedProductSeries) Then
             sTmpKey = sReplacedProducer & DELIMITER & sReplacedProductName & DELIMITER & sReplacedProductSeries
             If Not dictNewProductSeries.Exists(sTmpKey) Then
-                dictNewProductSeries.Add sTmpKey, lEachRow + 1
+                dictNewProductSeries.Add sTmpKey, "'" & (lEachRow + 1)
             Else
                 dictNewProductSeries(sTmpKey) = dictNewProductSeries(sTmpKey) & "," & (lEachRow + 1)
             End If
@@ -285,7 +285,7 @@ Private Function fProcessData()
                 sTmpKey = sReplacedProducer & DELIMITER & sReplacedProductName & DELIMITER & sReplacedProductSeries & DELIMITER _
                                 & sProductMasterUnit '& DELIMITER & sReplacedProductUnit
                 If Not dictNewProductUnit.Exists(sTmpKey) Then
-                    dictNewProductUnit.Add sTmpKey, lEachRow + 1
+                    dictNewProductUnit.Add sTmpKey, "'" & (lEachRow + 1)
                 Else
                     dictNewProductUnit(sTmpKey) = dictNewProductUnit(sTmpKey) & "," & (lEachRow + 1)
                 End If

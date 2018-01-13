@@ -6,8 +6,10 @@ Public Const ERROR_NUMBER = 1000
 Public Const DELIMITER = "|"
 Public gsEnv As String
 
+Public gErrNum As Long
+Public gErrMsg As String
 Public gbNoData As Boolean
-Public gbBusinessError As Boolean
+'Public gbBusinessError As Boolean
 Public gsBusinessErrorMsg As String
 Public gbUserCanceled As Boolean
 

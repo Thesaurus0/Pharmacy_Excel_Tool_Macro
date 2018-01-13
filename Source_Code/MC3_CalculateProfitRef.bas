@@ -1,8 +1,8 @@
-Attribute VB_Name = "MB3_CalculateProfit"
+Attribute VB_Name = "MC3_CalculateProfitRef"
 Option Explicit
 Option Base 1
 
-Public shtSelfSalesCal As Worksheet
+Dim shtSelfSalesCal As Worksheet
 
 'Dim arrMissed1stLevelComm()
 'Dim arrMissed2ndLevelComm()
@@ -12,7 +12,7 @@ Dim dictSecondCommColIndex As Dictionary
 Dim arrExceptionRows()
 Dim mlExcepCnt As Long
 
-Sub subMain_CalculateProfit()
+Private Sub subMain_CalculateProfit()
     'If Not fIsDev Then On Error GoTo error_handling
     'On Error GoTo error_handling
     
@@ -29,7 +29,7 @@ Sub subMain_CalculateProfit()
     Call fCleanSheetOutputResetSheetOutput(shtProfit)
     Call fCleanSheetOutputResetSheetOutput(shtException)
     'shtException.Cells.NumberFormat = "@"
-    'shtException.Cells.WrapText = True
+    shtException.Cells.WrapText = True
 
     fInitialization
 
@@ -202,7 +202,7 @@ Private Function fProcessData()
             sFirstLevelCommPasteKey = fComposeFirstLevelColumnsStryByConfig(sSalesCompName, sProducer, sProductName _
                                                     , sProductSeries, dblFirstLevelComm)
             If Not dictMissedFirstLComm.Exists(sFirstLevelCommPasteKey) Then
-                dictMissedFirstLComm.Add sFirstLevelCommPasteKey, "'" & (lEachRow + 1)
+                dictMissedFirstLComm.Add sFirstLevelCommPasteKey, (lEachRow + 1)
             Else
                 dictMissedFirstLComm(sFirstLevelCommPasteKey) = dictMissedFirstLComm(sFirstLevelCommPasteKey) & "," & (lEachRow + 1)
             End If
@@ -219,7 +219,7 @@ Private Function fProcessData()
             sSecondLevelCommPasteKey = fComposeSecondLevelColumnsStryByConfig(sSalesCompName, sHospital _
                                                         , sProducer, sProductName, sProductSeries, dblSecondLevelComm)
             If Not dictMissedSecondLComm.Exists(sSecondLevelCommPasteKey) Then
-                dictMissedSecondLComm.Add sSecondLevelCommPasteKey, "'" & (lEachRow + 1)
+                dictMissedSecondLComm.Add sSecondLevelCommPasteKey, (lEachRow + 1)
             Else
                 dictMissedSecondLComm(sSecondLevelCommPasteKey) = dictMissedSecondLComm(sSecondLevelCommPasteKey) & "," & (lEachRow + 1)
             End If
@@ -239,7 +239,7 @@ Private Function fProcessData()
             arrExceptionRows(mlExcepCnt) = dictRptColIndex("CostPrice")
 
             If Not dictNoValidSelfSales.Exists(sProductKey) Then
-                dictNoValidSelfSales.Add sProductKey, "'" & (lEachRow + 1)
+                dictNoValidSelfSales.Add sProductKey, lEachRow + 1
             Else
                 dictNoValidSelfSales(sProductKey) = dictNoValidSelfSales(sProductKey) & "," & (lEachRow + 1)
             End If
@@ -262,7 +262,7 @@ Private Function fProcessData()
         If Not fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesManKey _
                                 , sSalesMan_1, sSalesMan_2, sSalesMan_3, dblComm_1, dblComm_2, dblComm_3) Then
             If Not dictNoSalesManConf.Exists(sSalesManKey) Then
-                dictNoSalesManConf.Add sSalesManKey, "'" & lEachRow + 1
+                dictNoSalesManConf.Add sSalesManKey, lEachRow + 1
             Else
                 dictNoSalesManConf(sSalesManKey) = dictNoSalesManConf(sSalesManKey) & "," & (lEachRow + 1)
             End If
@@ -320,7 +320,7 @@ next_sales:
     Call fAddNoSalesManConfToSheetException(dictNoSalesManConf)
 End Function
 
-Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary)
+Private Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary)
     Dim arrNewProductSeries()
     Dim lUniqRecCnt As Long
     Dim lRecCount As Long
@@ -360,7 +360,7 @@ Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary
     End If
 End Function
 
-Function fAddNoSalesManConfToSheetException(dictNoSalesManConf As Dictionary)
+Private Function fAddNoSalesManConfToSheetException(dictNoSalesManConf As Dictionary)
     Dim arrNoSalesMan()
     Dim lUniqRecCnt As Long
     'Dim lRecCount As Long
@@ -372,7 +372,7 @@ Function fAddNoSalesManConfToSheetException(dictNoSalesManConf As Dictionary)
     If lUniqRecCnt > 0 Then
         lStartRow = fGetshtExceptionNewRow
         
-        shtException.Cells(lStartRow - 1, 1).Value = "找不到业务员的记录  --> 有可能只是中价标没有！"
+        shtException.Cells(lStartRow - 1, 1).Value = "找不到业务员的记录"
         Call fPrepareHeaderToSheet(shtException, Array("商业公司", "医院", "药品厂家", "药品名称", "规格", "中标价", "行号"), lStartRow)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Color = RGB(255, 0, 0)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Bold = True
@@ -469,7 +469,7 @@ End Function
 '    fCalculateGrossPrice = dblGrossPrice
 'End Function
 
-Function fComposeFirstLevelColumnsStryByConfig(sSalesCompName As String, sProducer As String _
+Private Function fComposeFirstLevelColumnsStryByConfig(sSalesCompName As String, sProducer As String _
                     , sProductName As String, sProductSeries As String, dblComm As Double) As String
     If dictFirstCommColIndex Is Nothing Then Set dictFirstCommColIndex = fReadInputFileSpecConfigItem("FIRST_LEVEL_COMMISSION", "LETTER_INDEX", shtFirstLevelCommission)
     
@@ -487,7 +487,7 @@ Function fComposeFirstLevelColumnsStryByConfig(sSalesCompName As String, sProduc
     Erase arr
 End Function
 
-Function fComposeSecondLevelColumnsStryByConfig(sSalesCompName As String, sHospital As String, sProducer As String _
+Private Function fComposeSecondLevelColumnsStryByConfig(sSalesCompName As String, sHospital As String, sProducer As String _
                     , sProductName As String, sProductSeries As String, dblComm As Double) As String
     If dictSecondCommColIndex Is Nothing Then Set dictSecondCommColIndex = fReadInputFileSpecConfigItem("SECOND_LEVEL_COMMISSION", "LETTER_INDEX", shtSecondLevelCommission)
     
@@ -546,7 +546,7 @@ End Function
 '    End If
 'End Function
 
-Function fGetshtExceptionNewRow()
+Private Function fGetshtExceptionNewRow()
     Dim lNewRow As Long
     lNewRow = fGetValidMaxRow(shtException)
     If lNewRow = 0 Then
@@ -558,7 +558,7 @@ Function fGetshtExceptionNewRow()
     fGetshtExceptionNewRow = lNewRow
 End Function
 
-Sub subMain_CalculateProfit_MonthEnd()
+Private Sub subMain_CalculateProfit_MonthEnd_()
     Dim response As VbMsgBoxResult
     response = MsgBox(prompt:="该计算会扣减出库，无法撤消，你确定要进行计算利润和佣金吗？" _
                         & vbCr & "继续，请点【Yes】" & vbCr & "否则，请点【No】" _
@@ -569,13 +569,17 @@ Sub subMain_CalculateProfit_MonthEnd()
     Call subMain_CalculateProfit
 End Sub
 
-Sub subMain_CalculateProfit_PreCal()
+Private Sub subMain_CalculateProfit_PreCal_()
     Set shtSelfSalesCal = shtSelfSalesPreDeduct
     Call fRemoveFilterForSheet(shtSelfSalesOrder)
     Call fRemoveFilterForSheet(shtSelfSalesPreDeduct)
     shtSelfSalesOrder.Cells.Copy shtSelfSalesCal.Cells
     Call subMain_CalculateProfit
 End Sub
+
+
+
+
 
 
 

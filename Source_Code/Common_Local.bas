@@ -69,7 +69,7 @@ Function fImportSingleSheetExcelFileToThisWorkbook(sExcelFileFullPath As String,
     If wb Is Nothing Then Set wb = ThisWorkbook
     
     Dim wbSource As Workbook
-    Set wbSource = Workbooks.Open(sExcelFileFullPath)
+    Set wbSource = Workbooks.Open(Filename:=sExcelFileFullPath, ReadOnly:=True)
     
     asShtToImport = Trim(asShtToImport)
     
@@ -1312,7 +1312,7 @@ Function fSetBackNumberFormat2TextForCols(ByRef shtOutput As Worksheet _
                 arrData = fReadRangeDatatoArrayByStartEndPos(shtOutput, lRowFrom, lEachCol, lRowTo, lRowTo)
                 
                 For lEachRow = LBound(arrData, 1) To UBound(arrData, 1)
-                    arrData(lEachRow, 1) = Format(arrData(lEachRow, 1), sFormat)
+                    arrData(lEachRow, 1) = format(arrData(lEachRow, 1), sFormat)
                 Next
                 
                 shtOutput.Cells(lRowFrom, lEachCol).Resize(UBound(arrData, 1), 1).Value = arrData
@@ -1551,7 +1551,7 @@ Function fCheckIfGotBusinessError() As Boolean
         End If
     End If
     
-    If gbBusinessError Then fCheckIfGotBusinessError = True:            Exit Function
+    If gErrNum <> 0 Then fCheckIfGotBusinessError = True:            Exit Function
     If fNzero(gsBusinessErrorMsg) Then
         fMsgBox gsBusinessErrorMsg
         fCheckIfGotBusinessError = True
@@ -1675,3 +1675,4 @@ Function fGetDictionayDelimiteredItemsCount(ByRef dict As Dictionary, Optional s
     
     fGetDictionayDelimiteredItemsCount = lCount
 End Function
+

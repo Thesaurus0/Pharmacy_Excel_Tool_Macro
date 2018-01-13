@@ -161,6 +161,10 @@ Sub aaaa()
 '    rngAddr = "=" & rngAddr
 '    Call fSetValidationListForRange(fGetRangeByStartEndPos(shtProductProducerReplace, 2, 1, 1000, 1), rngAddr)
 
-    Dim sht ' As Worksheet
-     sht = Evaluate("shtSelfSalesCal")
+'    Dim sht ' As Worksheet
+'     sht = Evaluate("shtSelfSalesCal")
+     
+     fKeepCopyContent
+     Application.CutCopyMode = 0
+     fCopyFromKept
 End Sub

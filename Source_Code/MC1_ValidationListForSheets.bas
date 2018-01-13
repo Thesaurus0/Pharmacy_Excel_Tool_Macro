@@ -68,6 +68,11 @@ Function fSetValidationListForAllSheets()
     Call fSetValidationListForshtSelfSalesOrder_ProductUnit(sProductUnitAddr)
     '----------------------------------------------------------------------------------------
 
+    '============== salesman ========================================
+    Dim sSalesManAddr As String
+    sSalesManAddr = fGetSalesManMasterColumnAddress_SalesMan
+    Call fSetValidationListForshtSalesManCommConfig_SalesMan(sSalesManAddr)
+    '----------------------------------------------------------------------------------------
     
 End Function
 
@@ -578,3 +583,55 @@ Function fSetValidationListForshtSelfSalesOrder_ProductUnit(sValidationListAddr 
 End Function
 '----------------------------------------------------------------------------------------
 
+'
+'Function fSetValidationListForSingleCell(sValidationListAddr As String, rngCell As Range)
+'
+'    Call fSetValidationListForRange(rngCell, sValidationListAddr)
+'End Function
+
+
+'============== salesman ========================================
+Function fGetSalesManMasterColumnAddress_SalesMan() As String
+    Dim sSalesManCol As String
+    Dim lSalesManColMaxRow As Long
+    Dim sSourceAddr As String
+    
+    lSalesManColMaxRow = Rows.Count
+    
+    sSalesManCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_MASTER]" _
+                                        , "Column Index", "Column Tech Name=SalesManName")
+
+    sSourceAddr = "=" & shtSalesManMaster.Range(sSalesManCol & 2 & ":" & sSalesManCol & lSalesManColMaxRow).Address(external:=True)
+    fGetSalesManMasterColumnAddress_SalesMan = sSourceAddr
+End Function
+
+Function fSetValidationListForshtSalesManCommConfig_SalesMan(sValidationListAddr As String)
+    Dim sSalesManCol As String
+    Dim lMaxRow As Long
+    
+    '1
+    sSalesManCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
+                                            , "Column Index", "Column Tech Name=SalesMan1")
+    
+    lMaxRow = shtSalesManCommConfig.Columns(sSalesManCol).End(xlDown).Row + 100000
+    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    Call fSetValidationListForRange(shtSalesManCommConfig.Range(sSalesManCol & 2 & ":" & sSalesManCol & lMaxRow), sValidationListAddr)
+    
+    '2
+    sSalesManCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
+                                            , "Column Index", "Column Tech Name=SalesMan2")
+    
+    lMaxRow = shtSalesManCommConfig.Columns(sSalesManCol).End(xlDown).Row + 100000
+    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    Call fSetValidationListForRange(shtSalesManCommConfig.Range(sSalesManCol & 2 & ":" & sSalesManCol & lMaxRow), sValidationListAddr)
+    
+    '3
+    sSalesManCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
+                                            , "Column Index", "Column Tech Name=SalesMan3")
+    
+    lMaxRow = shtSalesManCommConfig.Columns(sSalesManCol).End(xlDown).Row + 100000
+    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    Call fSetValidationListForRange(shtSalesManCommConfig.Range(sSalesManCol & 2 & ":" & sSalesManCol & lMaxRow), sValidationListAddr)
+End Function
+
+'----------------------------------------------------------------------------------------

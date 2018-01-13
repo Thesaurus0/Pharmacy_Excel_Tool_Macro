@@ -141,7 +141,7 @@ Sub subMain_InvisibleHideAllBusinessSheets()
 End Sub
 
 Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrToSelect As String = "A1" _
-                            , Optional bHidePreviousActiveSheet As Boolean = True)
+                            , Optional bHidePreviousActiveSheet As Boolean = False)
     Dim shtCurr As Worksheet
     Set shtCurr = ActiveSheet
 
@@ -165,9 +165,13 @@ Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrTo
         If Not shtCurr Is shtToSwitch Then shtCurr.Visible = xlSheetVeryHidden
     End If
 
-    Err.Clear
+    'Err.Clear
 End Function
 
+Function fShowAndActiveSheet(sht As Worksheet)
+    sht.Visible = xlSheetVisible
+    sht.Activate
+End Function
 'Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrToSelect As String = "A1")
 '    Dim shtCurr As Worksheet
 '    Set shtCurr = ActiveSheet
@@ -214,7 +218,144 @@ Function fHideAllSheetExcept(ParamArray arr())
 next_wbsheet:
     Next
     
-    
     Set shtConvt = Nothing
     Err.Clear
+End Function
+
+Sub subMain_ValidateAllSheetsData()
+    'On Error GoTo Exit_Sub
+    
+    If Not shtHospital.fValidateSheet Then Exit Sub
+    If Not shtProductMaster.fValidateSheet Then Exit Sub
+    If Not shtProductNameMaster.fValidateSheet Then Exit Sub
+    If Not shtProductProducerMaster.fValidateSheet Then Exit Sub
+    If Not shtSalesManMaster.fValidateSheet Then Exit Sub
+    If Not shtSalesManCommConfig.fValidateSheet Then Exit Sub
+    
+    If Not shtHospitalReplace.fValidateSheet Then Exit Sub
+    If Not shtProductProducerReplace.fValidateSheet Then Exit Sub
+    If Not shtProductNameReplace.fValidateSheet Then Exit Sub
+    If Not shtProductSeriesReplace.fValidateSheet Then Exit Sub
+    If Not shtProductUnitRatio.fValidateSheet Then Exit Sub
+    
+    If Not shtFirstLevelCommission.fValidateSheet Then Exit Sub
+    If Not shtSecondLevelCommission.fValidateSheet Then Exit Sub
+'Exit_Sub:
+End Sub
+
+Sub subMain_BackToLastPosition()
+    Dim sLastSheetName As String
+    Dim lLastMaxRow As Long
+    Dim lPrevMaxRow As Long
+    Dim bFound As Boolean
+    
+    Const LAST_COL = 2
+    Const PREV_COL = 3
+    
+    bFound = False
+    On Error GoTo Exit_Sub
+    
+    Dim shtLast As Worksheet
+    Dim lEachRow As Long
+    
+    lLastMaxRow = shtDataStage.Cells(Rows.Count, LAST_COL).End(xlUp).Row
+    
+    For lEachRow = lLastMaxRow To 1 Step -1
+        sLastSheetName = Trim(shtDataStage.Cells(lEachRow, LAST_COL).Value)
+        shtDataStage.Cells(lEachRow, LAST_COL).ClearContents
+        
+        If fZero(sLastSheetName) Then GoTo previous_row
+        
+        If fSheetExists(sLastSheetName) Then
+            Set shtLast = ThisWorkbook.Worksheets(sLastSheetName)
+            
+            If UCase(shtLast.Name) = UCase(ActiveSheet.Name) Then
+                Call fAppendDataToLastCellOfColumn(shtDataStage, PREV_COL, sLastSheetName)
+            Else
+                If fSheetIsVisible(shtLast) Then
+                    Application.EnableEvents = False
+                    shtLast.Activate
+                    Application.EnableEvents = True
+                    bFound = True
+                    Exit For
+                End If
+            End If
+        End If
+        
+previous_row:
+    Next
+    
+    If bFound Then
+        Call fAppendDataToLastCellOfColumn(shtDataStage, PREV_COL, sLastSheetName)
+    End If
+    
+Exit_Sub:
+    Set shtLast = Nothing
+    Application.EnableEvents = True
+End Sub
+
+Sub subMain_BackToPreviousPosition()
+    Dim sPrevSheetName As String
+    Dim lPrevMaxRow As Long
+    Dim lLastMaxRow As Long
+    Dim bFound As Boolean
+    
+    Const LAST_COL = 2
+    Const PREV_COL = 3
+    
+    bFound = False
+    On Error GoTo Exit_Sub
+    
+    Dim shtPrev As Worksheet
+    Dim lEachRow As Long
+    
+    lPrevMaxRow = shtDataStage.Cells(Rows.Count, PREV_COL).End(xlUp).Row
+    
+    For lEachRow = lPrevMaxRow To 1 Step -1
+        sPrevSheetName = Trim(shtDataStage.Cells(lEachRow, PREV_COL).Value)
+        shtDataStage.Cells(lEachRow, PREV_COL).ClearContents
+        
+        If fZero(sPrevSheetName) Then GoTo previous_row
+        
+        If fSheetExists(sPrevSheetName) Then
+            Set shtPrev = ThisWorkbook.Worksheets(sPrevSheetName)
+            
+            If UCase(shtPrev.Name) = UCase(ActiveSheet.Name) Then
+                Call fAppendDataToLastCellOfColumn(shtDataStage, LAST_COL, sPrevSheetName)
+            Else
+                If fSheetIsVisible(shtPrev) Then
+                    Application.EnableEvents = False
+                    shtPrev.Activate
+                    Application.EnableEvents = True
+                    bFound = True
+                    Exit For
+                End If
+            End If
+        End If
+        
+previous_row:
+    Next
+    
+    If bFound Then
+        Call fAppendDataToLastCellOfColumn(shtDataStage, LAST_COL, sPrevSheetName)
+    End If
+    
+Exit_Sub:
+    Set shtPrev = Nothing
+    Application.EnableEvents = True
+End Sub
+
+Function fAppendDataToLastCellOfColumn(ByRef sht As Worksheet, alCol As Long, aValue)
+    Dim lMaxRow As Long
+    lMaxRow = sht.Cells(Rows.Count, alCol).End(xlUp).Row
+    
+    If lMaxRow <= 1 Then
+        If fZero(sht.Cells(lMaxRow, alCol).Value) Then
+            sht.Cells(lMaxRow, alCol).Value = aValue
+        Else
+            sht.Cells(lMaxRow + 1, alCol).Value = aValue
+        End If
+    Else
+        sht.Cells(lMaxRow + 1, alCol).Value = aValue
+    End If
 End Function

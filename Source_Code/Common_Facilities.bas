@@ -2,6 +2,94 @@ Attribute VB_Name = "Common_Facilities"
 Option Explicit
 Option Base 1
 
+Dim bCopyType As String
+Dim sCopyStageRangeAddr As String
+'Dim sCopiedAddress As String
+
+Function fKeepCopyContent()
+    Dim myData As DataObject
+    Dim sCopiedStr As String
+    Const PASTE_START_CELL = "G1"
+    
+    Dim shtActiveOrig As Worksheet
+    
+    If Application.CutCopyMode = xlCopy Then
+        Set shtActiveOrig = ActiveSheet
+        bCopyType = "COPY_RANGE"
+    ElseIf Application.CutCopyMode = xlCut Then
+        Set shtActiveOrig = ActiveSheet
+        bCopyType = "CUT_RANGE"
+    Else
+        Set myData = New DataObject
+        myData.GetFromClipboard
+        
+        On Error Resume Next
+        sCopiedStr = myData.GetText()
+        
+        If Err.Number <> 0 Then
+            bCopyType = "NOTHING"
+        Else
+            bCopyType = "COPY_OTHERS"
+        End If
+        On Error GoTo 0
+        
+        Set myData = Nothing
+    End If
+    
+    If bCopyType = "COPY_RANGE" Or bCopyType = "CUT_RANGE" Then
+        shtDataStage.Activate
+        
+        shtDataStage.Range(PASTE_START_CELL).PasteSpecial xlPasteAll
+        sCopyStageRangeAddr = Selection.Address(external:=True)
+        fHideSheet shtDataStage
+        
+        shtActiveOrig.Activate
+    ElseIf bCopyType = "COPY_OTHERS" Then
+        shtDataStage.Range(PASTE_START_CELL).Value = sCopiedStr
+        sCopyStageRangeAddr = ""
+    ElseIf bCopyType = "NOTHING" Then
+        shtDataStage.Range(PASTE_START_CELL).ClearComments
+        shtDataStage.Range(PASTE_START_CELL).ClearContents
+        shtDataStage.Range(PASTE_START_CELL).ClearFormats
+        shtDataStage.Range(PASTE_START_CELL).ClearHyperlinks
+        shtDataStage.Range(PASTE_START_CELL).ClearNotes
+        shtDataStage.Range(PASTE_START_CELL).ClearOutline
+        sCopyStageRangeAddr = ""
+    Else
+        fErr "bCopyType"
+    End If
+    
+    Set shtActiveOrig = Nothing
+End Function
+
+Function fCopyFromKept()
+    Dim myData As DataObject
+    Const PASTE_START_CELL = "G1"
+    
+    If bCopyType = "COPY_RANGE" Then
+        shtDataStage.Range(sCopyStageRangeAddr).Copy
+    ElseIf bCopyType = "CUT_RANGE" Then
+        shtDataStage.Range(sCopyStageRangeAddr).Cut
+    ElseIf bCopyType = "COPY_OTHERS" Then
+        Set myData = New DataObject
+        myData.SetText CStr(shtDataStage.Range(PASTE_START_CELL).Value)
+        myData.PutInClipboard
+        Set myData = Nothing
+    ElseIf bCopyType = "NOTHING" Then
+    Else
+        fErr "bCopyType"
+    End If
+    
+    sCopyStageRangeAddr = ""
+End Function
+
+'Function fGetCopyAddress()
+'    sCopiedAddress = Application.Selection.Address(external:=True)
+'    Application.Selection.Copy
+'
+'    MsgBox sCopiedAddress
+'End Function
+
 '======================================================================================================
 Sub Sub_ListActiveXControlOnActiveSheet()
     Dim obj As Object
@@ -474,6 +562,7 @@ Sub Sub_FilterBySelectedCells()
         End
     End If
 
+    'Call Sub_RemoveFilterForAcitveSheet("CLEAR_FILTER")
     Call Sub_RemoveFilterForAcitveSheet
     
     Dim lMaxRow As Long
@@ -481,6 +570,9 @@ Sub Sub_FilterBySelectedCells()
     lMaxRow = fGetValidMaxRow(ActiveSheet)
     lMaxCol = fGetValidMaxCol(ActiveSheet)
 
+    If ActiveSheet.AutoFilterMode Then ActiveSheet.AutoFilterMode = False
+    fGetRangeByStartEndPos(ActiveSheet, 1, 1, 1, lMaxCol).AutoFilter
+    
 '    If ActiveSheet.AutoFilterMode Then  'auto filter
 '        ActiveSheet.AutoFilter.ShowAllData
 '    Else
@@ -497,16 +589,23 @@ Sub Sub_FilterBySelectedCells()
     For Each rngEachArea In rngSelected.Areas
         For Each eachCell In rngEachArea
             If eachCell.Column > lMaxCol Then Exit For
-            rgData.AutoFilter Field:=eachCell.Column _
-                , Criteria1:="=*" & eachCell.Value & "*" _
-                , Operator:=xlAnd
+            
+            If IsNumeric(eachCell.Value) Then
+                rgData.AutoFilter Field:=eachCell.Column _
+                                , Criteria1:=">=" & eachCell.Value _
+                                , Operator:=xlAnd
+            Else
+                rgData.AutoFilter Field:=eachCell.Column _
+                                , Criteria1:="=*" & eachCell.Value & "*" _
+                                , Operator:=xlAnd
+            End If
         Next
     Next
     
     End
 End Sub
-Sub Sub_RemoveFilterForAcitveSheet()
-    Call fRemoveFilterForSheet(ActiveSheet)
+Sub Sub_RemoveFilterForAcitveSheet(Optional ByVal asDegree As String = "SHOW_ALL_DATA")
+    Call fRemoveFilterForSheet(ActiveSheet, asDegree)
 End Sub
 
 Sub sub_SortBySelectColumn()
@@ -583,7 +682,23 @@ Sub sub_SortBySelectedCells()
     End
 End Sub
 
-Function fSetFilterForSheet(sht As Worksheet, colToFilter As Integer, aValue)
+Function fSetFilterForSheet(sht As Worksheet, aColToFilter, aFilterValue)
+    If Not (IsArray(aColToFilter) And IsArray(aFilterValue) _
+    Or Not IsArray(aColToFilter) And Not IsArray(aFilterValue)) Then
+        fErr "param aColToFilter and aFilterValue must be array or non-array at the same time."
+    End If
+    
+'    Dim myData As DataObject
+'    Dim sOriginText As String
+'
+'    Set myData = New DataObject
+'    myData.GetFromClipboard
+'    On Error Resume Next
+'    sOriginText = myData.GetText()
+'    On Error GoTo 0
+
+    fKeepCopyContent
+    
     Dim lMaxRow As Long
     Dim lMaxCol As Long
     lMaxCol = sht.Cells(1, 1).End(xlToRight).Column
@@ -594,24 +709,74 @@ Function fSetFilterForSheet(sht As Worksheet, colToFilter As Integer, aValue)
     Else
         fGetRangeByStartEndPos(sht, 1, 1, 1, lMaxCol).AutoFilter
     End If
+    
+    Dim i As Integer
+    If IsArray(aColToFilter) Then
+        For i = LBound(aColToFilter) To UBound(aColToFilter)
+            fGetRangeByStartEndPos(sht, 1, 1, lMaxRow, lMaxCol).AutoFilter _
+                Field:=aColToFilter(i), Criteria1:="=*" & aFilterValue(i) & "*", Operator:=xlAnd
+        Next
+    Else
+        fGetRangeByStartEndPos(sht, 1, 1, lMaxRow, lMaxCol).AutoFilter _
+                Field:=aColToFilter, Criteria1:="=*" & aFilterValue & "*", Operator:=xlAnd
+    End If
+    
+'    On Error Resume Next
+'    myData.SetText sOriginText
+'    'If fNzero(sOriginText) Then myData.SetText sOriginText
+'    myData.PutInClipboard
+'    On Error GoTo 0
+'    Set myData = Nothing
 
-    fGetRangeByStartEndPos(sht, 1, 1, lMaxRow, lMaxCol).AutoFilter _
-                Field:=colToFilter _
-                , Criteria1:="=*" & aValue & "*" _
-                , Operator:=xlAnd
+    fCopyFromKept
+    
+'            If IsNumeric(eachCell.Value) Then
+'                rgData.AutoFilter Field:=eachCell.Column _
+'                                , Criteria1:=">=" & eachCell.Value _
+'                                , Operator:=xlAnd
+'            Else
+'                rgData.AutoFilter Field:=eachCell.Column _
+'                                , Criteria1:="=*" & eachCell.Value & "*" _
+'                                , Operator:=xlAnd
+'            End If
 End Function
 
 Function fCopyFilteredDataToRange(sht As Worksheet, colFiltered As Integer)
-    Dim lMaxRow As Long
-    lMaxRow = fGetValidMaxRow(sht)
+'    Dim myData As DataObject
+'    Dim sOriginText As String
+'    Set myData = New DataObject
+'    myData.GetFromClipboard
+'    On Error Resume Next
+'    sOriginText = myData.GetText()
+'    On Error GoTo 0
+    
+    fKeepCopyContent
     
     shtDataStage.Columns("A").ClearContents
     
+    Dim lMaxRow As Long
+    lMaxRow = fGetValidMaxRow(sht)
     If lMaxRow < 2 Then Exit Function
     
     fGetRangeByStartEndPos(sht, 2, CLng(colFiltered), lMaxRow, CLng(colFiltered)).Copy
     shtDataStage.Range("A1").PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
         :=False, Transpose:=False
     Application.CutCopyMode = False
+    
+'    On Error Resume Next
+'    myData.SetText sOriginText
+'    myData.PutInClipboard
+'    On Error GoTo 0
+'
+'    Set myData = Nothing
+    fCopyFromKept
+End Function
+
+Function fSheetIsNotVisible(sht As Worksheet) As Boolean
+    fSheetIsNotVisible = (sht.Visible <> xlSheetVisible)
+End Function
+
+Function fSheetIsVisible(sht As Worksheet) As Boolean
+    fSheetIsVisible = (sht.Visible = xlSheetVisible)
 End Function
 

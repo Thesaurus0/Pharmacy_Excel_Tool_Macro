@@ -248,12 +248,13 @@ Function fRangeIsSingleCell(rngParam As Range) As Boolean
     fRangeIsSingleCell = (rngParam.Rows.Count = 1 And rngParam.Columns.Count = 1)
 End Function
 
-
 Function fErr(Optional sMsg As String = "") As VbMsgBoxResult
-    gbBusinessError = True
+    gErrNum = vbObjectError + ERROR_NUMBER
+    'gbBusinessError = True
+    gErrMsg = sMsg
     If fNzero(sMsg) Then fMsgBox "Error: " & vbCr & vbCr & sMsg, vbCritical
     
-    Err.Raise vbObjectError + ERROR_NUMBER, "", "Program is to be terminated."
+    Err.Raise gErrNum, "", "Program is to be terminated."
 End Function
 
 Function fMsgBox(Optional sMsg As String = "", Optional aVbMsgBoxStyle As VbMsgBoxStyle = vbCritical) As VbMsgBoxResult
@@ -502,7 +503,7 @@ Function fArrayRowIsBlankHasNoData(arr, alRow As Long) As Boolean
 End Function
 
 Function fGenRandomUniqueString() As String
-    fGenRandomUniqueString = Format(Now(), "yyyymmddhhMMSS") & Rnd()
+    fGenRandomUniqueString = format(Now(), "yyyymmddhhMMSS") & Rnd()
 End Function
 
 Function fSplit(asOrig As String, Optional asSeparators As String = "") As Variant
@@ -1249,7 +1250,67 @@ Function fValidateBlankInArray(arrParam, arrKeyColsOrSingle _
     End If
 End Function
 
+Function fValidateNumericColInArray(arrParam, arrKeyColsOrSingle _
+                        , Optional shtAt As Worksheet _
+                        , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
+                        , Optional ByVal sMsgColHeader As String)
+'arrKeyColsOrSingle : should be start from 1, since two dimension array is starting from 1
+    If fArrayIsEmptyOrNoData(arrParam) Then Exit Function
+    
+    If IsArray(arrKeyColsOrSingle) Then
+        If fArrayIsEmptyOrNoData(arrKeyColsOrSingle) Then fErr "Wrong param: arrKeyColsOrSingle"
+    Else
+        If arrKeyColsOrSingle <= 0 Then fErr "Wrong param: arrKeyColsOrSingle"
+    End If
+    
+    Dim i As Integer
+    If IsArray(arrKeyColsOrSingle) Then
+        For i = LBound(arrKeyColsOrSingle) To UBound(arrKeyColsOrSingle)
+            Call fValidateNumericColInArrayForSingleCol(arrParam:=arrParam, lKeyCol:=CLng(arrKeyColsOrSingle) _
+                                                    , shtAt:=shtAt _
+                                                    , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
+                                                    , sMsgColHeader:=sMsgColHeader)
+        Next
+    Else
+        Call fValidateNumericColInArrayForSingleCol(arrParam:=arrParam, lKeyCol:=CLng(arrKeyColsOrSingle) _
+                                                    , shtAt:=shtAt _
+                                                    , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
+                                                    , sMsgColHeader:=sMsgColHeader)
+    End If
+End Function
 
+Function fValidateNumericColInArrayForSingleCol(arrParam, lKeyCol As Long _
+                                            , Optional shtAt As Worksheet _
+                                            , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
+                                            , Optional sMsgColHeader As String)
+    If lKeyCol <= 0 Then fErr "Wrong param: lKeyCol"
+    
+    Dim lEachRow As Long
+    Dim i As Long
+    Dim sKeyStr 'As String
+    Dim sColLetter As String
+    Dim sPos As String
+    Dim lActualRow As Long
+    
+    sColLetter = IIf(fZero(sMsgColHeader), fNum2Letter(lStartCol + lKeyCol - 1), sMsgColHeader)
+        
+    sPos = vbCr & vbCr & "sheet     : " & shtAt.Name _
+         & vbCr & vbCr & "Row, Column: " & " ACTUAL_ROW_NO,  [" & sColLetter & "]"
+
+    For lEachRow = LBound(arrParam, 1) To UBound(arrParam, 1)
+        If fArrayRowIsBlankHasNoData(arrParam, lEachRow) Then GoTo next_row
+        
+        lActualRow = (lHeaderAtRow + lEachRow)
+        
+        sKeyStr = arrParam(lEachRow, lKeyCol)
+    
+        If Not IsNumeric(sKeyStr) Then
+            sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
+            fErr "Keys [" & sColLetter & "] is Not Numeric!" & sPos
+        End If
+next_row:
+    Next
+End Function
 Function fEnlargeAray(ByRef arr, Optional aPreserve As Boolean = True, Optional lIncrementNum As Integer = 1) As Long
     fRedim arr, arrlen(arr) + 1, aPreserve
 End Function
@@ -1368,15 +1429,16 @@ Function fDisableExcelOptionsAll()
 End Function
 Function fEnableOrDisableExcelOptionsAll(bValue As Boolean)
     Application.ScreenUpdating = bValue
-    Application.EnableEvents = bValue
+    
+    If Application.CutCopyMode = 0 Then Application.EnableEvents = bValue
     Application.DisplayAlerts = bValue
-    Application.AskToUpdateLinks = bValue
+    If Application.CutCopyMode = 0 Then Application.AskToUpdateLinks = bValue
 '    ThisWorkbook.CheckCompatibility = bValue
     
     If bValue Then
-        Application.Calculation = xlCalculationAutomatic
+        If Application.CutCopyMode = 0 Then Application.Calculation = xlCalculationAutomatic
     Else
-        Application.Calculation = xlCalculationManual
+        If Application.CutCopyMode = 0 Then Application.Calculation = xlCalculationManual
     End If
 End Function
 
@@ -1664,7 +1726,7 @@ exit_fun:
     fFileterTwoDimensionArray = arrOut
     Erase arrOut
     
-    Debug.Print "fFileterOutTwoDimensionArray: " & Format(Timer - start, "00:00")
+    Debug.Print "fFileterOutTwoDimensionArray: " & format(Timer - start, "00:00")
 End Function
 
 Function fFileterOutTwoDimensionArray(arrSource(), lCol As Long, sValue) As Variant
@@ -1709,7 +1771,7 @@ exit_fun:
     fFileterOutTwoDimensionArray = arrOut
     Erase arrOut
     
-    Debug.Print "fFileterOutTwoDimensionArray: " & Timer - start & vbCr & Format(Timer - start, "00:00")
+    Debug.Print "fFileterOutTwoDimensionArray: " & Timer - start & vbCr & format(Timer - start, "00:00")
 End Function
 Function fTranspose1DimenArrayTo2DimenArrayVertically(arrParam) As Variant
     Dim i As Long
@@ -1795,3 +1857,22 @@ Function fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(ByRef dict As Di
     Erase arrOut
 End Function
 
+Function fTrimArrayElement(ByRef arr)
+    Dim i As Long
+    Dim j As Long
+    
+    For i = LBound(arr, 1) To UBound(arr, 1)
+        For j = LBound(arr, 2) To UBound(arr, 2)
+            arr(i, j) = Trim(arr(i, j))
+        Next
+    Next
+End Function
+
+Function fTrimAllCellsForSheet(sht As Worksheet)
+    Dim arrTmp()
+    Call fRemoveFilterForSheet(sht)
+    arrTmp = fReadRangeDatatoArrayByStartEndPos(sht, 2, 1, fGetValidMaxRow(sht), fGetValidMaxCol(sht))
+    Call fTrimArrayElement(arrTmp)
+    Call fWriteArray2Sheet(sht, arrTmp)
+    Erase arrTmp
+End Function

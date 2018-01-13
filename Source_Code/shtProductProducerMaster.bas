@@ -8,26 +8,11 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Private Sub btnValidateProducerMaster_Click()
-    On Error GoTo exit_sub
-    
-    Dim arrData()
-    Dim dictColIndex As Dictionary
-    
-    fInitialization
-    gsRptID = "REPLACE_UNIFY_SALES_INFO"
-    Call fReadSysConfig_InputTxtSheetFile
-    
-    Call fReadSheetDataByConfig("PRODUCER_MASTER", dictColIndex, arrData, , , , , shtProductProducerMaster)
-    
-    Call fValidateDuplicateInArray(arrData, dictColIndex("ProductProducer"), False, shtProductProducerMaster, 1, 1, "生产厂家")
-    
-    fMsgBox "没有发现错误", vbInformation
-exit_sub:
-    fEnableExcelOptionsAll
-    Set dictColIndex = Nothing
+    Call sub_Validate
 End Sub
 
 Private Sub Worksheet_Change(ByVal Target As Range)
+    Call fResetdictProducerMaster
 '    Dim sProducerCol As String
 '    Dim rgIntersect As Range
 '
@@ -58,3 +43,36 @@ End Sub
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
 
 End Sub
+
+Function fValidateSheet()
+    On Error GoTo Exit_Sub
+    
+    Call fTrimAllCellsForSheet(Me)
+    
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    fInitialization
+    gsRptID = "REPLACE_UNIFY_SALES_INFO"
+    Call fReadSysConfig_InputTxtSheetFile
+    
+    Call fReadSheetDataByConfig("PRODUCER_MASTER", dictColIndex, arrData, , , , , Me)
+    
+    Call fValidateDuplicateInArray(arrData, dictColIndex("ProductProducer"), False, Me, 1, 1, "生产厂家")
+    
+    Call fSortDataInSheetSortSheetData(Me, dictColIndex("ProductProducer"))
+    
+    fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+Exit_Sub:
+    fEnableExcelOptionsAll
+    Set dictColIndex = Nothing
+    Erase arrData
+    
+    If Err.Number <> 0 Then
+        fShowAndActiveSheet Me
+        fValidateSheet = False
+    Else
+        fValidateSheet = True
+    End If
+End Function
+
