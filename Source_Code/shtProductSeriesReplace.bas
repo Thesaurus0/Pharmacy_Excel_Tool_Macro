@@ -8,11 +8,11 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Private Sub btnValidate_Click()
-    Call sub_Validate
+    Call fValidateSheet
 End Sub
 
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
-    On Error GoTo Exit_Sub
+    On Error GoTo exit_sub
     Application.ScreenUpdating = False
     
     Const ProducerCol = 1
@@ -28,8 +28,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
     
     If Not rgIntersect Is Nothing Then
-        If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
-        If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
+        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
 
         sProducer = rgIntersect.Offset(0, ProducerCol - ProductNameCol).Value
         
@@ -46,8 +46,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Set rgIntersect = Intersect(Target, Me.Columns(ProductSeriesCol))
         
         If Not rgIntersect Is Nothing Then
-            If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
-            If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
+            If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+            If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
             
             sProducer = rgIntersect.Offset(0, ProducerCol - ProductSeriesCol).Value
             sProductName = rgIntersect.Offset(0, ProductNameCol - ProductSeriesCol).Value
@@ -63,7 +63,7 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         End If
     End If
     
-Exit_Sub:
+exit_sub:
     fEnableExcelOptionsAll
     Application.ScreenUpdating = True
     
@@ -71,7 +71,7 @@ Exit_Sub:
 End Sub
 
 Function fValidateSheet()
-    On Error GoTo Exit_Sub
+    On Error GoTo exit_sub
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -99,7 +99,7 @@ Function fValidateSheet()
     Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ToProductSeries"))
 
     fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-Exit_Sub:
+exit_sub:
     fEnableExcelOptionsAll
     Set dictColIndex = Nothing
     Erase arrData

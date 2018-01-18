@@ -1,25 +1,16 @@
 Attribute VB_Name = "Ä£¿é2"
-Sub ºê2()
-Attribute ºê2.VB_ProcData.VB_Invoke_Func = " \n14"
+Sub ºê3()
+Attribute ºê3.VB_ProcData.VB_Invoke_Func = " \n14"
 '
-' ºê2 ºê
+' ºê3 ºê
 '
+ 
+    Application.AutomationSecurity = msoAutomationSecurityForceDisable  '???
 
-'
-    Sheets("ÉÌÒµ¹«Ë¾ÅäËÍ·Ñ").Select
-    With Selection.Validation
-        .Delete
-        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
-        xlBetween, Formula1:="=rngStaticSalesCompanyNames"
-        .IgnoreBlank = True
-        .InCellDropdown = True
-        .InputTitle = ""
-        .ErrorTitle = ""
-        .InputMessage = ""
-        .ErrorMessage = ""
-        .IMEMode = xlIMEModeNoControl
-        .ShowInput = True
-        .ShowError = True
-    End With
-    Range("A191").Select
+ 
+
+    Dim wbSource As Workbook
+    Set wbSource = Workbooks.Open(Filename:="F:\Github_Local_Repository\Pharmacy_Excel_Tool_Macro\Pharmacy_Excel_Tool_Macro_V0.5.xlsm", ReadOnly:=True)
+
+    Application.AutomationSecurity = msoAutomationSecurityByUI  '????
 End Sub

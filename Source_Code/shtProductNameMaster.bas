@@ -46,7 +46,7 @@ End Sub
 
 
 Function fValidateSheet()
-    On Error GoTo Exit_Sub
+    On Error GoTo exit_sub
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -68,7 +68,7 @@ Function fValidateSheet()
     Call fSortDataInSheetSortSheetData(Me, Array(dictColIndex("ProductProducer"), dictColIndex("ProductName")))
 
     fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-Exit_Sub:
+exit_sub:
     fEnableExcelOptionsAll
     Set dictColIndex = Nothing
     Erase arrData

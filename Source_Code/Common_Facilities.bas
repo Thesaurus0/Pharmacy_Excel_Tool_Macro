@@ -490,12 +490,12 @@ Function fPromptToConfirmToContinue(asAskMsg As String _
     fPromptToConfirmToContinue = False
     
     Dim response As VbMsgBoxResult
-    response = MsgBox(prompt:=asAskMsg, Buttons:=aBBbMsgboxStyle)
+    response = MsgBox(Prompt:=asAskMsg, Buttons:=aBBbMsgboxStyle)
     
     If response <> vbYes Then Exit Function
     
     If bDoubleConfirm Then
-        response = MsgBox(prompt:="Are you sure to continue?", Buttons:=vbYesNoCancel + vbCritical + vbDefaultButton3)
+        response = MsgBox(Prompt:="Are you sure to continue?", Buttons:=vbYesNoCancel + vbCritical + vbDefaultButton3)
         If response <> vbYes Then Exit Function
     End If
     
@@ -780,3 +780,11 @@ Function fSheetIsVisible(sht As Worksheet) As Boolean
     fSheetIsVisible = (sht.Visible = xlSheetVisible)
 End Function
 
+Sub subMain_ListAllSheets()
+    
+    Dim shtEach As Worksheet
+    
+    For Each shtEach In ThisWorkbook.Worksheets
+        Debug.Print shtEach.CodeName & DELIMITER & shtEach.Name
+    Next
+End Sub

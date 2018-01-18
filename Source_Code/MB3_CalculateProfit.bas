@@ -560,7 +560,7 @@ End Function
 
 Sub subMain_CalculateProfit_MonthEnd()
     Dim response As VbMsgBoxResult
-    response = MsgBox(prompt:="该计算会扣减出库，无法撤消，你确定要进行计算利润和佣金吗？" _
+    response = MsgBox(Prompt:="该计算会扣减出库，无法撤消，你确定要进行计算利润和佣金吗？" _
                         & vbCr & "继续，请点【Yes】" & vbCr & "否则，请点【No】" _
                         , Buttons:=vbCritical + vbYesNo + vbDefaultButton2)
     If response <> vbYes Then Exit Sub

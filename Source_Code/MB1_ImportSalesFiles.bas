@@ -7,7 +7,8 @@ Public gsCompanyID As String
 Public dictCompList As Dictionary
 
 Sub subMain_ImportSalesInfoFiles()
-    'On Error GoTo error_handling
+    If Not fIsDev() Then On Error GoTo error_handling
+    On Error GoTo error_handling
     
     fInitialization
     
@@ -37,8 +38,10 @@ Sub subMain_ImportSalesInfoFiles()
     
     If iCnt <= 0 Then fErr "No Company is selected."
     
-    Call fCleanSheetOutputResetSheetOutput(shtSalesRawDataRpt)
-    Call fPrepareOutputSheetHeaderAndTextColumns(shtSalesRawDataRpt)
+    If fIfClearImport Then
+        Call fCleanSheetOutputResetSheetOutput(shtSalesRawDataRpt)
+        Call fPrepareOutputSheetHeaderAndTextColumns(shtSalesRawDataRpt)
+    End If
     
     For i = 0 To dictCompList.Count - 1
         gsCompanyID = dictCompList.Keys(i)
@@ -211,10 +214,12 @@ Function fGetQualfiedRows()
         sProductProducer = Trim(arrMaster(lEachRow, dictMstColIndex("ProductProducer")))
         sProductName = Trim(arrMaster(lEachRow, dictMstColIndex("ProductName")))
         sProductSeries = Trim(arrMaster(lEachRow, dictMstColIndex("ProductSeries")))
+'
+'        If sProductProducer = "津金世" And sProductName = "金世力德(匹多莫德颗粒)" And sProductSeries = "2g:0.4g*6袋" Then
+'            GoTo next_row
+'        End If
         
-        If sProductProducer = "津金世" And sProductName = "金世力德(匹多莫德颗粒)" And sProductSeries = "2g:0.4g*6袋" Then
-            GoTo next_row
-        End If
+        If fProductExistsInExcludingProductListConfig(sProductProducer, sProductName, sProductSeries) Then GoTo next_row
         
         iQualifiedCnt = iQualifiedCnt + 1
         arrQualifiedRows(iQualifiedCnt) = lEachRow
@@ -248,6 +253,20 @@ Function fReSequenceSeqNo()
     Erase arr
 End Function
 
-Function fProcessDataQualified()
+Function fIfClearImport() As Boolean
+    fIfClearImport = shtMenu.OBClearImport.Value
     
+    Dim response As VbMsgBoxResult
+    
+    If fIfClearImport Then
+        response = MsgBox(Prompt:="您确定要清空现有导入的数据吗？无法撤消的哦" _
+                            & vbCr & "继续，请点【Yes】" & vbCr & "否则，请点【No】" _
+                            , Buttons:=vbCritical + vbYesNo + vbDefaultButton2)
+        If response <> vbYes Then fErr
+    Else
+        response = MsgBox(Prompt:="您现在选择的是追加导入，请检查您要导入的数据是否有问题，否则可能会因为重复导入而出现重复的销售流向。" _
+                            & vbCr & "继续，请点【Yes】" & vbCr & "否则，请点【No】" _
+                            , Buttons:=vbCritical + vbYesNo + vbDefaultButton2)
+        If response <> vbYes Then fErr
+    End If
 End Function

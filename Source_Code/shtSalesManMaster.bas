@@ -13,7 +13,7 @@ Private Sub btnValidate_Click()
 End Sub
 
 Function fValidateSheet()
-    On Error GoTo Exit_Sub
+    On Error GoTo exit_sub
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -38,7 +38,7 @@ Function fValidateSheet()
 '    Next
     
     fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-Exit_Sub:
+exit_sub:
     Set dictColIndex = Nothing
     fEnableExcelOptionsAll
     Erase arrData

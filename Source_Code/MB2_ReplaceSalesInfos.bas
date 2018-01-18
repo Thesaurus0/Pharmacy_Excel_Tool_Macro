@@ -137,12 +137,14 @@ Private Function fProcessData()
     Dim dictNewProductName As Dictionary
     Dim dictNewProductSeries As Dictionary
     Dim dictNewProductUnit As Dictionary
+    Dim dictNewProductUnitOrig As Dictionary
     
     Set dictNewHospital = New Dictionary
     Set dictNewProducer = New Dictionary
     Set dictNewProductName = New Dictionary
     Set dictNewProductSeries = New Dictionary
     Set dictNewProductUnit = New Dictionary
+    Set dictNewProductUnitOrig = New Dictionary
 
     Dim sTmpKey As String
     For lEachRow = LBound(arrMaster, 1) To UBound(arrMaster, 1)
@@ -286,8 +288,12 @@ Private Function fProcessData()
                                 & sProductMasterUnit '& DELIMITER & sReplacedProductUnit
                 If Not dictNewProductUnit.Exists(sTmpKey) Then
                     dictNewProductUnit.Add sTmpKey, "'" & (lEachRow + 1)
+                    dictNewProductUnitOrig.Add sTmpKey, sReplacedProductUnit
                 Else
                     dictNewProductUnit(sTmpKey) = dictNewProductUnit(sTmpKey) & "," & (lEachRow + 1)
+                    
+                    If InStr(dictNewProductUnitOrig(sTmpKey), sReplacedProductUnit) <= 0 Then _
+                    dictNewProductUnitOrig(sTmpKey) = dictNewProductUnitOrig(sTmpKey) & "," & sReplacedProductUnit
                 End If
 
                 arrOutput(lEachRow, dictRptColIndex("MatchedProductUnit")) = ""
@@ -319,7 +325,7 @@ next_sales:
     Call fAddNewFoundMissedProducerToSheetException(dictNewProducer)
     Call fAddNewFoundMissedProductNameToSheetException(dictNewProductName)
     Call fAddNewFoundMissedProductSeriesToSheetException(dictNewProductSeries)
-    Call fAddNewFoundMissedProductUnitToSheetException(dictNewProductUnit)
+    Call fAddNewFoundMissedProductUnitToSheetException(dictNewProductUnit, dictNewProductUnitOrig)
 End Function
 
 Function fAddNewFoundMissedHospitalToSheet(dictNewHospital As Dictionary, Optional bSetDictToNothing As Boolean = True)
@@ -503,7 +509,7 @@ Function fAddNewFoundMissedProductSeriesToSheetException(dictNewProductSeries As
     End If
 End Function
 
-Function fAddNewFoundMissedProductUnitToSheetException(dictNewProductUnit As Dictionary)
+Function fAddNewFoundMissedProductUnitToSheetException(dictNewProductUnit As Dictionary, dictNewProductUnitOrig As Dictionary)
     Dim arrNewProductUnit()
     'Dim sErr As String
     Dim lRecCount As Long
@@ -529,7 +535,8 @@ Function fAddNewFoundMissedProductUnitToSheetException(dictNewProductUnit As Dic
         shtException.Rows(lStartRow).Font.Bold = True
         Call fAppendArray2Sheet(shtException, arrNewProductUnit)
         'sErr = fUbound(arrNewProductUnit)
-        
+            
+        shtException.Cells(lStartRow + 1, 5).Resize(dictNewProductUnitOrig.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductUnitOrig, False)
         shtException.Cells(lStartRow + 1, 6).Resize(dictNewProductUnit.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductUnit, False)
        ' Erase arrNewProductUnit
         Call fFreezeSheet(shtException)

@@ -1,23 +1,45 @@
 Attribute VB_Name = "Ä£¿é1"
 Sub ºê1()
 Attribute ºê1.VB_ProcData.VB_Invoke_Func = " \n14"
-'
-' ºê1 ºê
-'
-
-'
-'    Call fModifyMoveActiveXButtonOnSheet(shtSalesRawDataRpt.Cells(1, fGetValidMaxCol(shtSalesRawDataRpt) + 1) _
-'                                        , "btnReplaceUnify", 1, 1, , 25, RGB(255, 20, 134), RGB(255, 255, 255))
-
-    'Debug.Print ActiveCell.Address(external:=True)
+    'Clipboard.Clear
+    Dim myData As DataObject
+    Dim sOriginText As String
+    Set myData = New DataObject
+    myData.GetFromClipboard
     
-    Dim a As Range
+     myData.StartDrag
+    sOriginText = myData.GetText()
     
-    'Set a = fGetRangeFromExternalAddress(ActiveCell.Address(external:=True))
-    
-    
-    Dim SecondLCommDefault As TypeSecondLCommDefault
-
-    'If SecondLCommDefault Is Nothing Then fMsgBox "aaa"
-    SecondLCommDefault.ZHHR = 12.5456
+    myData.Clear
+    myData.SetText ""
+    myData.PutInClipboard
 End Sub
+Sub ºê2()
+Attribute ºê2.VB_ProcData.VB_Invoke_Func = " \n14"
+'
+' ºê2 ºê
+'
+
+    'Dim format As Data
+'
+    Dim s
+    Dim sProductProducer As String
+    Dim sProductName As String
+    
+    sProductName = "2g:0.4g*6´ü"
+    
+    If sProductName Like "½ðÊÀÁ¦µÂ(*" Then
+         MsgBox "a:"
+    End If
+    
+    If sProductName Like "2g:0.4g^*6´ü*" Then
+         MsgBox "b:"
+    End If
+End Sub
+
+Sub cccc()
+    Dim lLastMaxRow As Long
+    lLastMaxRow = shtDataStage.Cells(Rows.Count, 2).End(xlUp).Row
+Debug.Print lLastMaxRow
+End Sub
+

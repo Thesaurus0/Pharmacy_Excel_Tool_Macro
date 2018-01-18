@@ -1109,7 +1109,13 @@ Function fFormatOutputSheet(ByRef shtOutput As Worksheet, Optional lRowFrom As L
     
     Call fBasicCosmeticFormatSheet(shtOutput, lMaxCol)
     Call fFormatReportByConfigByCopyFormat(shtOutput, lMaxCol, lRowFrom, lMaxRow)
-    Call fSetFormatForOddEvenLineByFixColor(shtOutput, lMaxCol, lRowFrom, lMaxRow)
+    
+    If lMaxRow < 5000 Then
+        Call fSetFormatForOddEvenLineByFixColor(shtOutput, lMaxCol, lRowFrom, lMaxRow)
+    Else
+        Call fSetConditionFormatForOddEvenLine(shtOutput, lMaxCol, lRowFrom, lMaxRow)
+    End If
+    
     Call fSetBorderLineForSheet(shtOutput, lMaxCol, lRowFrom, lMaxRow)
     Call fSetNumberFormatForOutputSheetByConfigExceptTextCol(shtOutput, lMaxCol, lRowFrom, lMaxRow)
     Call fSetBackNumberFormat2TextForCols(shtOutput)

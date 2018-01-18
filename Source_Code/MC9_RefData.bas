@@ -50,6 +50,8 @@ Dim dictSalesManCommFrom As Dictionary
 Dim dictSalesManCommColIndex As Dictionary
 Dim arrSalesManComm()
 
+Dim dictExcludeProducts As Dictionary
+
 Function fReadConfigCompanyList(Optional ByRef dictCompanyNameID As Dictionary) As Dictionary
     Dim asTag As String
     Dim arrColsName()
@@ -364,7 +366,7 @@ Function fGetProductMasterUnit(sProductProducer As String, sProductName As Strin
     If Not fProductKeysExistsInProductMaster(sProductProducer, sProductName, sProductSeries) Then _
         fErr "药品厂家+名称+规格 还不存在于药品主表中, 会计单位找不到的情况下，计算无法进行：" & vbCr & sProductProducer & vbCr & sProductName & vbCr & sProductSeries
     
-    fGetProductMasterUnit = Split(dictProductMaster(sKey), DELIMITER)(0)
+    fGetProductMasterUnit = Split(dictProductMaster(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries), DELIMITER)(0)
 End Function
 '------------------------------------------------------------------------------
 
@@ -1024,3 +1026,73 @@ Function fCheckIfSalesManExistsInSalesManMaster(arrData, iColSalesMan As Integer
     Next
 End Function
 
+Function fReadExcludeProductListConfig2Dictionary()
+    Dim asTag As String
+    Dim arrColsName(3)
+    Dim rngToFindIn As Range
+    Dim arrConfigData()
+    Dim arrColsIndex()
+    Dim lConfigStartRow As Long
+    Dim lConfigStartCol As Long
+    Dim lConfigEndRow As Long
+    Dim lConfigHeaderAtRow As Long
+                                
+    asTag = "[Excluding Product List]"
+    arrColsName(1) = "Product Producer"
+    arrColsName(2) = "Product Name"
+    arrColsName(3) = "Product Series"
+
+    Call fReadConfigBlockToArray(asTag:=asTag, shtParam:=shtStaticData _
+                                , arrColsName:=arrColsName _
+                                , arrConfigData:=arrConfigData _
+                                , arrColsIndex:=arrColsIndex _
+                                , lConfigStartRow:=lConfigStartRow _
+                                , lConfigStartCol:=lConfigStartCol _
+                                , lConfigEndRow:=lConfigEndRow _
+                                , lOutConfigHeaderAtRow:=lConfigHeaderAtRow _
+                                , abNoDataConfigThenError:=True)
+    
+    Call fValidateDuplicateInArray(arrConfigData, Array(arrColsIndex(1), arrColsIndex(2), arrColsIndex(3)), False, shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "药品厂家 + 名称 + 规格")
+    Call fValidateBlankInArray(arrConfigData, arrColsIndex(1), shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "药品厂家")
+    Call fValidateBlankInArray(arrConfigData, arrColsIndex(2), shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "药品名称")
+    Call fValidateBlankInArray(arrConfigData, arrColsIndex(3), shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "药品规格")
+    
+    Set dictExcludeProducts = fReadArray2DictionaryMultipleKeysWithKeysOnly(arrConfigData _
+                                , Array(arrColsIndex(1), arrColsIndex(2), arrColsIndex(3)) _
+                                , DELIMITER)
+
+'    Dim lEachRow As Long
+'    Dim lActualRow As Long
+'    Dim sKey As String
+'    Dim sValueType As String
+'
+'    Set dictDefaultCommConfiged = New Dictionary
+'
+'    For lEachRow = LBound(arrConfigData, 1) To UBound(arrConfigData, 1)
+'        If fArrayRowIsBlankHasNoData(arrConfigData, lEachRow) Then GoTo next_row
+'
+'        lActualRow = lConfigHeaderAtRow + lEachRow
+'
+'        sKey = Trim(arrConfigData(lEachRow, arrColsIndex(1)))
+'        sValueType = Trim(arrConfigData(lEachRow, arrColsIndex(3)))
+'
+'        If sValueType = "GET_VALUE" Then
+'            dictDefaultCommConfiged.Add sKey, arrConfigData(lEachRow, arrColsIndex(2))
+'        ElseIf sValueType = "GET_ADDRESS" Then
+'            dictDefaultCommConfiged.Add sKey, shtSysConf.Cells(lActualRow, lConfigStartCol + arrColsIndex(2) - 1).Address(external:=True)
+'        Else
+'            fErr "the Value Type cannot be blank at row " & lActualRow & vbCr & "sheet:" & shtSysConf.Name
+'        End If
+'next_row:
+'    Next
+'
+'    Erase arrConfigData
+'    Erase arrColsName
+'    Erase arrColsIndex
+End Function
+
+Function fProductExistsInExcludingProductListConfig(sProductProducer As String, sProductName As String, sProductSeries As String) As Boolean
+    If dictExcludeProducts Is Nothing Then Call fReadExcludeProductListConfig2Dictionary
+    
+    fProductExistsInExcludingProductListConfig = dictExcludeProducts.Exists(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries)
+End Function

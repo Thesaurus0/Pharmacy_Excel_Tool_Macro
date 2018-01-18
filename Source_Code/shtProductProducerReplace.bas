@@ -12,7 +12,7 @@ Private Sub btnValidate_Click()
 End Sub
 
 Function fValidateSheet()
-    On Error GoTo Exit_Sub
+    On Error GoTo exit_sub
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -35,7 +35,7 @@ Function fValidateSheet()
     Call fCheckIfProducerExistsInProducerMaster(arrData, dictColIndex("ToProducer"), "[替换为]")
     
     fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-Exit_Sub:
+exit_sub:
     fEnableExcelOptionsAll
     Set dictColIndex = Nothing
     Erase arrData

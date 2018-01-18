@@ -16,7 +16,7 @@ End Sub
 
 
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
-    On Error GoTo Exit_Sub
+    On Error GoTo exit_sub
     Application.ScreenUpdating = False
     
     Const ProducerCol = 1
@@ -26,8 +26,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
     
     If Not rgIntersect Is Nothing Then
-        If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
-        If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
+        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
             
         Dim sProducer As String
         Dim sValidationListAddr As String
@@ -44,7 +44,7 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         End If
     End If
     
-Exit_Sub:
+exit_sub:
     fEnableExcelOptionsAll
     Application.ScreenUpdating = True
     
@@ -53,7 +53,7 @@ Exit_Sub:
 End Sub
 
 Function fValidateSheet()
-    On Error GoTo Exit_Sub
+    On Error GoTo exit_sub
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -77,7 +77,7 @@ Function fValidateSheet()
     Call fCheckIfProductNameExistsInProductNameMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ToProductName"), "替换为")
     
     fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-Exit_Sub:
+exit_sub:
     Set dictColIndex = Nothing
     fEnableExcelOptionsAll
     Erase arrData

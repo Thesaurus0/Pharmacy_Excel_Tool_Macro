@@ -145,7 +145,7 @@ Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrTo
     Dim shtCurr As Worksheet
     Set shtCurr = ActiveSheet
 
-    'On Error Resume Next
+    On Error Resume Next
     
     If shtToSwitch.Visible = xlSheetVisible Then
         If Not ActiveSheet Is shtToSwitch Then
@@ -165,7 +165,7 @@ Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrTo
         If Not shtCurr Is shtToSwitch Then shtCurr.Visible = xlSheetVeryHidden
     End If
 
-    'Err.Clear
+    Err.Clear
 End Function
 
 Function fShowAndActiveSheet(sht As Worksheet)
@@ -253,7 +253,7 @@ Sub subMain_BackToLastPosition()
     Const PREV_COL = 3
     
     bFound = False
-    On Error GoTo Exit_Sub
+    On Error GoTo exit_sub
     
     Dim shtLast As Worksheet
     Dim lEachRow As Long
@@ -273,9 +273,9 @@ Sub subMain_BackToLastPosition()
                 Call fAppendDataToLastCellOfColumn(shtDataStage, PREV_COL, sLastSheetName)
             Else
                 If fSheetIsVisible(shtLast) Then
-                    Application.EnableEvents = False
+                    'Application.EnableEvents = False
                     shtLast.Activate
-                    Application.EnableEvents = True
+                    'Application.EnableEvents = True
                     bFound = True
                     Exit For
                 End If
@@ -289,9 +289,9 @@ previous_row:
         Call fAppendDataToLastCellOfColumn(shtDataStage, PREV_COL, sLastSheetName)
     End If
     
-Exit_Sub:
+exit_sub:
     Set shtLast = Nothing
-    Application.EnableEvents = True
+    'Application.EnableEvents = True
 End Sub
 
 Sub subMain_BackToPreviousPosition()
@@ -304,7 +304,7 @@ Sub subMain_BackToPreviousPosition()
     Const PREV_COL = 3
     
     bFound = False
-    On Error GoTo Exit_Sub
+    On Error GoTo exit_sub
     
     Dim shtPrev As Worksheet
     Dim lEachRow As Long
@@ -324,9 +324,9 @@ Sub subMain_BackToPreviousPosition()
                 Call fAppendDataToLastCellOfColumn(shtDataStage, LAST_COL, sPrevSheetName)
             Else
                 If fSheetIsVisible(shtPrev) Then
-                    Application.EnableEvents = False
+                    'Application.EnableEvents = False
                     shtPrev.Activate
-                    Application.EnableEvents = True
+                    'Application.EnableEvents = True
                     bFound = True
                     Exit For
                 End If
@@ -340,9 +340,9 @@ previous_row:
         Call fAppendDataToLastCellOfColumn(shtDataStage, LAST_COL, sPrevSheetName)
     End If
     
-Exit_Sub:
+exit_sub:
     Set shtPrev = Nothing
-    Application.EnableEvents = True
+    'Application.EnableEvents = True
 End Sub
 
 Function fAppendDataToLastCellOfColumn(ByRef sht As Worksheet, alCol As Long, aValue)
@@ -359,3 +359,86 @@ Function fAppendDataToLastCellOfColumn(ByRef sht As Worksheet, alCol As Long, aV
         sht.Cells(lMaxRow + 1, alCol).Value = aValue
     End If
 End Function
+
+Sub Sub_DataMigration()
+    On Error GoTo error_handling
+    
+    fInitialization
+
+    Dim arrSource()
+    Dim sOldFile As String
+    Dim arrSheetsToMigr
+    
+    arrSheetsToMigr = Array(shtFirstLevelCommission _
+                            , shtSecondLevelCommission _
+                            , shtHospital _
+                            , shtHospitalReplace _
+                            , shtProductProducerMaster _
+                            , shtProductNameMaster _
+                            , shtProductMaster _
+                            , shtSalesManMaster _
+                            , shtSelfPurchaseOrder _
+                            , shtProductNameReplace _
+                            , shtProductProducerReplace _
+                            , shtProductSeriesReplace _
+                            , shtProductUnitRatio _
+                            , shtSalesManCommConfig _
+                            , shtSelfSalesOrder)
+
+    sOldFile = fSelectFileDialog(, "Macro File=*.xlsm", "Old Version With Latest User Data")
+    If fZero(sOldFile) Then Exit Sub
+    
+    Call fIfExcelFileOpenedToCloseIt(sOldFile)
+    
+    Dim wbSource As Workbook
+    Dim shtSource As Worksheet
+    Dim eachSheet
+    Dim shtTargetEach As Worksheet
+    
+    Application.AutomationSecurity = msoAutomationSecurityForceDisable
+
+    Set wbSource = Workbooks.Open(Filename:=sOldFile, ReadOnly:=True)
+    
+    For Each eachSheet In arrSheetsToMigr
+        Set shtTargetEach = eachSheet
+        
+        Set shtSource = fFindSheetBySheetCodeName(wbSource, shtTargetEach)
+    
+        Call fConvertFomulaToValueForSheetIfAny(shtSource)
+        Call fCopyReadWholeSheetData2Array(shtSource, arrSource)
+        'arrSource = wbSource.shtProductMaster.UsedRange.Value2
+
+        Call fWriteArray2Sheet(shtTargetEach, arrSource)
+        Erase arrSource
+    Next
+    
+    Call fCloseWorkBookWithoutSave(wbSource)
+error_handling:
+    Erase arrSource
+    If Not wbSource Is Nothing Then Call fCloseWorkBookWithoutSave(wbSource)
+    
+    Application.AutomationSecurity = msoAutomationSecurityByUI
+    
+    If fCheckIfGotBusinessError Then Err.Clear
+    If fCheckIfUnCapturedExceptionAbnormalError Then End
+    
+    MsgBox "done"
+End Sub
+
+Function fFindSheetBySheetCodeName(wb As Workbook, shtToMatch As Worksheet) As Worksheet
+    Dim shtMatched As Worksheet
+    
+    Dim shtEach As Worksheet
+    
+    For Each shtEach In wb.Worksheets
+        If shtEach.CodeName = shtToMatch.CodeName Then
+            Set shtMatched = shtEach
+            Exit For
+        End If
+    Next
+    
+    If shtMatched Is Nothing Then fErr shtToMatch.CodeName & " cannot be found in the opened macro file."
+    Set fFindSheetBySheetCodeName = shtMatched
+    Set shtMatched = Nothing
+End Function
+

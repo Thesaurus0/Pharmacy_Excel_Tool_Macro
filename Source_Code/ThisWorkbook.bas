@@ -8,10 +8,20 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 ' version : 201712 - 001 lost the validate blank -- 23:45 -- 0£º11
-Option Explicit
+'Option Explicit
 Option Base 1
 
 Dim arrAllCmdBarList()
+
+Function fIfSomeFundamentalSheetsWereDeleted() As Boolean
+    Dim sht As Worksheet
+    
+    On Error Resume Next
+    
+    Set sht = Sheet4
+    fIfSomeFundamentalSheetsWereDeleted = (sht Is Nothing)
+    
+End Function
 
 Private Sub Workbook_BeforeClose(Cancel As Boolean)
     Call fRemoveAllCommandbarsByConfig
@@ -21,6 +31,12 @@ Private Sub Workbook_BeforeClose(Cancel As Boolean)
     Application.DisplayAlerts = True
     Application.AskToUpdateLinks = True
     ThisWorkbook.CheckCompatibility = False
+    
+End Sub
+
+Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
+    If fIfSomeFundamentalSheetsWereDeleted() Then Cancel = False
+
 End Sub
 
 Private Sub Workbook_Open()
@@ -34,6 +50,8 @@ Private Sub Workbook_Open()
     ThisWorkbook.Saved = True
     ThisWorkbook.CheckCompatibility = False
     
+'    Application.CommandBars("cell").FindControl(ID:=19).OnAction = ""
+'    Application.OnKey "^c", ""
     End
 End Sub
 
@@ -68,6 +86,7 @@ Sub sub_WorkBookInitialization()
     shtDataStage.UsedRange.ClearHyperlinks
     shtDataStage.UsedRange.ClearNotes
     shtDataStage.UsedRange.ClearOutline
+    
 End Sub
 
 Function fRefreshGetAllCommandbarsList()
@@ -105,6 +124,7 @@ Private Sub Workbook_Activate()
 End Sub
 Private Sub Workbook_Deactivate()
     Call fEnableOrDisableAllCommandBarsByConfig(False)
+    
 End Sub
 
 
