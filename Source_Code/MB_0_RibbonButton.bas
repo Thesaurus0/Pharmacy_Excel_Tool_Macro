@@ -369,21 +369,22 @@ Sub Sub_DataMigration()
     Dim sOldFile As String
     Dim arrSheetsToMigr
     
-    arrSheetsToMigr = Array(shtFirstLevelCommission _
-                            , shtSecondLevelCommission _
-                            , shtHospital _
-                            , shtHospitalReplace _
+    arrSheetsToMigr = Array(shtHospital _
                             , shtProductProducerMaster _
                             , shtProductNameMaster _
                             , shtProductMaster _
                             , shtSalesManMaster _
-                            , shtSelfPurchaseOrder _
-                            , shtProductNameReplace _
+                            , shtHospitalReplace _
                             , shtProductProducerReplace _
+                            , shtProductNameReplace _
                             , shtProductSeriesReplace _
                             , shtProductUnitRatio _
                             , shtSalesManCommConfig _
-                            , shtSelfSalesOrder)
+                            , shtSelfPurchaseOrder _
+                            , shtSelfSalesOrder _
+                            , shtFirstLevelCommission _
+                            , shtSecondLevelCommission _
+                              )
 
     sOldFile = fSelectFileDialog(, "Macro File=*.xlsm", "Old Version With Latest User Data")
     If fZero(sOldFile) Then Exit Sub

@@ -1,4 +1,4 @@
-Attribute VB_Name = "MC1_CalculateProfitRef"
+Attribute VB_Name = "MC1_xxxxCalculateProfitRef"
 Option Explicit
 Option Base 1
 
@@ -228,6 +228,7 @@ Private Function fProcessData()
         
         dblGrossPrice = dblSellPrice * (1 - dblFirstLevelComm) * (1 - dblSecondLevelComm)
         arrOutput(lEachRow, dictRptColIndex("GrossPrice")) = dblGrossPrice
+        arrOutput(lEachRow, dictRptColIndex("TaxAmount")) = dblGrossPrice * fGetTaxRate
         
         '==== cost price ==========================================
         sProductKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
@@ -247,14 +248,11 @@ Private Function fProcessData()
         End If
         
         arrOutput(lEachRow, dictRptColIndex("CostPrice")) = dblCostPrice
-        arrOutput(lEachRow, dictRptColIndex("TaxAmount")) = dblGrossPrice * fGetTaxRate
-        
         arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblGrossPrice - dblCostPrice - arrOutput(lEachRow, dictRptColIndex("TaxAmount"))
         
         dblGrossProfitAmt = arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) * dblQuantity
         arrOutput(lEachRow, dictRptColIndex("GrossProfitAmt")) = dblGrossProfitAmt
         '-----------------------------------------------------------------------------------------------
-        
         
         '==== salesman commission ==========================================
         sSalesManKey = sSalesCompName & DELIMITER & sHospital & DELIMITER _
@@ -282,7 +280,7 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("SalesCommission_3")) = dblComm_3
         '-----------------------------------------------------------------------------------------------
         
-        arrOutput(lEachRow, dictRptColIndex("NetProfit")) = arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) _
+        arrOutput(lEachRow, dictRptColIndex("NetProfitPerUnit")) = arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) _
                                             - arrOutput(lEachRow, dictRptColIndex("SalesCommission_1")) _
                                             - arrOutput(lEachRow, dictRptColIndex("SalesCommission_2")) _
                                             - arrOutput(lEachRow, dictRptColIndex("SalesCommission_3"))

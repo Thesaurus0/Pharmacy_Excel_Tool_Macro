@@ -1112,6 +1112,7 @@ Function fFormatOutputSheet(ByRef shtOutput As Worksheet, Optional lRowFrom As L
     
     If lMaxRow < 5000 Then
         Call fSetFormatForOddEvenLineByFixColor(shtOutput, lMaxCol, lRowFrom, lMaxRow)
+        'Call fSetConditionFormatForOddEvenLine(shtOutput, lMaxCol, lRowFrom, lMaxRow)
     Else
         Call fSetConditionFormatForOddEvenLine(shtOutput, lMaxCol, lRowFrom, lMaxRow)
     End If

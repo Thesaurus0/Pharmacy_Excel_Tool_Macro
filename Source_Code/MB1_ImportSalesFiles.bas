@@ -8,7 +8,7 @@ Public dictCompList As Dictionary
 
 Sub subMain_ImportSalesInfoFiles()
     If Not fIsDev() Then On Error GoTo error_handling
-    On Error GoTo error_handling
+    'On Error GoTo error_handling
     
     fInitialization
     
@@ -176,6 +176,7 @@ Private Function fProcessDataAll()
         arrOutput(lEachOutputRow, dictRptColIndex("Hospital")) = Trim(arrMaster(lEachSourceRow, dictMstColIndex("Hospital")))
         arrOutput(lEachOutputRow, dictRptColIndex("Quantity")) = arrMaster(lEachSourceRow, dictMstColIndex("Quantity"))
         arrOutput(lEachOutputRow, dictRptColIndex("SellPrice")) = arrMaster(lEachSourceRow, dictMstColIndex("SellPrice"))
+        arrOutput(lEachOutputRow, dictRptColIndex("LotNum")) = "'" & arrMaster(lEachSourceRow, dictMstColIndex("LotNum"))
         
         If dictMstColIndex.Exists("ProductUnit") Then
             arrOutput(lEachOutputRow, dictRptColIndex("ProductUnit")) = arrMaster(lEachSourceRow, dictMstColIndex("ProductUnit"))

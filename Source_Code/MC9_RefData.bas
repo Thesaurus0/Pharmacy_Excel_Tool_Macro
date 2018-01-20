@@ -752,7 +752,7 @@ Function fCalculateCostPriceFromSelfSalesOrderWithdraw(sProductKey As String _
     
     If dblToReverse >= 0 Then
         bOut = True
-        dblCostPrice = dblAccAmt / dblSalesQuantity
+        dblCostPrice = Abs(dblAccAmt / dblSalesQuantity)
     End If
     
 exit_fun:
@@ -838,7 +838,8 @@ End Function
 
 Function fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesManKey As String _
                             , ByRef sSalesMan_1 As String, ByRef sSalesMan_2 As String, ByRef sSalesMan_3 As String _
-                            , ByRef dblComm_1 As Double, ByRef dblComm_2 As Double, ByRef dblComm_3 As Double) As Boolean
+                            , ByRef dblComm_1 As Double, ByRef dblComm_2 As Double, ByRef dblComm_3 As Double _
+                            , ByRef sSalesManager As String, ByRef dblSalesMgrComm As Double) As Boolean
     If dictSalesManCommFrom Is Nothing Then Call fReadSalesManCommissionConfig2Dictionary
     
     Dim bOut  As Boolean
@@ -883,6 +884,9 @@ Function fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesManKey As S
         dblComm_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission2"))
         sSalesMan_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan3"))
         dblComm_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission3"))
+        
+        sSalesManager = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesManager"))
+        dblSalesMgrComm = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesManagerCommission"))
     Next
     
 exit_fun:

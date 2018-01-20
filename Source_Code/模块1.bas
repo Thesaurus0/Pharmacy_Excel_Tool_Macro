@@ -38,8 +38,6 @@ Attribute ºê2.VB_ProcData.VB_Invoke_Func = " \n14"
 End Sub
 
 Sub cccc()
-    Dim lLastMaxRow As Long
-    lLastMaxRow = shtDataStage.Cells(Rows.Count, 2).End(xlUp).Row
-Debug.Print lLastMaxRow
+    Debug.Print ActiveCell.Value
 End Sub
 

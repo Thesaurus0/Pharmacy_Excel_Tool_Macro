@@ -163,6 +163,7 @@ Private Function fProcessData()
         'arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("SellAmount"))
         arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("SellPrice")) _
                                                             * arrMaster(lEachRow, dictMstColIndex("Quantity"))
+        arrOutput(lEachRow, dictRptColIndex("LotNum")) = "'" & arrMaster(lEachRow, dictMstColIndex("LotNum"))
         sHospital = Trim(arrMaster(lEachRow, dictMstColIndex("Hospital")))
         arrOutput(lEachRow, dictRptColIndex("Hospital")) = sHospital
         sProducer = Trim(arrMaster(lEachRow, dictMstColIndex("ProductProducer")))
