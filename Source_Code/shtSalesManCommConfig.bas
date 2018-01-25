@@ -15,6 +15,8 @@ End Sub
 Function fValidateSheet() As Boolean
     On Error GoTo exit_sub
     
+    Dim lErrRowNo As Long, lErrColNo As Long
+    
     Call fTrimAllCellsForSheet(Me)
     
     Dim arrData()
@@ -45,11 +47,11 @@ Function fValidateSheet() As Boolean
                                 
     Call fCheckIfProducerExistsInProducerMaster(arrData, dictColIndex("ProductProducer"), "[药品生产厂家]")
     Call fCheckIfProductNameExistsInProductNameMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), "药品名称")
-    Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"))
+    Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), lErrRowNo, lErrColNo)
 
-    Call fCheckIfSalesManExistsInSalesManMaster(arrData, dictColIndex("SalesMan1"), "[业务员1]")
-    Call fCheckIfSalesManExistsInSalesManMaster(arrData, dictColIndex("SalesMan2"), "[业务员2]")
-    Call fCheckIfSalesManExistsInSalesManMaster(arrData, dictColIndex("SalesMan3"), "[业务员3]")
+    Call fCheckIfSalesManExistsInSalesManMaster(arrData, dictColIndex("SalesMan1"), "[业务员1]", lErrRowNo, lErrColNo)
+    Call fCheckIfSalesManExistsInSalesManMaster(arrData, dictColIndex("SalesMan2"), "[业务员2]", lErrRowNo, lErrColNo)
+    Call fCheckIfSalesManExistsInSalesManMaster(arrData, dictColIndex("SalesMan3"), "[业务员3]", lErrRowNo, lErrColNo)
 
     fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
 exit_sub:
@@ -62,6 +64,10 @@ exit_sub:
         fValidateSheet = False
     Else
         fValidateSheet = True
+    End If
+    
+    If lErrRowNo > 0 Then
+        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
 End Function
 

@@ -31,7 +31,9 @@ Function fSetValidationListForAllSheets()
     Call fSetValidationListForshtProductNameReplace_Producer(sProducerAddr)
     Call fSetValidationListForshtProductSeriesReplace_Producer(sProducerAddr)
     Call fSetValidationListForshtProductUnitRatio_Producer(sProducerAddr)
+    Call fSetValidationListForshtSelfPurchaseOrder_Producer(sProducerAddr)
     Call fSetValidationListForshtSelfSalesOrder_Producer(sProducerAddr)
+    Call fSetValidationListForshtSelfInventory_Producer(sProducerAddr)
     '----------------------------------------------------------------------------------------
 
     '============== productName ========================================
@@ -216,6 +218,29 @@ Function fSetValidationListForshtSelfSalesOrder_Producer(sValidationListAddr As 
     lMaxRow = shtSelfSalesOrder.Columns(sTargetCol).End(xlDown).Row + 100000
     If lMaxRow > Rows.Count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSelfSalesOrder.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+                                    , sValidationListAddr)
+End Function
+Function fSetValidationListForshtSelfPurchaseOrder_Producer(sValidationListAddr As String)
+    Dim sTargetCol As String
+    Dim lMaxRow As Long
+    
+    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SELF_PURCHASE_ORDER]" _
+                                            , "Column Index", "Column Tech Name=ProductProducer")
+    
+    lMaxRow = shtSelfPurchaseOrder.Columns(sTargetCol).End(xlDown).Row + 100000
+    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    Call fSetValidationListForRange(shtSelfPurchaseOrder.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+                                    , sValidationListAddr)
+End Function
+Function fSetValidationListForshtSelfInventory_Producer(sValidationListAddr As String)
+    Dim sTargetCol As String
+    Dim lMaxRow As Long
+    
+    sTargetCol = "A"
+    
+    lMaxRow = shtSelfInventory.Columns(sTargetCol).End(xlDown).Row + 100000
+    If lMaxRow > Rows.Count Then lMaxRow = 10000000
+    Call fSetValidationListForRange(shtSelfInventory.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
 '----------------------------------------------------------------------------------------

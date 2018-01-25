@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Private Sub btnValidate_Click()
-    Call sub_Validate
+    Call fValidateSheet
 End Sub
 
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
@@ -96,6 +96,7 @@ End Sub
 Function fValidateSheet()
     On Error GoTo exit_sub
     
+    Dim lErrRowNo As Long, lErrColNo As Long
     Call fTrimAllCellsForSheet(Me)
     
     Dim arrData()
@@ -120,7 +121,7 @@ Function fValidateSheet()
                                   , dictColIndex("ProductUnit")) _
                                 , False, shtProductUnitRatio, 1, 1, "生产厂家+药品名称+规格+统一计量单位+原始文件药品单位")
     
-    Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"))
+    Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), lErrRowNo, lErrColNo)
 
     fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
 exit_sub:
@@ -134,5 +135,9 @@ exit_sub:
     Else
         fValidateSheet = True
     End If
+    If lErrRowNo > 0 Then
+        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
+    End If
+    
 End Function
 

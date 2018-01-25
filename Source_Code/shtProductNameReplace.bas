@@ -11,7 +11,7 @@ Option Explicit
 Option Base 1
 
 Private Sub btnProductNameReplaceValid_Click()
-    Call sub_Validate
+    Call fValidateSheet
 End Sub
 
 
@@ -55,6 +55,7 @@ End Sub
 Function fValidateSheet()
     On Error GoTo exit_sub
     
+    Dim lErrRowNo As Long, lErrColNo As Long
     Call fTrimAllCellsForSheet(Me)
     
     Dim arrData()
@@ -74,7 +75,7 @@ Function fValidateSheet()
     Call fValidateBlankInArray(arrData, dictColIndex("FromProductName"), shtProductNameReplace, 1, 1, "药品名称")
     Call fValidateBlankInArray(arrData, dictColIndex("ToProductName"), shtProductNameReplace, 1, 1, "药品规格")
     
-    Call fCheckIfProductNameExistsInProductNameMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ToProductName"), "替换为")
+    Call fCheckIfProductNameExistsInProductNameMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ToProductName"), "替换为", lErrRowNo, lErrColNo)
     
     fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
 exit_sub:
@@ -88,5 +89,9 @@ exit_sub:
     Else
         fValidateSheet = True
     End If
+    If lErrRowNo > 0 Then
+        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
+    End If
+
 End Function
 

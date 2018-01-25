@@ -630,7 +630,9 @@ Function fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData, arrK
         If Len(asKeysDelimiter) > 0 Then sKeyStr = Right(sKeyStr, Len(sKeyStr) - Len(asKeysDelimiter))
         
         If dictOut.Exists(sKeyStr) Then
-            If WhenKeyDuplicateThenError Then fErr "Duplicate key was found " & vbCr & sKeyStr
+            If WhenKeyDuplicateThenError Then
+                fErr "Duplicate key was found " & vbCr & sKeyStr
+            End If
             GoTo next_row
         End If
         
@@ -683,7 +685,9 @@ Function fReadArray2DictionaryMultipleKeysWithKeysOnly(arrData, arrKeyCols _
         If Len(asKeysDelimiter) > 0 Then sKeyStr = Right(sKeyStr, Len(sKeyStr) - Len(asKeysDelimiter))
         
         If dictOut.Exists(sKeyStr) Then
-            If WhenKeyDuplicateThenError Then fErr "Duplicate key was found " & vbCr & sKeyStr
+            If WhenKeyDuplicateThenError Then
+                fErr "Duplicate key was found " & vbCr & sKeyStr
+            End If
             GoTo next_row
         End If
         
@@ -723,7 +727,10 @@ Function fReadArray2DictionaryWithMultipleColsCombined(arrData, lKeyCol As Long,
         End If
         
         If dictOut.Exists(sKey) Then
-            If WhenKeyDuplicateThenError Then fErr "Duplicate Key was found : " & vbCr & "Key: " & sKey
+            If WhenKeyDuplicateThenError Then
+                'Application.Goto shtAt.Cells(i + 1, lKeyCol)
+                fErr "Duplicate Key was found : " & vbCr & "Key: " & sKey
+            End If
             GoTo next_row
         End If
         
@@ -923,6 +930,7 @@ Function fValidateDuplicateInArrayForCombineCols(arrParam, arrKeyCols _
         
         If dict.Exists(sKeyStr) Then
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
+            Application.Goto shtAt.Cells(lActualRow, arrKeyCols(UBound(arrKeyCols)))
             fErr "Duplicate key was found:" & vbCr & sKeyStr & vbCr & sPos
         Else
             dict.Add sKeyStr, 0
@@ -965,6 +973,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
             If Not bAllowBlankIgnore Then
                 'sPos = sPos & lActualRow & " / " & sColLetter
                 sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
+                Application.Goto shtAt.Cells(lActualRow, lKeyCol)
                 fErr "Keys [" & sColLetter & "] is blank!" & sPos
             End If
             
@@ -974,6 +983,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
         If dict.Exists(sKeyStr) Then
             'sPos = sPos & lActualRow & " / " & sColLetter
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
+            Application.Goto shtAt.Cells(lActualRow, lKeyCol)
             fErr "Duplicate key [" & sKeyStr & "] was found " & sPos
         Else
             dict.Add sKeyStr, 0
@@ -1305,6 +1315,68 @@ Function fValidateNumericColInArrayForSingleCol(arrParam, lKeyCol As Long _
         sKeyStr = arrParam(lEachRow, lKeyCol)
     
         If Not IsNumeric(sKeyStr) Then
+            sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
+            fErr "Keys [" & sColLetter & "] is Not Numeric!" & sPos
+        End If
+next_row:
+    Next
+End Function
+
+Function fValidateDateColInArray(arrParam, arrKeyColsOrSingle _
+                        , Optional shtAt As Worksheet _
+                        , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
+                        , Optional ByVal sMsgColHeader As String)
+'arrKeyColsOrSingle : should be start from 1, since two dimension array is starting from 1
+    If fArrayIsEmptyOrNoData(arrParam) Then Exit Function
+    
+    If IsArray(arrKeyColsOrSingle) Then
+        If fArrayIsEmptyOrNoData(arrKeyColsOrSingle) Then fErr "Wrong param: arrKeyColsOrSingle"
+    Else
+        If arrKeyColsOrSingle <= 0 Then fErr "Wrong param: arrKeyColsOrSingle"
+    End If
+    
+    Dim i As Integer
+    If IsArray(arrKeyColsOrSingle) Then
+        For i = LBound(arrKeyColsOrSingle) To UBound(arrKeyColsOrSingle)
+            Call fValidateDateColInArrayForSingleCol(arrParam:=arrParam, lKeyCol:=CLng(arrKeyColsOrSingle) _
+                                                    , shtAt:=shtAt _
+                                                    , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
+                                                    , sMsgColHeader:=sMsgColHeader)
+        Next
+    Else
+        Call fValidateDateColInArrayForSingleCol(arrParam:=arrParam, lKeyCol:=CLng(arrKeyColsOrSingle) _
+                                                    , shtAt:=shtAt _
+                                                    , lHeaderAtRow:=lHeaderAtRow, lStartCol:=lStartCol _
+                                                    , sMsgColHeader:=sMsgColHeader)
+    End If
+End Function
+
+Function fValidateDateColInArrayForSingleCol(arrParam, lKeyCol As Long _
+                                            , Optional shtAt As Worksheet _
+                                            , Optional lHeaderAtRow As Long = 1, Optional lStartCol As Long _
+                                            , Optional sMsgColHeader As String)
+    If lKeyCol <= 0 Then fErr "Wrong param: lKeyCol"
+    
+    Dim lEachRow As Long
+    Dim i As Long
+    Dim sKeyStr 'As String
+    Dim sColLetter As String
+    Dim sPos As String
+    Dim lActualRow As Long
+    
+    sColLetter = IIf(fZero(sMsgColHeader), fNum2Letter(lStartCol + lKeyCol - 1), sMsgColHeader)
+        
+    sPos = vbCr & vbCr & "sheet     : " & shtAt.Name _
+         & vbCr & vbCr & "Row, Column: " & " ACTUAL_ROW_NO,  [" & sColLetter & "]"
+
+    For lEachRow = LBound(arrParam, 1) To UBound(arrParam, 1)
+        If fArrayRowIsBlankHasNoData(arrParam, lEachRow) Then GoTo next_row
+        
+        lActualRow = (lHeaderAtRow + lEachRow)
+        
+        sKeyStr = arrParam(lEachRow, lKeyCol)
+    
+        If Not IsDate(sKeyStr) Then
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
             fErr "Keys [" & sColLetter & "] is Not Numeric!" & sPos
         End If

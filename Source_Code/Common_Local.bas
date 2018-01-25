@@ -1352,7 +1352,7 @@ Function fSetFormatForOddEvenLineByFixColor(ByRef shtOutput As Worksheet, Option
             If rgOddLInes Is Nothing Then
                 Set rgOddLInes = fGetRangeByStartEndPos(shtOutput, lEachRow, 1, lEachRow, lMaxCol)
             Else
-                Set rgOddLInes = Union(rgEvenLInes, fGetRangeByStartEndPos(shtOutput, lEachRow, 1, lEachRow, lMaxCol))
+                Set rgOddLInes = Union(rgOddLInes, fGetRangeByStartEndPos(shtOutput, lEachRow, 1, lEachRow, lMaxCol))
             End If
         End If
     Next

@@ -100,6 +100,8 @@ Function fSetConditionFormatForFundamentalSheets()
     Call fClearConditionFormatAndAdd(shtSalesManCommConfig, Array(1, 2, 3, 4, 5, 6), True)
     Call fClearConditionFormatAndAdd(shtException, Array(1), True)
     
+    Call fClearConditionFormatAndAdd(shtSelfPurchaseOrder, Array(1, 2, 3, 4, 5), True)
+    Call fClearConditionFormatAndAdd(shtSelfInventory, Array(1, 2, 3, 5), True)
 End Function
 
 Function fClearConditionFormatAndAdd(sht As Worksheet, arrKeysCols, Optional bExtendToMore10ThousRows As Boolean = True)

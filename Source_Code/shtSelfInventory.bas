@@ -2,86 +2,11 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "shtSelfSalesOrder"
+Attribute VB_Name = "shtSelfInventory"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
-Private Sub btnValidate_Click()
-    Call fValidateSheet
-End Sub
-
-Function fValidateSheet()
-    On Error GoTo exit_sub
-    
-    Call fTrimAllCellsForSheet(Me)
-    
-    Dim arrData()
-    Dim dictColIndex As Dictionary
-    Dim lErrRowNo As Long
-    Dim lErrColNo As Long
-    
-    fInitialization
-    gsRptID = "CALCULATE_PROFIT"
-    Call fReadSysConfig_InputTxtSheetFile
-    
-    Call fReadSheetDataByConfig("SELF_SALES_ORDER", dictColIndex, arrData, , , , , Me)
-    
-'    Call fValidateDuplicateInArray(arrData, Array(dictColIndex("ProductProducer"), dictColIndex("ProductName")) _
-'                    , False, me, 1, 1, "生产厂家+药品名称")
-    
-    Call fValidateBlankInArray(arrData, dictColIndex("ProductProducer"), Me, 1, 1, "生产厂家")
-    Call fValidateBlankInArray(arrData, dictColIndex("ProductName"), Me, 1, 1, "药品名称")
-    Call fValidateBlankInArray(arrData, dictColIndex("ProductSeries"), Me, 1, 1, "药品规格")
-    Call fValidateBlankInArray(arrData, dictColIndex("ProductUnit"), Me, 1, 1, "药品单位")
-    Call fValidateDateColInArray(arrData, dictColIndex("SalesDate"), Me, 1, 1, "销售出货日期")
-    'Call fValidateBlankInArray(arrData, dictColIndex("SellPrice"), Me, 1, 1, "出货单价")
-    Call fValidateBlankInArray(arrData, dictColIndex("LotNum"), Me, 1, 1, "批号")
-    
-    Call fSortDataInSheetSortSheetData(Me, Array(dictColIndex("SalesDate") _
-                                                , dictColIndex("ProductProducer") _
-                                                , dictColIndex("ProductName"), dictColIndex("ProductUnit")))
-
-    Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"))
-
-    Call fCheckIfLotNumExistsInSelfPurchaseOrder(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), dictColIndex("LotNum"), lErrRowNo, lErrColNo)
-    
-    Call fCheckIfSelfSellAmountIsGreaterThanPurchaseByLotNumber(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), dictColIndex("LotNum"), lErrRowNo, lErrColNo)
-
-    fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-exit_sub:
-    fEnableExcelOptionsAll
-    Set dictColIndex = Nothing
-    Erase arrData
-    
-    If fCheckIfGotBusinessError Then
-        fValidateSheet = False
-    Else
-        If fCheckIfUnCapturedExceptionAbnormalError Then
-            fValidateSheet = False
-        Else
-            fShowAndActiveSheet Me
-            fValidateSheet = True
-        End If
-    End If
-    
-    If lErrRowNo > 0 Then
-        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
-    End If
-    
-'    If Err.Number <> 0 Then
-'        fCheckIfUnCapturedExceptionAbnormalError
-'        fShowAndActiveSheet Me
-'        fValidateSheet = False
-'    Else
-'        fValidateSheet = True
-'    End If
-End Function
-
-Private Sub Worksheet_Change(ByVal Target As Range)
-    fResetdictSelfSalesOD
-End Sub
-
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     On Error GoTo exit_sub
     Application.ScreenUpdating = False
@@ -90,15 +15,16 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Const ProductNameCol = 2
     Const ProductSeriesCol = 3
     Const ProductUnitCol = 4
-    Const SellQuantityCol = 6
+'    Const SellQuantityCol = 6
     Const SellPriceCol = 7
-    Const LotNumCol = 8
+    Const LotNumCol = 5
     
     Dim sLotNum As String
     
     Dim rgIntersect As Range
     Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
     
+    'product name
     If Not rgIntersect Is Nothing Then
         If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
         If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
@@ -224,6 +150,20 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
                 End If
             End If
         End If
+    End If
+    
+    Dim lCurrRow As Long
+    Dim lCurrCol As Long
+    lCurrRow = ActiveCell.Row
+    lCurrCol = ActiveCell.Column
+    If lCurrCol = LotNumCol Then
+        sProducer = Me.Cells(lCurrRow, ProducerCol).Value
+        sProductName = Me.Cells(lCurrRow, ProductNameCol).Value
+        sProductSeries = Me.Cells(lCurrRow, ProductSeriesCol).Value
+        sLotNum = Me.Cells(lCurrRow, LotNumCol).Value
+        
+        Call fSetFilterForSheet(shtSelfPurchaseOrder, Array(1, 2, 3, 8), Array(sProducer, sProductName, sProductSeries, sLotNum))
+        Call fSetFilterForSheet(shtSelfSalesOrder, Array(1, 2, 3, 8), Array(sProducer, sProductName, sProductSeries, sLotNum))
     End If
     
 exit_sub:

@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Private Sub btnValidate_Click()
-    Call sub_Validate
+    Call fValidateSheet
 End Sub
 
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
@@ -95,6 +95,8 @@ End Sub
 Function fValidateSheet()
     On Error GoTo exit_sub
     
+    Dim lErrRowNo As Long, lErrColNo As Long
+    
     Dim arrData()
     Dim dictColIndex As Dictionary
     
@@ -109,16 +111,16 @@ Function fValidateSheet()
                                                 , dictColIndex("ProductProducer") _
                                                 , dictColIndex("ProductName") _
                                                 , dictColIndex("ProductSeries")) _
-                , False, shtProductProducerMaster, 1, 1, "商业公司+厂家+名称+规格")
+                , False, Me, 1, 1, "商业公司+厂家+名称+规格")
                 
-    Call fValidateBlankInArray(arrData, dictColIndex("SalesCompany"), shtProductMaster, 1, 1, "商业公司")
-    Call fValidateBlankInArray(arrData, dictColIndex("ProductProducer"), shtProductMaster, 1, 1, "药品厂家")
-    Call fValidateBlankInArray(arrData, dictColIndex("ProductName"), shtProductMaster, 1, 1, "药品名称")
-    Call fValidateBlankInArray(arrData, dictColIndex("ProductSeries"), shtProductMaster, 1, 1, "药品规格")
+    Call fValidateBlankInArray(arrData, dictColIndex("SalesCompany"), Me, 1, 1, "商业公司")
+    Call fValidateBlankInArray(arrData, dictColIndex("ProductProducer"), Me, 1, 1, "药品厂家")
+    Call fValidateBlankInArray(arrData, dictColIndex("ProductName"), Me, 1, 1, "药品名称")
+    Call fValidateBlankInArray(arrData, dictColIndex("ProductSeries"), Me, 1, 1, "药品规格")
     
     Call fCheckIfProducerExistsInProducerMaster(arrData, dictColIndex("ProductProducer"))
-    Call fCheckIfProductNameExistsInProductNameMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"))
-    Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"))
+    Call fCheckIfProductNameExistsInProductNameMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), "", lErrRowNo, lErrColNo)
+    Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), lErrRowNo, lErrColNo)
     
     fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
 exit_sub:
@@ -131,6 +133,9 @@ exit_sub:
         fValidateSheet = False
     Else
         fValidateSheet = True
+    End If
+    If lErrRowNo > 0 Then
+        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
 End Function
 

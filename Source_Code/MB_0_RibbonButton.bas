@@ -138,6 +138,8 @@ Sub subMain_InvisibleHideAllBusinessSheets()
     shtFirstLevelCommission.Visible = xlSheetVeryHidden
     shtSecondLevelCommission.Visible = xlSheetVeryHidden
     shtSalesManCommConfig.Visible = xlSheetVeryHidden
+    
+    shtSelfInventory.Visible = xlSheetVeryHidden
 End Sub
 
 Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrToSelect As String = "A1" _
@@ -240,6 +242,10 @@ Sub subMain_ValidateAllSheetsData()
     
     If Not shtFirstLevelCommission.fValidateSheet Then Exit Sub
     If Not shtSecondLevelCommission.fValidateSheet Then Exit Sub
+    
+    If Not shtSelfSalesOrder.fValidateSheet Then Exit Sub
+    If Not shtSelfPurchaseOrder.fValidateSheet Then Exit Sub
+    
 'Exit_Sub:
 End Sub
 
@@ -443,3 +449,22 @@ Function fFindSheetBySheetCodeName(wb As Workbook, shtToMatch As Worksheet) As W
     Set shtMatched = Nothing
 End Function
 
+Sub subMain_SelfInventory()
+    Dim lMaxRow As Long
+    lMaxRow = fGetValidMaxRow(shtSelfInventory)
+    
+    If lMaxRow > 2 Then
+        With fGetRangeByStartEndPos(shtSelfInventory, 2, 1, lMaxRow, fGetValidMaxCol(shtSelfInventory))
+            .ClearContents
+            '.ClearFormats
+            .ClearComments
+            .ClearNotes
+            .ClearOutline
+        End With
+    End If
+    
+    fCalculateSelfInventory
+    fActiveVisibleSwitchSheet shtSelfInventory, , False
+    
+    fMsgBox "本公司库存计算完成！", vbInformation
+End Sub

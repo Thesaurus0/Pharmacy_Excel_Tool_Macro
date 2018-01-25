@@ -51,6 +51,8 @@ Dim dictSalesManCommColIndex As Dictionary
 Dim arrSalesManComm()
 
 Dim dictExcludeProducts As Dictionary
+Dim dictSelfPurchaseOD As Dictionary
+Dim dictSelfSalesOD As Dictionary
 
 Function fReadConfigCompanyList(Optional ByRef dictCompanyNameID As Dictionary) As Dictionary
     Dim asTag As String
@@ -902,7 +904,8 @@ Function fSetReplaceUnifyErrorRowCount(ByVal rowCnt As Long) As Long
     Call fSetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT", CStr(rowCnt))
 End Function
 
-Function fCheckIfProductExistsInProductMaster(arrData, iColProducer As Integer, iColProductName As Integer, iColProductSeries As Integer)
+Function fCheckIfProductExistsInProductMaster(arrData, iColProducer As Integer, iColProductName As Integer, iColProductSeries As Integer _
+                , Optional ByRef alErrRowNo As Long, Optional ByRef alErrColNo As Long)
     Dim lEachRow As Long
     Dim sProducer As String
     Dim sProductName As String
@@ -922,6 +925,8 @@ Function fCheckIfProductExistsInProductMaster(arrData, iColProducer As Integer, 
         
 '        If Not dictProductMaster.Exists(sKey) Then
         If Not fProductKeysExistsInProductMaster(sProducer, sProductName, sProductSeries) Then
+            alErrRowNo = (lEachRow + 1)
+            alErrColNo = iColProductSeries
             fErr "药品厂家+名称+规格不存在于药品主表中" & vbCr & "行号：" & (lEachRow + 1)
             Exit For
         End If
@@ -945,7 +950,8 @@ Function fCheckIfProducerExistsInProducerMaster(arrData, iColProducer As Integer
     Next
 End Function
 
-Function fCheckIfProductNameExistsInProductNameMaster(arrData, iColProducer As Integer, iColProductName As Integer, Optional sErr As String = "")
+Function fCheckIfProductNameExistsInProductNameMaster(arrData, iColProducer As Integer, iColProductName As Integer, Optional sErr As String = "" _
+                            , Optional lErrRowNo As Long, Optional lErrColNo As Long)
     Dim lEachRow As Long
     Dim sProducer As String
     Dim sProductName As String
@@ -957,6 +963,8 @@ Function fCheckIfProductNameExistsInProductNameMaster(arrData, iColProducer As I
         sProductName = Trim(arrData(lEachRow, iColProductName))
         
         If Not fProductNameExistsInProductNameMaster(sProducer, sProductName) Then
+            lErrRowNo = (lEachRow + 1)
+            lErrColNo = iColProductName
             fErr IIf(fZero(sErr), "药品名称", sErr) & " 不存在于药品名称主表中" & vbCr & "行号：" & (lEachRow + 1)
             Exit For
         End If
@@ -978,6 +986,13 @@ Function fCheckIfHospitalExistsInHospitalMaster(arrData, iColHospital As Integer
     Next
 End Function
 
+Function fResetdictSelfPurchaseOD()
+    Set dictSelfPurchaseOD = Nothing
+End Function
+
+Function fResetdictSelfSalesOD()
+    Set dictSelfSalesOD = Nothing
+End Function
 Function fResetdictProductMaster()
     Set dictProductMaster = Nothing
 End Function
@@ -1008,13 +1023,14 @@ Function fReadSheetSalesManMaster2Dictionary()
     Set dictColIndex = Nothing
 End Function
 Function fSalesManExistsInSalesManMaster(sSalesMan As String) As Boolean
+    If Len(sSalesMan) <= 0 Then fSalesManExistsInSalesManMaster = True: Exit Function
     If dictSalesManMaster Is Nothing Then Call fReadSheetSalesManMaster2Dictionary
     
     fSalesManExistsInSalesManMaster = dictSalesManMaster.Exists(sSalesMan)
 End Function
 '------------------------------------------------------------------------------
 
-Function fCheckIfSalesManExistsInSalesManMaster(arrData, iColSalesMan As Integer, Optional sErr As String = "")
+Function fCheckIfSalesManExistsInSalesManMaster(arrData, iColSalesMan As Integer, Optional sErr As String = "", Optional lErrRowNo As Long, Optional lErrColNo As Long)
     Dim lEachRow As Long
     Dim sSalesMan As String
     
@@ -1024,6 +1040,8 @@ Function fCheckIfSalesManExistsInSalesManMaster(arrData, iColSalesMan As Integer
         sSalesMan = Trim(arrData(lEachRow, iColSalesMan))
         
         If Not fSalesManExistsInSalesManMaster(sSalesMan) Then
+            lErrRowNo = (lEachRow + 1)
+            lErrColNo = iColSalesMan
             fErr IIf(fZero(sErr), "业务员", sErr) & "不存在于业务员主表中" & vbCr & "行号：" & (lEachRow + 1)
             Exit For
         End If
@@ -1099,4 +1117,218 @@ Function fProductExistsInExcludingProductListConfig(sProductProducer As String, 
     If dictExcludeProducts Is Nothing Then Call fReadExcludeProductListConfig2Dictionary
     
     fProductExistsInExcludingProductListConfig = dictExcludeProducts.Exists(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries)
+End Function
+
+'====================== Self Purchase Order =================================================================
+Function fReadSheetSelfPurchaseOrder2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    Call fReadSheetDataByConfig("SELF_PURCHASE_ORDER", dictColIndex, arrData, , , , , shtSelfPurchaseOrder)
+    'Call fValidateDuplicateInArray(arrData, Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries")), False, shtSelfPurchaseOrder, 1, 1, "厂家 + 名称 + 规格")
+    
+    Dim lEachRow As Long
+    Dim sProducer As String
+    Dim sProductName As String
+    Dim sProductSeries As String
+    Dim sLotNum As String
+    Dim sKey As String
+    Dim dictRowNoTmp As Dictionary
+    
+    Set dictSelfPurchaseOD = New Dictionary
+    Set dictRowNoTmp = New Dictionary
+    
+    For lEachRow = LBound(arrData, 1) To UBound(arrData, 1)
+        sProducer = Trim(arrData(lEachRow, dictColIndex("ProductProducer")))
+        sProductName = Trim(arrData(lEachRow, dictColIndex("ProductName")))
+        sProductSeries = Trim(arrData(lEachRow, dictColIndex("ProductSeries")))
+        sLotNum = Trim(arrData(lEachRow, dictColIndex("LotNum")))
+        
+        sKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries & DELIMITER & sLotNum
+        
+        If Not dictSelfPurchaseOD.Exists(sKey) Then
+            dictSelfPurchaseOD.Add sKey, CDbl(arrData(lEachRow, dictColIndex("PurchaseQuantity")))
+        Else
+            dictSelfPurchaseOD(sKey) = dictSelfPurchaseOD(sKey) + CDbl(arrData(lEachRow, dictColIndex("PurchaseQuantity")))
+        End If
+        If Len(Trim(arrData(lEachRow, dictColIndex("PurchasePrice")))) <= 0 Then
+            If Not dictRowNoTmp.Exists(sKey) Then dictRowNoTmp(sKey) = 0
+        Else
+            dictRowNoTmp(sKey) = arrData(lEachRow, dictColIndex("PurchasePrice"))
+        End If
+    Next
+    
+    Dim i As Long
+    For i = 0 To dictSelfPurchaseOD.Count - 1
+        sKey = dictSelfPurchaseOD.Keys(i)
+        
+        dictSelfPurchaseOD(sKey) = dictSelfPurchaseOD(sKey) & DELIMITER & dictRowNoTmp(sKey)
+    Next
+    
+    Set dictColIndex = Nothing
+    Set dictRowNoTmp = Nothing
+End Function
+Function fLotNumExistsInSelfPurchaseOrder(sProductProducer As String, sProductName As String, sProductSeries As String, sLotNum As String) As Boolean
+    If dictSelfPurchaseOD Is Nothing Then Call fReadSheetSelfPurchaseOrder2Dictionary
+    
+    fLotNumExistsInSelfPurchaseOrder = dictSelfPurchaseOD.Exists(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries & DELIMITER & sLotNum)
+End Function
+'------------------------------------------------------------------------------
+
+'====================== Self Sales Order =================================================================
+Function fReadSheetSelfSalesOrder2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    Call fRemoveFilterForSheet(shtSelfSalesOrder)
+    Call fReadSheetDataByConfig("SELF_SALES_ORDER", dictColIndex, arrData, , , , , shtSelfSalesOrder)
+    'Call fValidateDuplicateInArray(arrData, Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries")), False, shtSelfSalesOrder, 1, 1, "厂家 + 名称 + 规格")
+    
+    Dim lEachRow As Long
+    Dim sProducer As String
+    Dim sProductName As String
+    Dim sProductSeries As String
+    Dim sLotNum As String
+    Dim sKey As String
+    Dim dictRowNoTmp As Dictionary
+    
+    Set dictSelfSalesOD = New Dictionary
+    Set dictRowNoTmp = New Dictionary
+    
+    For lEachRow = LBound(arrData, 1) To UBound(arrData, 1)
+        sProducer = Trim(arrData(lEachRow, dictColIndex("ProductProducer")))
+        sProductName = Trim(arrData(lEachRow, dictColIndex("ProductName")))
+        sProductSeries = Trim(arrData(lEachRow, dictColIndex("ProductSeries")))
+        sLotNum = Trim(arrData(lEachRow, dictColIndex("LotNum")))
+        
+        sKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries & DELIMITER & sLotNum
+        
+        If Not dictSelfSalesOD.Exists(sKey) Then
+            dictSelfSalesOD.Add sKey, CDbl(arrData(lEachRow, dictColIndex("SellQuantity")))
+        Else
+            dictSelfSalesOD(sKey) = dictSelfSalesOD(sKey) + CDbl(arrData(lEachRow, dictColIndex("SellQuantity")))
+        End If
+        dictRowNoTmp(sKey) = (lEachRow + 1) & DELIMITER & arrData(lEachRow, dictColIndex("SellPrice"))
+    Next
+    
+    Dim i As Long
+    For i = 0 To dictSelfSalesOD.Count - 1
+        sKey = dictSelfSalesOD.Keys(i)
+        
+        dictSelfSalesOD(sKey) = dictSelfSalesOD(sKey) & DELIMITER & dictRowNoTmp(sKey)
+    Next
+    
+    Set dictColIndex = Nothing
+    Set dictRowNoTmp = Nothing
+End Function
+'Function fLotNumExistsInSelfSalesOrder(sProductProducer As String, sProductName As String, sProductSeries As String, sLotNum As String) As Boolean
+'    If dictSelfSalesOD Is Nothing Then Call fReadSheetSelfSalesOrder2Dictionary
+'
+'    fLotNumExistsInSelfSalesOrder = dictSelfSalesOD.Exists(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries & DELIMITER & sLotNum)
+'End Function
+'------------------------------------------------------------------------------
+
+Function fCheckIfLotNumExistsInSelfPurchaseOrder(arrData, iColProducer As Integer, iColProductName As Integer, iColProductSeries As Integer _
+                                        , iColLotNum As Integer, Optional ByRef alErrRowNo As Long, Optional ByRef alErrColNo As Long)
+    Dim lEachRow As Long
+    Dim sProducer As String
+    Dim sProductName As String
+    Dim sProductSeries As String
+    Dim sLotNum As String
+'    Dim sKey As String
+    
+    Call fRemoveFilterForSheet(shtSelfPurchaseOrder)
+    
+'    If dictProductMaster Is Nothing Then Call fReadSheetProductMaster2Dictionary
+    
+    For lEachRow = LBound(arrData, 1) To UBound(arrData, 1)
+        sProducer = Trim(arrData(lEachRow, iColProducer))
+        sProductName = Trim(arrData(lEachRow, iColProductName))
+        sProductSeries = Trim(arrData(lEachRow, iColProductSeries))
+        sLotNum = Trim(arrData(lEachRow, iColLotNum))
+'        sKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+        
+'        If Not dictProductMaster.Exists(sKey) Then
+        If Not fLotNumExistsInSelfPurchaseOrder(sProducer, sProductName, sProductSeries, sLotNum) Then
+            alErrRowNo = (lEachRow + 1)
+            alErrColNo = iColLotNum
+            fErr "【批号】不存在于本公司进货表中" & vbCr & "行号：" & (lEachRow + 1)
+            Exit For
+        End If
+    Next
+End Function
+
+Function fCheckIfSelfSellAmountIsGreaterThanPurchaseByLotNumber(arrData, iColProducer As Integer, iColProductName As Integer, iColProductSeries As Integer _
+                                        , iColLotNum As Integer, Optional ByRef alErrRowNo As Long, Optional ByRef alErrColNo As Long)
+    Dim i As Long
+    Dim lEachRow As Long
+    Dim sKey As String
+    
+    Call fRemoveFilterForSheet(shtSelfPurchaseOrder)
+    
+    If dictSelfPurchaseOD Is Nothing Then Call fReadSheetSelfPurchaseOrder2Dictionary
+    If dictSelfSalesOD Is Nothing Then Call fReadSheetSelfSalesOrder2Dictionary
+    
+    For i = 0 To dictSelfSalesOD.Count - 1
+        sKey = dictSelfSalesOD.Keys(i)
+        
+        If Not dictSelfPurchaseOD.Exists(sKey) Then
+            fErr "【药品+批号】不存在于本公司进货表中" & vbCr & "行号：" & (lEachRow + 1) & vbCr & vbCr & sKey
+        Else
+            If CDbl(Split(dictSelfSalesOD(sKey), DELIMITER)(0)) > CDbl(Split(dictSelfPurchaseOD(sKey), DELIMITER)(0)) Then
+                alErrRowNo = Split(dictSelfSalesOD(sKey), DELIMITER)(1)
+                alErrColNo = iColLotNum
+                fErr "【药品+批号】的总出货数量大于本公司进货表中的进货总数量" & vbCr & vbCr & sKey
+                Exit For
+            End If
+        End If
+    Next
+End Function
+
+Function fCalculateSelfInventory()
+    Call fRemoveFilterForSheet(shtSelfPurchaseOrder)
+    Call fRemoveFilterForSheet(shtSelfSalesOrder)
+    
+    If Not shtSelfSalesOrder.fValidateSheet Then Exit Function
+    If Not shtSelfPurchaseOrder.fValidateSheet Then Exit Function
+    
+    If dictSelfPurchaseOD Is Nothing Then Call fReadSheetSelfPurchaseOrder2Dictionary
+    If dictSelfSalesOD Is Nothing Then Call fReadSheetSelfSalesOrder2Dictionary
+    
+    Dim i As Long
+    Dim lEachRow As Long
+    Dim sKey As String
+    Dim sProducer As String
+    Dim sProductName As String
+    Dim sProductSeries As String
+    Dim sLotNum As String
+    Dim dblPurchaseQty As Double
+    Dim dblSellQty As Double
+    Dim arrOut()
+    
+    ReDim arrOut(1 To dictSelfPurchaseOD.Count, 7)
+    
+    For i = 0 To dictSelfPurchaseOD.Count - 1
+        sKey = dictSelfPurchaseOD.Keys(i)
+        
+        dblPurchaseQty = CDbl(Split(dictSelfPurchaseOD(sKey), DELIMITER)(0))
+        
+        If dictSelfSalesOD.Exists(sKey) Then
+            dblSellQty = CDbl(Split(dictSelfSalesOD(sKey), DELIMITER)(0))
+        Else
+            dblSellQty = 0
+        End If
+            
+        arrOut(i + 1, 1) = Split(sKey, DELIMITER)(0)
+        arrOut(i + 1, 2) = Split(sKey, DELIMITER)(1)
+        arrOut(i + 1, 3) = Split(sKey, DELIMITER)(2)
+        arrOut(i + 1, 5) = Split(sKey, DELIMITER)(3)
+        
+        arrOut(i + 1, 6) = dblPurchaseQty - dblSellQty
+        arrOut(i + 1, 7) = CDbl(Split(dictSelfPurchaseOD(sKey), DELIMITER)(1))
+    Next
+    
+    'fCalculateSelfInventory = arrOut
+    Call fAppendArray2Sheet(shtSelfInventory, arrOut)
+    Erase arrOut
 End Function
