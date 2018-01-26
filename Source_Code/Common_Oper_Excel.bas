@@ -307,11 +307,16 @@ End Function
 Function fRemoveFilterForAllSheets(Optional wb As Workbook, Optional ByVal asDegree As String = "SHOW_ALL_DATA")
     If wb Is Nothing Then Set wb = ThisWorkbook
     
+    On Error GoTo error_handling
     Dim sht As Worksheet
     For Each sht In wb.Worksheets
         Call fRemoveFilterForSheet(sht, asDegree)
     Next
     
+error_handling:
+    If Err.Number <> 0 Then
+        MsgBox sht.Name & vbCr & Err.Description
+    End If
     Set sht = Nothing
 End Function
 Function fDeleteBlankRowsFromAllSheets(Optional wb As Workbook)
@@ -354,6 +359,7 @@ Function fRemoveFilterForSheet(sht As Worksheet, Optional ByVal asDegree As Stri
     End If
     
     rgActiveCell.Select
+    Set rgActiveCell = Nothing
 End Function
 
 Function fActiveXControlExistsInSheet(sht As Worksheet, asControlName As String, ByRef objOut As Object) As Boolean

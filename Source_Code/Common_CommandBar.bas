@@ -360,3 +360,7 @@ Function fEnableOrDisableAllCommandBarsByConfig(bValue As Boolean)
     
     Err.Clear
 End Function
+
+Function fGetProgressBar()
+    If gProBar Is Nothing Then Set gProBar = New ProgressBar
+End Function

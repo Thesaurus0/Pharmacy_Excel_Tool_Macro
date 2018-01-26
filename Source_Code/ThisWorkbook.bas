@@ -40,22 +40,32 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
 End Sub
 
 Private Sub Workbook_Open()
+    fGetProgressBar
+    gProBar.ShowBar
     gsEnv = fGetEnvFromSysConf
 
+    gProBar.ChangeProcessBarValue 0.1, "创建工具栏和按钮"
+    
     Call fRefreshGetAllCommandbarsList
     Call sub_WorkBookInitialization
+    
+    gProBar.ChangeProcessBarValue 0.7, "为画面设置初始数据"
     Call fSetIntialValueForShtMenuInitialize
 
     Call sub_RemoveCommandBar("Team")
     ThisWorkbook.Saved = True
     ThisWorkbook.CheckCompatibility = False
     
+    gProBar.ChangeProcessBarValue 1, "已经就绪！"
 '    Application.CommandBars("cell").FindControl(ID:=19).OnAction = ""
 '    Application.OnKey "^c", ""
+    gProBar.SleepBar 500
+    'gProBar.DestroyBar
     End
 End Sub
 
 Sub sub_WorkBookInitialization()
+    
     Call fReadConfigRibbonCommandBarMenuAndCreateCommandBarButton
     
     If fIsDev() Then
@@ -68,15 +78,22 @@ Sub sub_WorkBookInitialization()
         shtFileSpec.Visible = xlSheetVeryHidden
     End If
     
+    shtMenu.AutoFilterMode = False
     fHideSheet shtDataStage
 
+    gProBar.ChangeProcessBarValue 0.2, "去除所有工作表的过滤条件"
     Call fRemoveFilterForAllSheets
+    
+    
+    gProBar.ChangeProcessBarValue 0.25, "删除所有工作表的最后面的空白行"
     Call fDeleteBlankRowsFromAllSheets
     
+    gProBar.ChangeProcessBarValue 0.28, "隐藏所有业务工作表"
     Call subMain_InvisibleHideAllBusinessSheets
+    gProBar.ChangeProcessBarValue 0.4, "为所有工作表设置下拉列表框"
     Call fSetValidationListForAllSheets
+    gProBar.ChangeProcessBarValue 0.5, "为所有工作表设置（条件）格式"
     Call fSetConditionFormatForFundamentalSheets
-    
         
 '    Application.CommandBars("cell").FindControl(ID:=19).OnAction = "fGetCopyAddress"
 '    Application.OnKey "^c", "fGetCopyAddress"

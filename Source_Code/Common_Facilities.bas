@@ -181,22 +181,32 @@ End Sub
 Sub sub_ResetOnError_Initialize()
     Err.Clear
     
+    fGetProgressBar
+    gProBar.ShowBar
     'On Error GoTo err_exit
     
     gsEnv = fGetEnvFromSysConf
     
     Call fEnableExcelOptionsAll
+    
+    gProBar.ChangeProcessBarValue 0.2
     Call sub_RemoveAllCommandBars
     
+    gProBar.ChangeProcessBarValue 0.3
     Call fDeleteAllConditionFormatForAllSheets
     
    ' Call ThisWorkbook.fRefreshGetAllCommandbarsList
     
+    gProBar.ChangeProcessBarValue 0.4
     Call ThisWorkbook.sub_WorkBookInitialization
+    
     Call fSetIntialValueForShtMenuInitialize
+    gProBar.ChangeProcessBarValue 1
 err_exit:
+    gProBar.DestroyBar
     Err.Clear
     ThisWorkbook.CheckCompatibility = False
+    Set gProBar = Nothing
     End
 End Sub
 Function fGetEnvFromSysConf() As String
