@@ -16,7 +16,7 @@ Function fSetBackToConfigSheetAndUpdategDict_UserTicket()
     For i = 0 To dictCompList.Count - 1
         sCompanyID = dictCompList.Keys(i)
          
-        If Not fActiveXControlExistsInSheet(shtMenu, fGetCompany_CheckBoxName(sCompanyID), ckb) Then GoTo next_company
+        If Not fActiveXControlExistsInSheet(shtCurrMenu, fGetCompany_CheckBoxName(sCompanyID), ckb) Then GoTo next_company
         
         sTickValue = IIf(ckb.Value, "Y", "N")
         
@@ -38,7 +38,7 @@ Function fSetBackToConfigSheetAndUpdategDict_InputFiles()
         
         If fGetCompany_UserTicked(sEachCompanyID) = "Y" Then
             sFilePathRange = fGetCompany_InputFileTextBoxName(sEachCompanyID)
-            sEachFilePath = Trim(shtMenu.Range(sFilePathRange).Value)
+            sEachFilePath = Trim(shtCurrMenu.Range(sFilePathRange).Value)
         Else
             sEachFilePath = "User not selected."
         End If

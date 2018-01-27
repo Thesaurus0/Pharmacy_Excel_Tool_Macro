@@ -257,6 +257,11 @@ Function fSetDEVUATPRODNotificationInSheetMenu()
     shtMenu.Range("A1").Font.Size = iFontSize
     shtMenu.Range("A1").Font.Color = iColor
     shtMenu.Range("A1").Font.Bold = bBold
+    
+    shtMenuCompInvt.Range("A1").Value = sNotifi
+    shtMenuCompInvt.Range("A1").Font.Size = iFontSize
+    shtMenuCompInvt.Range("A1").Font.Color = iColor
+    shtMenuCompInvt.Range("A1").Font.Bold = bBold
 End Function
 
 '*************************************************************************

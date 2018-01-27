@@ -1,4 +1,4 @@
-Attribute VB_Name = "MC3_CalculateProfitRef"
+Attribute VB_Name = "Mx4_CalculateProfitPre"
 'Option Explicit
 'Option Base 1
 '
@@ -558,7 +558,7 @@ Attribute VB_Name = "MC3_CalculateProfitRef"
 '    fGetshtExceptionNewRow = lNewRow
 'End Function
 '
-'Private Sub subMain_CalculateProfit_MonthEnd_()
+'Private Sub subMain_CalculateProfit_MonthEnd__()
 '    Dim response As VbMsgBoxResult
 '    response = MsgBox(Prompt:="该计算会扣减出库，无法撤消，你确定要进行计算利润和佣金吗？" _
 '                        & vbCr & "继续，请点【Yes】" & vbCr & "否则，请点【No】" _
@@ -577,8 +577,28 @@ Attribute VB_Name = "MC3_CalculateProfitRef"
 '    Call subMain_CalculateProfit
 'End Sub
 '
+'Sub ccaa()
+'
+'    Dim i As Long
+'    Dim dt As Date
+'
+'    dt = shtSelfSalesA.Cells(1, 13).Value2
+'
+'    If Date > dt Then
+'        MsgBox "b"
+'
+'    Else
+'          Application.Wait (Now() + TimeSerial(0, 0, 2))
+'        'Call Application.Wait(TimeSerial(0, 0, 1))
+'        MsgBox "a"
+'
+'    End If
+'End Sub
 '
 '
+'Sub ccda()
+'    Debug.Print "123" > 30
+'End Sub
 '
 '
 '

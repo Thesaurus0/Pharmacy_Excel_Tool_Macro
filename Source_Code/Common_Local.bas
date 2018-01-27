@@ -12,7 +12,7 @@ Function fUpdateGDictInputFile_FileSpecTag(asFileTag As String, asFileSpecTag As
 End Function
 
 Function fSetValueBackToSysConf_InputFile_FileName(asFileTag As String, asFileName As String)
-    Call fSetSpecifiedConfigCellValue(shtSysConf, "[Input Files]", "File Full Path", "File Tag=" & asFileTag, asFileName)
+    Call fSetSpecifiedConfigCellValue(shtSysConf, "[Input Files]", "File Full Path", "Report ID=" & gsRptID & ",File Tag=" & asFileTag, asFileName)
 End Function
 
 Function fGetInputFileSheetAfterLoadingToThisWorkBook(asFileTag As String) As Worksheet

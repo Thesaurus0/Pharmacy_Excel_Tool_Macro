@@ -79,6 +79,7 @@ Sub sub_WorkBookInitialization()
     End If
     
     shtMenu.AutoFilterMode = False
+    shtMenuCompInvt.AutoFilterMode = False
     fHideSheet shtDataStage
 
     gProBar.ChangeProcessBarValue 0.2, "去除所有工作表的过滤条件"

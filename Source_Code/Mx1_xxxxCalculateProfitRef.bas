@@ -1,4 +1,4 @@
-Attribute VB_Name = "MC1_xxxxCalculateProfitRef"
+Attribute VB_Name = "Mx1_xxxxCalculateProfitRef"
 Option Explicit
 Option Base 1
 

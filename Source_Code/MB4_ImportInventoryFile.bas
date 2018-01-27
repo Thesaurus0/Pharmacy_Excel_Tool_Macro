@@ -1,20 +1,18 @@
-Attribute VB_Name = "MB1_ImportSalesFiles"
+Attribute VB_Name = "MB4_ImportInventoryFile"
 Option Explicit
 Option Base 1
-Public shtCurrMenu As Worksheet
-Public gsCompanyID As String
-Public dictCompList As Dictionary
+
 Dim arrQualifiedRows()
 
-Sub subMain_ImportSalesInfoFiles()
+Sub subMain_ImportInventoryFiles()
     If Not fIsDev() Then On Error GoTo error_handling
     'On Error GoTo error_handling
     
-    Set shtCurrMenu = shtMenu
+    Set shtCurrMenu = shtMenuCompInvt
     fInitialization
     
-    gsRptID = "IMPORT_SALES_INFO"
-    Call fUnProtectSheet(shtSalesRawDataRpt)
+    gsRptID = "IMPORT_INVENTORY_FILE"
+    Call fUnProtectSheet(shtInventoryRawDataRpt)
     
     Call fReadSysConfig_InputTxtSheetFile
     
@@ -40,8 +38,8 @@ Sub subMain_ImportSalesInfoFiles()
     If iCnt <= 0 Then fErr "No Company is selected."
     
     If fIfClearImport Then
-        Call fCleanSheetOutputResetSheetOutput(shtSalesRawDataRpt)
-        Call fPrepareOutputSheetHeaderAndTextColumns(shtSalesRawDataRpt)
+        Call fCleanSheetOutputResetSheetOutput(shtInventoryRawDataRpt)
+        Call fPrepareOutputSheetHeaderAndTextColumns(shtInventoryRawDataRpt)
     End If
     
     For i = 0 To dictCompList.Count - 1
@@ -63,29 +61,29 @@ Sub subMain_ImportSalesInfoFiles()
             
             Call fDeleteSheet(gsCompanyID)
             
-            Call fAppendArray2Sheet(shtSalesRawDataRpt, arrOutput)
+            Call fAppendArray2Sheet(shtInventoryRawDataRpt, arrOutput)
         End If
     Next
     
     Call fReSequenceSeqNo
     
-'    Call fSortDataInSheetSortSheetData(shtSalesRawDataRpt, Array(dictRptColIndex("SalesCompanyName") _
+'    Call fSortDataInSheetSortSheetData(shtInventoryRawDataRpt, Array(dictRptColIndex("SalesCompanyName") _
                                                                 , dictRptColIndex("Hospital") _
                                                                 , dictRptColIndex("SalesDate") _
                                                                 , dictRptColIndex("ProductProducer") _
                                                                 , dictRptColIndex("ProductName") _
                                                                 , dictRptColIndex("ProductUnit")))
-    Call fFormatOutputSheet(shtSalesRawDataRpt)
+    Call fFormatOutputSheet(shtInventoryRawDataRpt)
     
-   ' Call fProtectSheetAndAllowEdit(shtSalesRawDataRpt, shtSalesRawDataRpt.Columns(4), UBound(arrOutput, 1) + 1, UBound(arrOutput, 2), False)
-    Call fPostProcess(shtSalesRawDataRpt)
+   ' Call fProtectSheetAndAllowEdit(shtInventoryRawDataRpt, shtInventoryRawDataRpt.Columns(4), UBound(arrOutput, 1) + 1, UBound(arrOutput, 2), False)
+    Call fPostProcess(shtInventoryRawDataRpt)
     
-    shtSalesRawDataRpt.Rows(1).RowHeight = 25
-    shtSalesRawDataRpt.Visible = xlSheetVisible
-    shtSalesRawDataRpt.Activate
-    shtSalesRawDataRpt.Range("A1").Select
+    shtInventoryRawDataRpt.Rows(1).RowHeight = 25
+    shtInventoryRawDataRpt.Visible = xlSheetVisible
+    shtInventoryRawDataRpt.Activate
+    shtInventoryRawDataRpt.Range("A1").Select
     
-    Call fModifyMoveActiveXButtonOnSheet(shtSalesRawDataRpt.Cells(1, fGetValidMaxCol(shtSalesRawDataRpt) + 1) _
+    Call fModifyMoveActiveXButtonOnSheet(shtInventoryRawDataRpt.Cells(1, fGetValidMaxCol(shtInventoryRawDataRpt) + 1) _
                                         , "btnReplaceUnify", 1, 1, , 25, RGB(255, 20, 134), RGB(255, 255, 255))
 error_handling:
     If fCheckIfGotBusinessError Then
@@ -98,8 +96,8 @@ error_handling:
         GoTo reset_excel_options
     End If
     
-    Call fSetReneratedReport(, shtSalesRawDataRpt.Name)
-    fMsgBox "成功整合在工作表：[" & shtSalesRawDataRpt.Name & "] 中，请检查！", vbInformation
+    Call fSetReneratedReport(, shtInventoryRawDataRpt.Name)
+    fMsgBox "成功整合在工作表：[" & shtInventoryRawDataRpt.Name & "] 中，请检查！", vbInformation
     
 reset_excel_options:
     Err.Clear
@@ -165,18 +163,28 @@ Private Function fProcessDataAll()
         
         arrOutput(lEachOutputRow, dictRptColIndex("SalesCompanyID")) = sCompanyLongID
         arrOutput(lEachOutputRow, dictRptColIndex("SalesCompanyName")) = sCompanyName
-        arrOutput(lEachOutputRow, dictRptColIndex("OrigSalesInfoID")) = Left(sCompanyLongID & String(15, "_"), 12) _
-                                                                & format(arrMaster(lEachSourceRow, dictMstColIndex("SalesDate")), "YYYYMMDD") _
+        arrOutput(lEachOutputRow, dictRptColIndex("OrigInventoryID")) = Left(sCompanyLongID & String(15, "_"), 12) _
+                                                                & format(arrMaster(lEachSourceRow, dictMstColIndex("InventoryDate")), "YYYYMMDD") _
                                                                 & format(lEachSourceRow, "00000")
         arrOutput(lEachOutputRow, dictRptColIndex("SeqNo")) = lEachOutputRow
         
-        arrOutput(lEachOutputRow, dictRptColIndex("SalesDate")) = arrMaster(lEachSourceRow, dictMstColIndex("SalesDate"))
-        arrOutput(lEachOutputRow, dictRptColIndex("ProductProducer")) = Trim(arrMaster(lEachSourceRow, dictMstColIndex("ProductProducer")))
-        arrOutput(lEachOutputRow, dictRptColIndex("ProductName")) = Trim(arrMaster(lEachSourceRow, dictMstColIndex("ProductName")))
-        arrOutput(lEachOutputRow, dictRptColIndex("ProductSeries")) = Trim(arrMaster(lEachSourceRow, dictMstColIndex("ProductSeries")))
-        arrOutput(lEachOutputRow, dictRptColIndex("Hospital")) = Trim(arrMaster(lEachSourceRow, dictMstColIndex("Hospital")))
+        arrOutput(lEachOutputRow, dictRptColIndex("InventoryDate")) = arrMaster(lEachSourceRow, dictMstColIndex("InventoryDate"))
+        
+        If gsCompanyID = "ZSY" Then
+            arrOutput(lEachOutputRow, dictRptColIndex("ProductProducer")) = Trim(Split(arrMaster(lEachSourceRow, dictMstColIndex("ProductProducer")), "/")(1))
+        Else
+            arrOutput(lEachOutputRow, dictRptColIndex("ProductProducer")) = Trim(arrMaster(lEachSourceRow, dictMstColIndex("ProductProducer")))
+        End If
+        
+        If gsCompanyID = "GKYX" Then
+            arrOutput(lEachOutputRow, dictRptColIndex("ProductName")) = Trim(Split(arrMaster(lEachSourceRow, dictMstColIndex("ProductName")), "/")(0))
+            arrOutput(lEachOutputRow, dictRptColIndex("ProductSeries")) = Trim(Split(arrMaster(lEachSourceRow, dictMstColIndex("ProductName")), "/")(1))
+        Else
+            arrOutput(lEachOutputRow, dictRptColIndex("ProductName")) = Trim(arrMaster(lEachSourceRow, dictMstColIndex("ProductName")))
+            arrOutput(lEachOutputRow, dictRptColIndex("ProductSeries")) = Trim(arrMaster(lEachSourceRow, dictMstColIndex("ProductSeries")))
+        End If
+        
         arrOutput(lEachOutputRow, dictRptColIndex("Quantity")) = arrMaster(lEachSourceRow, dictMstColIndex("Quantity"))
-        arrOutput(lEachOutputRow, dictRptColIndex("SellPrice")) = arrMaster(lEachSourceRow, dictMstColIndex("SellPrice"))
         arrOutput(lEachOutputRow, dictRptColIndex("LotNum")) = "'" & arrMaster(lEachSourceRow, dictMstColIndex("LotNum"))
         
         If dictMstColIndex.Exists("ProductUnit") Then
@@ -186,6 +194,8 @@ Private Function fProcessDataAll()
         If dictMstColIndex.Exists("SellAmount") Then
             arrOutput(lEachOutputRow, dictRptColIndex("SellAmount")) = arrMaster(lEachSourceRow, dictMstColIndex("SellAmount"))
         End If
+        
+        
     Next
 End Function
 
@@ -241,46 +251,36 @@ Function fReSequenceSeqNo()
     Dim lCol As Long
     Dim eachRow As Long
     
-    lMaxRow = fGetValidMaxRow(shtSalesRawDataRpt)
+    lMaxRow = fGetValidMaxRow(shtInventoryRawDataRpt)
     lCol = dictRptColIndex("SeqNo")
     
-    arr = fReadRangeDatatoArrayByStartEndPos(shtSalesRawDataRpt, 2, lCol, lMaxRow, lCol)
+    arr = fReadRangeDatatoArrayByStartEndPos(shtInventoryRawDataRpt, 2, lCol, lMaxRow, lCol)
     
     lMaxRow = lMaxRow - 1
     For eachRow = LBound(arr, 1) To UBound(arr, 1)
         arr(eachRow, 1) = lMaxRow & "_" & format(arr(eachRow, 1), "0000")
     Next
     
-    shtSalesRawDataRpt.Cells(2, lCol).Resize(UBound(arr, 1), 1).Value = arr
+    shtInventoryRawDataRpt.Cells(2, lCol).Resize(UBound(arr, 1), 1).Value = arr
     Erase arr
 End Function
 
-Function fIfClearImport() As Boolean
-    Dim bClearImport As Boolean
-    
-    If shtCurrMenu.Name = shtMenu.Name Then
-        bClearImport = shtMenu.OBClearImport.Value
-    ElseIf shtCurrMenu.Name = shtMenuCompInvt.Name Then
-        bClearImport = shtMenuCompInvt.OBClearImport.Value
-    Else
-        fErr "shtCurrMenu is neither shtMenu nor shtMenuCompInvt."
-    End If
-    
-    'fIfClearImport = shtCurrMenu.OBClearImport.Value
-    
-    Dim response As VbMsgBoxResult
-    
-    If bClearImport Then
-        response = MsgBox(Prompt:="您确定要清空现有导入的数据吗？无法撤消的哦" _
-                            & vbCr & "继续，请点【Yes】" & vbCr & "否则，请点【No】" _
-                            , Buttons:=vbCritical + vbYesNo + vbDefaultButton2)
-        If response <> vbYes Then fErr
-    Else
-        response = MsgBox(Prompt:="您现在选择的是追加导入，请检查您要导入的数据是否有问题，否则可能会因为重复导入而出现重复的销售流向。" _
-                            & vbCr & "继续，请点【Yes】" & vbCr & "否则，请点【No】" _
-                            , Buttons:=vbCritical + vbYesNo + vbDefaultButton2)
-        If response <> vbYes Then fErr
-    End If
-    
-    fIfClearImport = bClearImport
-End Function
+'Function fIfClearImport() As Boolean
+'    fIfClearImport = shtCurrMenu.OBClearImport.Value
+'
+'    Dim response As VbMsgBoxResult
+'
+'    If fIfClearImport Then
+'        response = MsgBox(Prompt:="您确定要清空现有导入的数据吗？无法撤消的哦" _
+'                            & vbCr & "继续，请点【Yes】" & vbCr & "否则，请点【No】" _
+'                            , Buttons:=vbCritical + vbYesNo + vbDefaultButton2)
+'        If response <> vbYes Then fErr
+'    Else
+'        response = MsgBox(Prompt:="您现在选择的是追加导入，请检查您要导入的数据是否有问题，否则可能会因为重复导入而出现重复的销售流向。" _
+'                            & vbCr & "继续，请点【Yes】" & vbCr & "否则，请点【No】" _
+'                            , Buttons:=vbCritical + vbYesNo + vbDefaultButton2)
+'        If response <> vbYes Then fErr
+'    End If
+'End Function
+
+

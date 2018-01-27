@@ -1,4 +1,4 @@
-Attribute VB_Name = "MC2_CalculateNetProfit"
+Attribute VB_Name = "Mx3_CalculateProfitRef"
 'Option Explicit
 'Option Base 1
 '
@@ -12,7 +12,7 @@ Attribute VB_Name = "MC2_CalculateNetProfit"
 'Dim arrExceptionRows()
 'Dim mlExcepCnt As Long
 '
-'Private Sub subMain_CalculateProfit_()
+'Private Sub subMain_CalculateProfit()
 '    'If Not fIsDev Then On Error GoTo error_handling
 '    'On Error GoTo error_handling
 '
@@ -576,6 +576,8 @@ Attribute VB_Name = "MC2_CalculateNetProfit"
 '    shtSelfSalesOrder.Cells.Copy shtSelfSalesCal.Cells
 '    Call subMain_CalculateProfit
 'End Sub
+'
+'
 '
 '
 '

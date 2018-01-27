@@ -1,7 +1,12 @@
 Attribute VB_Name = "MB_0_RibbonButton"
 Option Explicit
 Option Base 1
-  
+
+
+
+Sub subMain_ImportSalesCompanyInventory()
+    fActiveVisibleSwitchSheet shtMenuCompInvt, "A63", False
+End Sub
 Sub subMain_Ribbon_ImportSalesInfoFiles()
     fActiveVisibleSwitchSheet shtMenu, "A63", False
 End Sub
@@ -112,7 +117,6 @@ Sub subMain_SecondLevelCommission()
     fActiveVisibleSwitchSheet shtSecondLevelCommission, , False
 End Sub
 
-
 Sub subMain_InvisibleHideAllBusinessSheets()
     shtMenu.Visible = xlSheetVisible
     
@@ -140,6 +144,7 @@ Sub subMain_InvisibleHideAllBusinessSheets()
     shtSalesManCommConfig.Visible = xlSheetVeryHidden
     
     shtSelfInventory.Visible = xlSheetVeryHidden
+    fVeryHideSheet shtMenuCompInvt
 End Sub
 
 Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrToSelect As String = "A1" _
