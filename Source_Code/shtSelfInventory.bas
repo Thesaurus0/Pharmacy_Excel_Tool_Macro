@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
-    On Error GoTo exit_sub
+    On Error GoTo Exit_Sub
     Application.ScreenUpdating = False
     
     Const ProducerCol = 1
@@ -26,8 +26,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     
     'product name
     If Not rgIntersect Is Nothing Then
-        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+        If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+        If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
             
         Dim sProducer As String
         Dim sValidationListAddr As String
@@ -47,8 +47,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Set rgIntersect = Intersect(Target, Me.Columns(ProductSeriesCol))
         
         If Not rgIntersect Is Nothing Then
-            If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-            If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+            If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+            If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
             
             sProducer = rgIntersect.Offset(0, ProducerCol - ProductSeriesCol).Value
             sProductName = rgIntersect.Offset(0, ProductNameCol - ProductSeriesCol).Value
@@ -66,8 +66,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
             Set rgIntersect = Intersect(Target, Me.Columns(ProductUnitCol))
             
             If Not rgIntersect Is Nothing Then
-                If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-                If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+                If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+                If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
                 
                 sProducer = rgIntersect.Offset(0, ProducerCol - ProductUnitCol).Value
                 sProductName = rgIntersect.Offset(0, ProductNameCol - ProductUnitCol).Value
@@ -86,8 +86,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
                 Set rgIntersect = Intersect(Target, Me.Columns(SellPriceCol))
                 
                 If Not rgIntersect Is Nothing Then
-                    If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-                    If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+                    If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+                    If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
                     
                     sProducer = rgIntersect.Offset(0, ProducerCol - SellPriceCol).Value
                     sProductName = rgIntersect.Offset(0, ProductNameCol - SellPriceCol).Value
@@ -107,8 +107,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
                     Set rgIntersect = Intersect(Target, Me.Columns(LotNumCol))
                     
                     If Not rgIntersect Is Nothing Then
-                        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-                        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+                        If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+                        If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
                         
                         sProducer = rgIntersect.Offset(0, ProducerCol - LotNumCol).Value
                         sProductName = rgIntersect.Offset(0, ProductNameCol - LotNumCol).Value
@@ -166,7 +166,7 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Call fSetFilterForSheet(shtSelfSalesOrder, Array(1, 2, 3, 8), Array(sProducer, sProductName, sProductSeries, sLotNum))
     End If
     
-exit_sub:
+Exit_Sub:
     fEnableExcelOptionsAll
     Application.ScreenUpdating = True
     

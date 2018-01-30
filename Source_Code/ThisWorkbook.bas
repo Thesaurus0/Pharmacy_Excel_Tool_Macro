@@ -95,15 +95,18 @@ Sub sub_WorkBookInitialization()
     Call fSetValidationListForAllSheets
     gProBar.ChangeProcessBarValue 0.5, "为所有工作表设置（条件）格式"
     Call fSetConditionFormatForFundamentalSheets
+    
+    gProBar.ChangeProcessBarValue 0.6, "为所有工作表设置自动筛选"
+    Call fAutoFileterAllSheets
         
 '    Application.CommandBars("cell").FindControl(ID:=19).OnAction = "fGetCopyAddress"
 '    Application.OnKey "^c", "fGetCopyAddress"
     shtDataStage.UsedRange.ClearComments
     shtDataStage.UsedRange.ClearContents
     shtDataStage.UsedRange.ClearFormats
-    shtDataStage.UsedRange.ClearHyperlinks
-    shtDataStage.UsedRange.ClearNotes
-    shtDataStage.UsedRange.ClearOutline
+    'shtDataStage.UsedRange.ClearHyperlinks
+'    shtDataStage.UsedRange.ClearNotes
+'    shtDataStage.UsedRange.ClearOutline
     
 End Sub
 

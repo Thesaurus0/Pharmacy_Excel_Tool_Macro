@@ -930,6 +930,7 @@ Function fValidateDuplicateInArrayForCombineCols(arrParam, arrKeyCols _
         
         If dict.Exists(sKeyStr) Then
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
+            fShowSheet shtAt
             Application.Goto shtAt.Cells(lActualRow, arrKeyCols(UBound(arrKeyCols)))
             fErr "Duplicate key was found:" & vbCr & sKeyStr & vbCr & sPos
         Else
@@ -973,6 +974,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
             If Not bAllowBlankIgnore Then
                 'sPos = sPos & lActualRow & " / " & sColLetter
                 sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
+                fShowSheet shtAt
                 Application.Goto shtAt.Cells(lActualRow, lKeyCol)
                 fErr "Keys [" & sColLetter & "] is blank!" & sPos
             End If
@@ -983,6 +985,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
         If dict.Exists(sKeyStr) Then
             'sPos = sPos & lActualRow & " / " & sColLetter
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
+            fShowSheet shtAt
             Application.Goto shtAt.Cells(lActualRow, lKeyCol)
             fErr "Duplicate key [" & sKeyStr & "] was found " & sPos
         Else

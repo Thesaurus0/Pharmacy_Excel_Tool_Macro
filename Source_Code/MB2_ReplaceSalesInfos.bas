@@ -334,8 +334,9 @@ Function fAddNewFoundMissedHospitalToSheet(dictNewHospital As Dictionary, Option
     arrNewHospital = fConvertDictionaryKeysTo2DimenArrayForPaste(dictNewHospital, bSetDictToNothing)
     Call fAppendArray2Sheet(shtHospital, arrNewHospital)
     
-    If fUbound(arrNewHospital, 1) > 0 Then
-        fMsgBox fUbound(arrNewHospital, 1) & "个医院找不到，" & vbCr & "他们被自动加入到了表【" & shtHospital.Name & "】中了." _
+    'If fUbound(arrNewHospital, 1) > 0 Then
+    If dictNewHospital.Count > 0 Then
+        fMsgBox dictNewHospital.Count & "个医院找不到，" & vbCr & "他们被自动加入到了表【" & shtHospital.Name & "】中了." _
                 & vbCr & "该表的最后面的数据为本次新加的。" & vbCr _
                 & ""
     End If
@@ -377,7 +378,7 @@ Function fAddNewFoundHospitalToSheetException(ByRef dictNewHospital As Dictionar
         
         If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
         
-        gsBusinessErrorMsg = gsBusinessErrorMsg & lRecCount & "个【医院】在本系统中找不到，" & vbCr _
+        gsBusinessErrorMsg = gsBusinessErrorMsg & lRecCount & "条销售明细的【医院】在本系统中找不到，" & vbCr _
             & "但是它们都被自动加入到了【医院】主表中" & vbCr _
             & "您需要在【医院替换】表中增加替换，并尝试运行，这样医院就会趋向统一。" & vbCr & vbCr _
             & "并把医院主表中的不用的记录删除掉"
@@ -666,3 +667,8 @@ End Function
 '            arrOutput(lEachRow, dictRptColIndex("MatchedProductUnit")) = sReplacedProductUnit
 '        End If
 'End Function
+
+Private Function fSetReplaceUnifyErrorRowCount(ByVal rowCnt As Long) As Long
+    Call fSetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT", CStr(rowCnt))
+End Function
+

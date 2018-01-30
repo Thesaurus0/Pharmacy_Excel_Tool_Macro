@@ -11,8 +11,8 @@ Private Sub btnValidate_Click()
     Call fValidateSheet
 End Sub
 
-Function fValidateSheet()
-    On Error GoTo exit_sub
+Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
+    On Error GoTo Exit_Sub
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -36,20 +36,20 @@ Function fValidateSheet()
     Call fValidateBlankInArray(arrData, dictColIndex("ProductUnit"), Me, 1, 1, "药品单位")
     Call fValidateDateColInArray(arrData, dictColIndex("SalesDate"), Me, 1, 1, "销售出货日期")
     'Call fValidateBlankInArray(arrData, dictColIndex("SellPrice"), Me, 1, 1, "出货单价")
-    Call fValidateBlankInArray(arrData, dictColIndex("LotNum"), Me, 1, 1, "批号")
+   ' Call fValidateBlankInArray(arrData, dictColIndex("LotNum"), Me, 1, 1, "批号")
     
     Call fSortDataInSheetSortSheetData(Me, Array(dictColIndex("SalesDate") _
                                                 , dictColIndex("ProductProducer") _
                                                 , dictColIndex("ProductName"), dictColIndex("ProductUnit")))
 
-    Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"))
+    Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), lErrRowNo, lErrColNo)
 
     Call fCheckIfLotNumExistsInSelfPurchaseOrder(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), dictColIndex("LotNum"), lErrRowNo, lErrColNo)
     
     Call fCheckIfSelfSellAmountIsGreaterThanPurchaseByLotNumber(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), dictColIndex("LotNum"), lErrRowNo, lErrColNo)
 
-    fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-exit_sub:
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+Exit_Sub:
     fEnableExcelOptionsAll
     Set dictColIndex = Nothing
     Erase arrData
@@ -66,16 +66,9 @@ exit_sub:
     End If
     
     If lErrRowNo > 0 Then
+        fShowSheet Me
         Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
-    
-'    If Err.Number <> 0 Then
-'        fCheckIfUnCapturedExceptionAbnormalError
-'        fShowAndActiveSheet Me
-'        fValidateSheet = False
-'    Else
-'        fValidateSheet = True
-'    End If
 End Function
 
 Private Sub Worksheet_Change(ByVal Target As Range)
@@ -83,7 +76,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 End Sub
 
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
-    On Error GoTo exit_sub
+    On Error GoTo Exit_Sub
     Application.ScreenUpdating = False
     
     Const ProducerCol = 1
@@ -100,8 +93,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
     
     If Not rgIntersect Is Nothing Then
-        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+        If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+        If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
             
         Dim sProducer As String
         Dim sValidationListAddr As String
@@ -121,8 +114,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Set rgIntersect = Intersect(Target, Me.Columns(ProductSeriesCol))
         
         If Not rgIntersect Is Nothing Then
-            If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-            If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+            If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+            If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
             
             sProducer = rgIntersect.Offset(0, ProducerCol - ProductSeriesCol).Value
             sProductName = rgIntersect.Offset(0, ProductNameCol - ProductSeriesCol).Value
@@ -140,8 +133,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
             Set rgIntersect = Intersect(Target, Me.Columns(ProductUnitCol))
             
             If Not rgIntersect Is Nothing Then
-                If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-                If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+                If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+                If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
                 
                 sProducer = rgIntersect.Offset(0, ProducerCol - ProductUnitCol).Value
                 sProductName = rgIntersect.Offset(0, ProductNameCol - ProductUnitCol).Value
@@ -156,46 +149,46 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
                     Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
                 End If
             Else
-                'Sell Price
-                Set rgIntersect = Intersect(Target, Me.Columns(SellPriceCol))
-                
+                'Lot Number
+                Set rgIntersect = Intersect(Target, Me.Columns(LotNumCol))
+
                 If Not rgIntersect Is Nothing Then
-                    If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-                    If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
-                    
-                    sProducer = rgIntersect.Offset(0, ProducerCol - SellPriceCol).Value
-                    sProductName = rgIntersect.Offset(0, ProductNameCol - SellPriceCol).Value
-                    sProductSeries = rgIntersect.Offset(0, ProductSeriesCol - SellPriceCol).Value
-                    sLotNum = rgIntersect.Offset(0, LotNumCol - SellPriceCol).Value
-                    
+                    If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+                    If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
+
+                    sProducer = rgIntersect.Offset(0, ProducerCol - LotNumCol).Value
+                    sProductName = rgIntersect.Offset(0, ProductNameCol - LotNumCol).Value
+                    sProductSeries = rgIntersect.Offset(0, ProductSeriesCol - LotNumCol).Value
+
                     If fNzero(sProducer) And fNzero(sProductName) Then
-                        Call fSetFilterForSheet(shtSelfPurchaseOrder, Array(1, 2, 3, 8), Array(sProducer, sProductName, sProductSeries, sLotNum))
-                        Call fCopyFilteredDataToRange(shtSelfPurchaseOrder, 7)
-                        
+                        Call fSetFilterForSheet(shtSelfPurchaseOrder, Array(1, 2, 3), Array(sProducer, sProductName, sProductSeries))
+                        Call fCopyFilteredDataToRange(shtSelfPurchaseOrder, 8)
+
                         sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
                         'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
                         Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
                     End If
                 Else
-                    'Lot Number
-                    Set rgIntersect = Intersect(Target, Me.Columns(LotNumCol))
-                    
+                    'Sell Price
+                    Set rgIntersect = Intersect(Target, Me.Columns(SellPriceCol))
+    
                     If Not rgIntersect Is Nothing Then
-                        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-                        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
-                        
-                        sProducer = rgIntersect.Offset(0, ProducerCol - LotNumCol).Value
-                        sProductName = rgIntersect.Offset(0, ProductNameCol - LotNumCol).Value
-                        sProductSeries = rgIntersect.Offset(0, ProductSeriesCol - LotNumCol).Value
-                        
-                        If fNzero(sProducer) And fNzero(sProductName) Then
-                            Call fSetFilterForSheet(shtSelfPurchaseOrder, Array(1, 2, 3), Array(sProducer, sProductName, sProductSeries))
-                            Call fCopyFilteredDataToRange(shtSelfPurchaseOrder, 8)
-                            
-                            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
-                            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
-                            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
-                        End If
+'                        If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+'                        If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
+'
+'                        sProducer = rgIntersect.Offset(0, ProducerCol - SellPriceCol).Value
+'                        sProductName = rgIntersect.Offset(0, ProductNameCol - SellPriceCol).Value
+'                        sProductSeries = rgIntersect.Offset(0, ProductSeriesCol - SellPriceCol).Value
+'                        sLotNum = rgIntersect.Offset(0, LotNumCol - SellPriceCol).Value
+'
+'                        If fNzero(sProducer) And fNzero(sProductName) Then
+'                            Call fSetFilterForSheet(shtSelfPurchaseOrder, Array(1, 2, 3, 8), Array(sProducer, sProductName, sProductSeries, sLotNum))
+'                            Call fCopyFilteredDataToRange(shtSelfPurchaseOrder, 7)
+'
+'                            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
+'                            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
+'                            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
+'                        End If
                     Else
 '                        'Sell Quantity
 '                        Set rgIntersect = Intersect(Target, Me.Columns(SellQuantityCol))
@@ -226,7 +219,7 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         End If
     End If
     
-exit_sub:
+Exit_Sub:
     fEnableExcelOptionsAll
     Application.ScreenUpdating = True
     

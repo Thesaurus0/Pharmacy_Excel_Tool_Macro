@@ -51,7 +51,7 @@ Function fKeepCopyContent()
         shtDataStage.Range(PASTE_START_CELL).ClearComments
         shtDataStage.Range(PASTE_START_CELL).ClearContents
         shtDataStage.Range(PASTE_START_CELL).ClearFormats
-        shtDataStage.Range(PASTE_START_CELL).ClearHyperlinks
+        'shtDataStage.Range(PASTE_START_CELL).ClearHyperlinks
         shtDataStage.Range(PASTE_START_CELL).ClearNotes
         shtDataStage.Range(PASTE_START_CELL).ClearOutline
         sCopyStageRangeAddr = ""
@@ -171,11 +171,15 @@ Sub sub_ListAllFunctionsOfThisWorkbook()
 End Sub
 
 Sub Sub_ToHomeSheet()
-    If shtMenu.Visible = xlSheetVisible Then
-        shtMenu.Activate
-    Else
-        ThisWorkbook.Worksheets(1).Activate
-    End If
+    shtMainMenu.Visible = xlSheetVisible
+    shtMainMenu.Activate
+        
+'    If shtMainMenu.Visible = xlSheetVisible Then
+'        shtMainMenu.Activate
+'    Else
+'        shtMainMenu.Visible = xlSheetVisible
+'        ThisWorkbook.Worksheets(1).Activate
+'    End If
 End Sub
 
 Sub sub_ResetOnError_Initialize()
@@ -803,3 +807,18 @@ Sub subMain_ListAllSheets()
         Debug.Print shtEach.CodeName & DELIMITER & shtEach.Name
     Next
 End Sub
+
+Function fDeleteRemoveDataFormatFromSheetLeaveHeader(ByRef shtParam As Worksheet)
+    Dim lMaxRow As Long
+    lMaxRow = fGetValidMaxRow(shtParam)
+    
+    If lMaxRow > 2 Then
+        With fGetRangeByStartEndPos(shtParam, 2, 1, lMaxRow, fGetValidMaxCol(shtParam))
+            .ClearContents
+            '.ClearFormats
+            .ClearComments
+            .ClearNotes
+            .ClearOutline
+        End With
+    End If
+End Function

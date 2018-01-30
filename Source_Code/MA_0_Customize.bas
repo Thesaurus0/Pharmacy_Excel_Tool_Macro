@@ -6,7 +6,7 @@ Function fSetBackToConfigSheetAndUpdategDict_UserTicket()
     
     Dim ckb As Object
     
-    Dim eachObj As Object
+    'Dim eachObj As Object
     
     'for each eachobj in shtmenu.
     Dim i As Long
@@ -102,6 +102,9 @@ Function fSetConditionFormatForFundamentalSheets()
     
     Call fClearConditionFormatAndAdd(shtSelfPurchaseOrder, Array(1, 2, 3, 4, 5), True)
     Call fClearConditionFormatAndAdd(shtSelfInventory, Array(1, 2, 3, 5), True)
+    
+    Call fClearConditionFormatAndAdd(shtNewRuleProducts, Array(1, 2, 3), True)
+    
 End Function
 
 Function fClearConditionFormatAndAdd(sht As Worksheet, arrKeysCols, Optional bExtendToMore10ThousRows As Boolean = True)

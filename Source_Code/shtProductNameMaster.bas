@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Private Sub btnProductNameMasterValid_Click()
-    Call sub_Validate
+    Call fValidateSheet
 End Sub
 
 Private Sub Worksheet_Change(ByVal Target As Range)
@@ -45,8 +45,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
 End Sub
 
 
-Function fValidateSheet()
-    On Error GoTo exit_sub
+Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
+    On Error GoTo Exit_Sub
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -67,8 +67,8 @@ Function fValidateSheet()
     
     Call fSortDataInSheetSortSheetData(Me, Array(dictColIndex("ProductProducer"), dictColIndex("ProductName")))
 
-    fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-exit_sub:
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+Exit_Sub:
     fEnableExcelOptionsAll
     Set dictColIndex = Nothing
     Erase arrData

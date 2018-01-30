@@ -1,4 +1,4 @@
-Attribute VB_Name = "MB5_ReplaceInventory"
+Attribute VB_Name = "MB7_ReplaceCZLSales2Comp"
 Option Explicit
 Option Base 1
 
@@ -7,29 +7,29 @@ Dim arrWarningRows()
 Dim alErrCnt As Long
 Dim alWarningCnt As Long
 
-Sub subMain_ReplaceInventory()
+Sub subMain_ReplaceCZLSales2Comp()
     'If Not fIsDev Then On Error GoTo error_handling
    'On Error GoTo error_handling
     Call fSetReplaceUnifyErrorRowCount(999)
     
-    shtInventoryRawDataRpt.Visible = xlSheetVisible
+    shtSalesRawDataRpt.Visible = xlSheetVisible
     shtException.Visible = xlSheetVeryHidden
-    Call fUnProtectSheet(shtSalesCompInventory)
-    Call fCleanSheetOutputResetSheetOutput(shtSalesCompInventory)
+    Call fUnProtectSheet(shtSalesInfos)
+    Call fCleanSheetOutputResetSheetOutput(shtSalesInfos)
     Call fCleanSheetOutputResetSheetOutput(shtException)
     'shtException.Cells.NumberFormat = "@"
     shtException.Cells.WrapText = True
     
     fInitialization
 
-    gsRptID = "REPLACE_UNIFY_INVENTORY"
+    gsRptID = "REPLACE_UNIFY_SALES_INFO"
 
     Call fReadSysConfig_InputTxtSheetFile
 
     gsRptFilePath = fReadSysConfig_Output(, gsRptType)
     Call fLoadFilesAndRead2Variables
 
-    Call fPrepareOutputSheetHeaderAndTextColumns(shtSalesCompInventory)
+    Call fPrepareOutputSheetHeaderAndTextColumns(shtSalesInfos)
 
     ReDim arrErrRows(1 To UBound(arrMaster, 1) * 2)
     alErrCnt = 0
@@ -54,29 +54,29 @@ Sub subMain_ReplaceInventory()
     
 error_handling:
     'If shtException.Visible = xlSheetVisible Then
-        Call fAppendArray2Sheet(shtSalesCompInventory, arrOutput)
+        Call fAppendArray2Sheet(shtSalesInfos, arrOutput)
     
     
         'Call fReSequenceSeqNo
     
-    '    Call fSortDataInSheetSortSheetData(shtInventoryRawDataRpt, Array(dictRptColIndex("SalesCompanyName") _
+    '    Call fSortDataInSheetSortSheetData(shtSalesRawDataRpt, Array(dictRptColIndex("SalesCompanyName") _
                                                                     , dictRptColIndex("Hospital") _
                                                                     , dictRptColIndex("SalesDate") _
                                                                     , dictRptColIndex("ProductProducer") _
                                                                     , dictRptColIndex("ProductName") _
                                                                     , dictRptColIndex("ProductUnit")))
-        Call fFormatOutputSheet(shtSalesCompInventory)
+        Call fFormatOutputSheet(shtSalesInfos)
     
-       ' Call fProtectSheetAndAllowEdit(shtInventoryRawDataRpt, shtInventoryRawDataRpt.Columns(4), UBound(arrOutput, 1) + 1, UBound(arrOutput, 2), False)
-        Call fPostProcess(shtSalesCompInventory)
+       ' Call fProtectSheetAndAllowEdit(shtSalesRawDataRpt, shtSalesRawDataRpt.Columns(4), UBound(arrOutput, 1) + 1, UBound(arrOutput, 2), False)
+        Call fPostProcess(shtSalesInfos)
         
-        If alErrCnt > 0 Then Call fSetFormatForExceptionCells(shtSalesCompInventory, arrErrRows, "REPORT_ERROR_COLOR")
-        If alWarningCnt > 0 Then Call fSetFormatForExceptionCells(shtSalesCompInventory, arrWarningRows, "REPORT_WARNING_COLOR")
+        If alErrCnt > 0 Then Call fSetFormatForExceptionCells(shtSalesInfos, arrErrRows, "REPORT_ERROR_COLOR")
+        If alWarningCnt > 0 Then Call fSetFormatForExceptionCells(shtSalesInfos, arrWarningRows, "REPORT_WARNING_COLOR")
         Call fSetReplaceUnifyErrorRowCount(alErrCnt / 2)
     
-        shtSalesCompInventory.Visible = xlSheetVisible
-        shtSalesCompInventory.Activate
-        shtSalesCompInventory.Range("A1").Select
+        shtSalesInfos.Visible = xlSheetVisible
+        shtSalesInfos.Activate
+        shtSalesInfos.Range("A1").Select
         
     If shtException.Visible = xlSheetVisible Then
         Dim lExcepMaxCol As Long
@@ -91,8 +91,8 @@ error_handling:
     If fCheckIfGotBusinessError Then GoTo reset_excel_options
     If fCheckIfUnCapturedExceptionAbnormalError Then GoTo reset_excel_options
 
-    Call fSetReneratedReport(, shtSalesCompInventory.Name)
-    fMsgBox "成功整合在工作表：[" & shtSalesCompInventory.Name & "] 中，请检查！", vbInformation
+    Call fSetReneratedReport(, shtSalesInfos.Name)
+    fMsgBox "成功整合在工作表：[" & shtSalesInfos.Name & "] 中，请检查！", vbInformation
 
 reset_excel_options:
     
@@ -114,8 +114,8 @@ Private Function fProcessData()
     Dim sCompanyLongID As String
     Dim sCompanyName As String
     
-    'Dim sHospital As String
-    'Dim sReplacedHospital As String
+    Dim sHospital As String
+    Dim sReplacedHospital As String
     
     Dim sProducer As String
     Dim sReplacedProducer As String
@@ -132,14 +132,14 @@ Private Function fProcessData()
     
     Dim dblRatio As Double
     
-    'Dim dictNewHospital As Dictionary
+    Dim dictNewHospital As Dictionary
     Dim dictNewProducer As Dictionary
     Dim dictNewProductName As Dictionary
     Dim dictNewProductSeries As Dictionary
     Dim dictNewProductUnit As Dictionary
     Dim dictNewProductUnitOrig As Dictionary
     
-    'Set dictNewHospital = New Dictionary
+    Set dictNewHospital = New Dictionary
     Set dictNewProducer = New Dictionary
     Set dictNewProductName = New Dictionary
     Set dictNewProductSeries = New Dictionary
@@ -148,8 +148,8 @@ Private Function fProcessData()
 
     Dim sTmpKey As String
     For lEachRow = LBound(arrMaster, 1) To UBound(arrMaster, 1)
-        If dictMstColIndex.Exists("OrigInventoryID") Then
-            arrOutput(lEachRow, dictRptColIndex("OrigInventoryID")) = arrMaster(lEachRow, dictMstColIndex("OrigInventoryID"))
+        If dictMstColIndex.Exists("OrigSalesInfoID") Then
+            arrOutput(lEachRow, dictRptColIndex("OrigSalesInfoID")) = arrMaster(lEachRow, dictMstColIndex("OrigSalesInfoID"))
         End If
         
         If dictMstColIndex.Exists("SeqNo") Then
@@ -157,15 +157,15 @@ Private Function fProcessData()
         End If
         
         arrOutput(lEachRow, dictRptColIndex("SalesCompanyName")) = arrMaster(lEachRow, dictMstColIndex("SalesCompanyName"))
-        arrOutput(lEachRow, dictRptColIndex("InventoryDate")) = arrMaster(lEachRow, dictMstColIndex("InventoryDate"))
+        arrOutput(lEachRow, dictRptColIndex("SalesDate")) = arrMaster(lEachRow, dictMstColIndex("SalesDate"))
         arrOutput(lEachRow, dictRptColIndex("Quantity")) = arrMaster(lEachRow, dictMstColIndex("Quantity"))
-        'arrOutput(lEachRow, dictRptColIndex("SellPrice")) = arrMaster(lEachRow, dictMstColIndex("SellPrice"))
+        arrOutput(lEachRow, dictRptColIndex("SellPrice")) = arrMaster(lEachRow, dictMstColIndex("SellPrice"))
         'arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("SellAmount"))
-        'arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("SellPrice")) _
+        arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("SellPrice")) _
                                                             * arrMaster(lEachRow, dictMstColIndex("Quantity"))
         arrOutput(lEachRow, dictRptColIndex("LotNum")) = "'" & arrMaster(lEachRow, dictMstColIndex("LotNum"))
-        'sHospital = Trim(arrMaster(lEachRow, dictMstColIndex("Hospital")))
-        'arrOutput(lEachRow, dictRptColIndex("Hospital")) = sHospital
+        sHospital = Trim(arrMaster(lEachRow, dictMstColIndex("Hospital")))
+        arrOutput(lEachRow, dictRptColIndex("Hospital")) = sHospital
         sProducer = Trim(arrMaster(lEachRow, dictMstColIndex("ProductProducer")))
         arrOutput(lEachRow, dictRptColIndex("ProductProducer")) = sProducer
         sProductName = Trim(arrMaster(lEachRow, dictMstColIndex("ProductName")))
@@ -175,21 +175,21 @@ Private Function fProcessData()
         sProductUnit = Trim(arrMaster(lEachRow, dictMstColIndex("ProductUnit")))
         arrOutput(lEachRow, dictRptColIndex("ProductUnit")) = sProductUnit
         
-'        ' Hospital replace -----------------
-'        If Not fReplaceAndValidateInHospitalMaster(sHospital, sReplacedHospital) Then
-'            If Not dictNewHospital.Exists(sReplacedHospital) Then
-'                dictNewHospital.Add sReplacedHospital, "'" & (lEachRow + 1)
-'            Else
-'                dictNewHospital(sReplacedHospital) = dictNewHospital(sReplacedHospital) & "," & (lEachRow + 1)
-'            End If
-'
-'            alWarningCnt = alWarningCnt + 1
-'            arrWarningRows(alWarningCnt) = lEachRow + 1
-'            alWarningCnt = alWarningCnt + 1
-'            arrWarningRows(alWarningCnt) = dictRptColIndex("Hospital")
-'        End If
-'        arrOutput(lEachRow, dictRptColIndex("MatchedHospital")) = sReplacedHospital
-'        ' Hospital replace end -----------------
+        ' Hospital replace -----------------
+        If Not fReplaceAndValidateInHospitalMaster(sHospital, sReplacedHospital) Then
+            If Not dictNewHospital.Exists(sReplacedHospital) Then
+                dictNewHospital.Add sReplacedHospital, "'" & (lEachRow + 1)
+            Else
+                dictNewHospital(sReplacedHospital) = dictNewHospital(sReplacedHospital) & "," & (lEachRow + 1)
+            End If
+            
+            alWarningCnt = alWarningCnt + 1
+            arrWarningRows(alWarningCnt) = lEachRow + 1
+            alWarningCnt = alWarningCnt + 1
+            arrWarningRows(alWarningCnt) = dictRptColIndex("Hospital")
+        End If
+        arrOutput(lEachRow, dictRptColIndex("MatchedHospital")) = sReplacedHospital
+        ' Hospital replace end -----------------
         
         ' Product producer replace -----------------
         If Not fReplaceAndValidateInProducerMaster(sProducer, sReplacedProducer) Then
@@ -315,14 +315,14 @@ Private Function fProcessData()
         End If
         
         arrOutput(lEachRow, dictRptColIndex("ConvertQuantity")) = arrMaster(lEachRow, dictMstColIndex("Quantity")) * dblRatio
-       ' arrOutput(lEachRow, dictRptColIndex("ConvertSellPrice")) = arrMaster(lEachRow, dictMstColIndex("SellPrice")) / dblRatio
-        'arrOutput(lEachRow, dictRptColIndex("RecalSellAmount")) = arrOutput(lEachRow, dictRptColIndex("ConvertQuantity")) _
+        arrOutput(lEachRow, dictRptColIndex("ConvertSellPrice")) = arrMaster(lEachRow, dictMstColIndex("SellPrice")) / dblRatio
+        arrOutput(lEachRow, dictRptColIndex("RecalSellAmount")) = arrOutput(lEachRow, dictRptColIndex("ConvertQuantity")) _
                                                                 * arrOutput(lEachRow, dictRptColIndex("ConvertSellPrice"))
 next_sales:
     Next
     
-    'Call fAddNewFoundMissedHospitalToSheet(dictNewHospital, False)
-    'Call fAddNewFoundHospitalToSheetException(dictNewHospital, True)
+    Call fAddNewFoundMissedHospitalToSheet(dictNewHospital, False)
+    Call fAddNewFoundHospitalToSheetException(dictNewHospital, True)
     Call fAddNewFoundMissedProducerToSheetException(dictNewProducer)
     Call fAddNewFoundMissedProductNameToSheetException(dictNewProductName)
     Call fAddNewFoundMissedProductSeriesToSheetException(dictNewProductSeries)
@@ -667,9 +667,8 @@ End Function
 '        End If
 'End Function
 
-
-
 Private Function fSetReplaceUnifyErrorRowCount(ByVal rowCnt As Long) As Long
     Call fSetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT_COMPNAY_INVENTORY", CStr(rowCnt))
 End Function
+
 

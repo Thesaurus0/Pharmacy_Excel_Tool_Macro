@@ -2,7 +2,9 @@ Attribute VB_Name = "MB_0_RibbonButton"
 Option Explicit
 Option Base 1
 
-
+Sub subMain_NewRuleProducts()
+    fActiveVisibleSwitchSheet shtNewRuleProducts, , False
+End Sub
 
 Sub subMain_ImportSalesCompanyInventory()
     fActiveVisibleSwitchSheet shtMenuCompInvt, "A63", False
@@ -118,33 +120,69 @@ Sub subMain_SecondLevelCommission()
 End Sub
 
 Sub subMain_InvisibleHideAllBusinessSheets()
-    shtMenu.Visible = xlSheetVisible
-    
-    shtHospital.Visible = xlSheetVeryHidden
-    shtHospitalReplace.Visible = xlSheetVeryHidden
-    shtSalesRawDataRpt.Visible = xlSheetVeryHidden
-    shtSalesInfos.Visible = xlSheetVeryHidden
-    
-    shtProductMaster.Visible = xlSheetVeryHidden
-    shtProductNameReplace.Visible = xlSheetVeryHidden
-    shtProductProducerReplace.Visible = xlSheetVeryHidden
-    shtProductSeriesReplace.Visible = xlSheetVeryHidden
-    shtProductUnitRatio.Visible = xlSheetVeryHidden
-    shtProductProducerMaster.Visible = xlSheetVeryHidden
-    shtProductNameMaster.Visible = xlSheetVeryHidden
-    
-    shtException.Visible = xlSheetVeryHidden
-    shtProfit.Visible = xlSheetVeryHidden
-    shtSelfSalesOrder.Visible = xlSheetVeryHidden
-    shtSelfSalesPreDeduct.Visible = xlSheetVeryHidden
-    shtSelfPurchaseOrder.Visible = xlSheetVeryHidden
-    shtSalesManMaster.Visible = xlSheetVeryHidden
-    shtFirstLevelCommission.Visible = xlSheetVeryHidden
-    shtSecondLevelCommission.Visible = xlSheetVeryHidden
-    shtSalesManCommConfig.Visible = xlSheetVeryHidden
-    
-    shtSelfInventory.Visible = xlSheetVeryHidden
+    fVeryHideSheet shtHospital
+    fVeryHideSheet shtHospitalReplace
+    fVeryHideSheet shtSalesRawDataRpt
+    fVeryHideSheet shtSalesInfos
+    fVeryHideSheet shtProductMaster
+    fVeryHideSheet shtProductNameReplace
+    fVeryHideSheet shtProductProducerReplace
+    fVeryHideSheet shtProductSeriesReplace
+    fVeryHideSheet shtProductUnitRatio
+    fVeryHideSheet shtProductProducerMaster
+    fVeryHideSheet shtProductNameMaster
+    fVeryHideSheet shtException
+    fVeryHideSheet shtProfit
+    fVeryHideSheet shtSelfSalesOrder
+    fVeryHideSheet shtSelfSalesPreDeduct
+    fVeryHideSheet shtSelfPurchaseOrder
+    fVeryHideSheet shtSalesManMaster
+    fVeryHideSheet shtFirstLevelCommission
+    fVeryHideSheet shtSecondLevelCommission
+    fVeryHideSheet shtSalesManCommConfig
+    fVeryHideSheet shtSelfInventory
     fVeryHideSheet shtMenuCompInvt
+    fVeryHideSheet shtMenu
+    fVeryHideSheet shtInventoryRawDataRpt
+    fVeryHideSheet shtSalesCompInventory
+    fVeryHideSheet shtImportCZL2SalesCompSales
+    fVeryHideSheet shtCZLSales2CompRawData
+    
+    fShowSheet shtMainMenu
+    shtMainMenu.Activate
+End Sub
+
+Sub subMain_ShowAllBusinessSheets()
+    fShowSheet shtHospital
+    fShowSheet shtHospitalReplace
+    fShowSheet shtSalesRawDataRpt
+    fShowSheet shtSalesInfos
+    fShowSheet shtProductMaster
+    fShowSheet shtProductNameReplace
+    fShowSheet shtProductProducerReplace
+    fShowSheet shtProductSeriesReplace
+    fShowSheet shtProductUnitRatio
+    fShowSheet shtProductProducerMaster
+    fShowSheet shtProductNameMaster
+    fShowSheet shtException
+    fShowSheet shtProfit
+    fShowSheet shtSelfSalesOrder
+    fShowSheet shtSelfSalesPreDeduct
+    fShowSheet shtSelfPurchaseOrder
+    fShowSheet shtSalesManMaster
+    fShowSheet shtFirstLevelCommission
+    fShowSheet shtSecondLevelCommission
+    fShowSheet shtSalesManCommConfig
+    fShowSheet shtSelfInventory
+    fShowSheet shtMenuCompInvt
+    fShowSheet shtMenu
+    fShowSheet shtInventoryRawDataRpt
+    fShowSheet shtSalesCompInventory
+    fShowSheet shtImportCZL2SalesCompSales
+    fShowSheet shtCZLSales2CompRawData
+    
+    fShowSheet shtMainMenu
+    shtMainMenu.Activate
 End Sub
 
 Function fActiveVisibleSwitchSheet(shtToSwitch As Worksheet, Optional sRngAddrToSelect As String = "A1" _
@@ -230,28 +268,44 @@ next_wbsheet:
 End Function
 
 Sub subMain_ValidateAllSheetsData()
-    'On Error GoTo Exit_Sub
+    On Error GoTo Exit_Sub
     
-    If Not shtHospital.fValidateSheet Then Exit Sub
-    If Not shtProductMaster.fValidateSheet Then Exit Sub
-    If Not shtProductNameMaster.fValidateSheet Then Exit Sub
-    If Not shtProductProducerMaster.fValidateSheet Then Exit Sub
-    If Not shtSalesManMaster.fValidateSheet Then Exit Sub
-    If Not shtSalesManCommConfig.fValidateSheet Then Exit Sub
+    fGetProgressBar
+    gProBar.ShowBar
+    gProBar.ChangeProcessBarValue 0.1
+    If Not shtHospital.fValidateSheet(False) Then GoTo Exit_Sub
+    gProBar.ChangeProcessBarValue 0.2
+    If Not shtProductMaster.fValidateSheet(False) Then GoTo Exit_Sub
+    gProBar.ChangeProcessBarValue 0.3
+    If Not shtProductNameMaster.fValidateSheet(False) Then GoTo Exit_Sub
+    gProBar.ChangeProcessBarValue 0.4
+    If Not shtProductProducerMaster.fValidateSheet(False) Then GoTo Exit_Sub
+    gProBar.ChangeProcessBarValue 0.5
+    If Not shtSalesManMaster.fValidateSheet(False) Then GoTo Exit_Sub
+    If Not shtSalesManCommConfig.fValidateSheet(False) Then GoTo Exit_Sub
     
-    If Not shtHospitalReplace.fValidateSheet Then Exit Sub
-    If Not shtProductProducerReplace.fValidateSheet Then Exit Sub
-    If Not shtProductNameReplace.fValidateSheet Then Exit Sub
-    If Not shtProductSeriesReplace.fValidateSheet Then Exit Sub
-    If Not shtProductUnitRatio.fValidateSheet Then Exit Sub
+    gProBar.ChangeProcessBarValue 0.6
+    If Not shtNewRuleProducts.fValidateSheet(False) Then GoTo Exit_Sub
     
-    If Not shtFirstLevelCommission.fValidateSheet Then Exit Sub
-    If Not shtSecondLevelCommission.fValidateSheet Then Exit Sub
+    gProBar.ChangeProcessBarValue 0.7
+    If Not shtHospitalReplace.fValidateSheet(False) Then GoTo Exit_Sub
+    If Not shtProductProducerReplace.fValidateSheet(False) Then GoTo Exit_Sub
+    If Not shtProductNameReplace.fValidateSheet(False) Then GoTo Exit_Sub
+    gProBar.ChangeProcessBarValue 0.8
+    If Not shtProductSeriesReplace.fValidateSheet(False) Then GoTo Exit_Sub
+    If Not shtProductUnitRatio.fValidateSheet(False) Then GoTo Exit_Sub
+    gProBar.ChangeProcessBarValue 0.9
+    If Not shtFirstLevelCommission.fValidateSheet(False) Then GoTo Exit_Sub
+    If Not shtSecondLevelCommission.fValidateSheet(False) Then GoTo Exit_Sub
+    gProBar.ChangeProcessBarValue 1
+    If Not shtSelfPurchaseOrder.fValidateSheet(False) Then GoTo Exit_Sub
+    If Not shtSelfSalesOrder.fValidateSheet(False) Then GoTo Exit_Sub
     
-    If Not shtSelfSalesOrder.fValidateSheet Then Exit Sub
-    If Not shtSelfPurchaseOrder.fValidateSheet Then Exit Sub
-    
-'Exit_Sub:
+    gProBar.DestroyBar
+    fMsgBox "done, not error found.", vbInformation
+Exit_Sub:
+    'If Err.Number <> 0 Then fMsgBox Err.Number
+    gProBar.DestroyBar
 End Sub
 
 Sub subMain_BackToLastPosition()
@@ -264,7 +318,7 @@ Sub subMain_BackToLastPosition()
     Const PREV_COL = 3
     
     bFound = False
-    On Error GoTo exit_sub
+    On Error GoTo Exit_Sub
     
     Dim shtLast As Worksheet
     Dim lEachRow As Long
@@ -300,7 +354,7 @@ previous_row:
         Call fAppendDataToLastCellOfColumn(shtDataStage, PREV_COL, sLastSheetName)
     End If
     
-exit_sub:
+Exit_Sub:
     Set shtLast = Nothing
     'Application.EnableEvents = True
 End Sub
@@ -315,7 +369,7 @@ Sub subMain_BackToPreviousPosition()
     Const PREV_COL = 3
     
     bFound = False
-    On Error GoTo exit_sub
+    On Error GoTo Exit_Sub
     
     Dim shtPrev As Worksheet
     Dim lEachRow As Long
@@ -351,7 +405,7 @@ previous_row:
         Call fAppendDataToLastCellOfColumn(shtDataStage, LAST_COL, sPrevSheetName)
     End If
     
-exit_sub:
+Exit_Sub:
     Set shtPrev = Nothing
     'Application.EnableEvents = True
 End Sub
@@ -415,17 +469,26 @@ Sub Sub_DataMigration()
         Set shtTargetEach = eachSheet
         
         Set shtSource = fFindSheetBySheetCodeName(wbSource, shtTargetEach)
-    
+        Call fRemoveFilterForSheet(shtSource)
+        
         Call fConvertFomulaToValueForSheetIfAny(shtSource)
         Call fCopyReadWholeSheetData2Array(shtSource, arrSource)
         'arrSource = wbSource.shtProductMaster.UsedRange.Value2
-
+        Call fDeleteRemoveDataFormatFromSheetLeaveHeader(shtTargetEach)
+        
         Call fWriteArray2Sheet(shtTargetEach, arrSource)
+        
+        If UBound(arrSource, 1) - LBound(arrSource, 1) + 2 <> fGetValidMaxRow(shtTargetEach) Then
+            fErr "UBound(arrSource, 1) - LBound(arrSource, 1) + 2 <> fGetValidMaxRow(shtTargetEach)"
+        End If
+        
         Erase arrSource
     Next
     
     Call fCloseWorkBookWithoutSave(wbSource)
 error_handling:
+    If Err.Number <> 0 Then MsgBox Err.Description
+    
     Erase arrSource
     If Not wbSource Is Nothing Then Call fCloseWorkBookWithoutSave(wbSource)
     
@@ -433,6 +496,7 @@ error_handling:
     
     If fCheckIfGotBusinessError Then Err.Clear
     If fCheckIfUnCapturedExceptionAbnormalError Then End
+    
     
     MsgBox "done"
 End Sub
@@ -473,3 +537,36 @@ Sub subMain_SelfInventory()
     
     fMsgBox "本公司库存计算完成！", vbInformation
 End Sub
+
+Function fAutoFileterAllSheets()
+    
+    fResetAutoFilter shtHospital
+    fResetAutoFilter shtHospitalReplace
+    fResetAutoFilter shtSalesRawDataRpt
+    fResetAutoFilter shtSalesInfos
+    fResetAutoFilter shtProductMaster
+    fResetAutoFilter shtProductNameReplace
+    fResetAutoFilter shtProductProducerReplace
+    fResetAutoFilter shtProductSeriesReplace
+    fResetAutoFilter shtProductUnitRatio
+    fResetAutoFilter shtProductProducerMaster
+    fResetAutoFilter shtProductNameMaster
+    fResetAutoFilter shtProfit
+    fResetAutoFilter shtSelfSalesOrder
+    fResetAutoFilter shtSelfSalesPreDeduct
+    fResetAutoFilter shtSelfPurchaseOrder
+    fResetAutoFilter shtSalesManMaster
+    fResetAutoFilter shtFirstLevelCommission
+    fResetAutoFilter shtSecondLevelCommission
+    fResetAutoFilter shtSalesManCommConfig
+    fResetAutoFilter shtSelfInventory
+    fResetAutoFilter shtInventoryRawDataRpt
+    fResetAutoFilter shtSalesCompInventory
+    fResetAutoFilter shtImportCZL2SalesCompSales
+    fResetAutoFilter shtCZLSales2CompRawData
+End Function
+
+Function fResetAutoFilter(sht As Worksheet)
+    sht.Rows(1).AutoFilter
+    sht.Rows(1).AutoFilter
+End Function

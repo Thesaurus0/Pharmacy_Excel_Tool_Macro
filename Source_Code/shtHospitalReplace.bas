@@ -8,11 +8,11 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Private Sub btnValidate_Click()
-    Call sub_Validate
+    Call fValidateSheet
 End Sub
 
-Function fValidateSheet()
-    On Error GoTo exit_sub
+Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
+    On Error GoTo Exit_Sub
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -34,8 +34,8 @@ Function fValidateSheet()
 
     Call fCheckIfHospitalExistsInHospitalMaster(arrData, dictColIndex("ToHospital"))
 
-    fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-exit_sub:
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+Exit_Sub:
     fEnableExcelOptionsAll
     Set dictColIndex = Nothing
     Erase arrData

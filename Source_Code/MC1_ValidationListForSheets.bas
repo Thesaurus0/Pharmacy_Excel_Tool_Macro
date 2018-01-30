@@ -239,7 +239,7 @@ Function fSetValidationListForshtSelfInventory_Producer(sValidationListAddr As S
     sTargetCol = "A"
     
     lMaxRow = shtSelfInventory.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 10000000
+    If lMaxRow > Rows.Count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSelfInventory.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function

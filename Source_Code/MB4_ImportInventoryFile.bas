@@ -112,9 +112,8 @@ Private Function fLoadFilesAndRead2Variables()
 
 End Function
 
-
-
 Function fValidateUserInputAndSetToConfigSheet()
+    Dim ckb As Object
     Dim i As Integer
     Dim sEachCompanyID As String
     Dim sFilePathRange As String
@@ -124,18 +123,25 @@ Function fValidateUserInputAndSetToConfigSheet()
         sEachCompanyID = dictCompList.Keys(i)
         'sFilePathRange = "rngSalesFilePath_" & sEachCompanyID
         
-        sFilePathRange = fGetCompany_InputFileTextBoxName(sEachCompanyID)
-        sEachFilePath = Trim(shtCurrMenu.Range(sFilePathRange).Value)
-        
-        If Not fFileExists(sEachFilePath) Then
-            shtCurrMenu.Activate
-            shtCurrMenu.Range(sFilePathRange).Select
-            fErr Split(dictCompList(sEachCompanyID), DELIMITER)(1) & ": 输入的文件不存在，请检查：" & vbCr & sEachFilePath
+        If Not fActiveXControlExistsInSheet(shtCurrMenu, fGetCompany_CheckBoxName(sEachCompanyID), ckb) Then
+            fErr "the checkbox in this sheet does not exist, please check the configureation : [Sales Company List](CheckBox Name)" & fGetCompany_CheckBoxName(sEachCompanyID)
         End If
         
-        'Call fSetSalesInfoFileToMainConfig(sEachCompanyID, sEachFilePath)
+        If ckb.Value Then
+            sFilePathRange = fGetCompany_InputFileTextBoxName(sEachCompanyID)
+            sEachFilePath = Trim(shtCurrMenu.Range(sFilePathRange).Value)
+            
+            If Not fFileExists(sEachFilePath) Then
+                shtCurrMenu.Activate
+                shtCurrMenu.Range(sFilePathRange).Select
+                fErr Split(dictCompList(sEachCompanyID), DELIMITER)(1) & ": 输入的文件不存在，请检查：" & vbCr & sEachFilePath
+            End If
+        
+         'Call fSetSalesInfoFileToMainConfig(sEachCompanyID, sEachFilePath)
+        End If
     Next
 End Function
+
 
 'Function fSetSalesInfoFileToMainConfig(sCompanyId As String, sFile As String)
 '    Call fSetSpecifiedConfigCellAddress(shtSysConf, "[Input Files]", "File Full Path", "Company ID=" & sCompanyId, sFile)
@@ -265,7 +271,7 @@ Function fReSequenceSeqNo()
     Erase arr
 End Function
 
-'Function fIfClearImport() As Boolean
+'Private Function fIfClearImport() As Boolean
 '    fIfClearImport = shtCurrMenu.OBClearImport.Value
 '
 '    Dim response As VbMsgBoxResult

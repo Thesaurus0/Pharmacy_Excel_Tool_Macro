@@ -12,8 +12,8 @@ Private Sub btnValidate_Click()
     Call fValidateSheet
 End Sub
 
-Function fValidateSheet()
-    On Error GoTo exit_sub
+Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
+    On Error GoTo Exit_Sub
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -37,8 +37,8 @@ Function fValidateSheet()
 '        End If
 '    Next
     
-    fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-exit_sub:
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+Exit_Sub:
     Set dictColIndex = Nothing
     fEnableExcelOptionsAll
     Erase arrData

@@ -12,8 +12,8 @@ Private Sub btnValidate_Click()
     Call fValidateSheet
 End Sub
 
-Function fValidateSheet()
-    On Error GoTo exit_sub
+Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
+    On Error GoTo Exit_Sub
     
     Dim lErrRowNo As Long, lErrColNo As Long
     
@@ -37,7 +37,7 @@ Function fValidateSheet()
     Call fValidateBlankInArray(arrData, dictColIndex("ProductUnit"), Me, 1, 1, "药品单位")
     Call fValidateDateColInArray(arrData, dictColIndex("PurchaseDate"), Me, 1, 1, "销售出货日期")
     'Call fValidateBlankInArray(arrData, dictColIndex("PurchasePrice"), Me, 1, 1, "出货单价")
-    Call fValidateBlankInArray(arrData, dictColIndex("LotNum"), Me, 1, 1, "批号")
+    'Call fValidateBlankInArray(arrData, dictColIndex("LotNum"), Me, 1, 1, "批号")
     
     Call fSortDataInSheetSortSheetData(Me, Array(dictColIndex("PurchaseDate") _
                                                 , dictColIndex("ProductProducer") _
@@ -45,8 +45,8 @@ Function fValidateSheet()
 
     Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), lErrRowNo, lErrColNo)
 
-    fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-exit_sub:
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+Exit_Sub:
     fEnableExcelOptionsAll
     Set dictColIndex = Nothing
     Erase arrData
@@ -78,7 +78,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 End Sub
 
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
-    On Error GoTo exit_sub
+    On Error GoTo Exit_Sub
     Application.ScreenUpdating = False
     
     Const ProducerCol = 1
@@ -90,8 +90,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
     
     If Not rgIntersect Is Nothing Then
-        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+        If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+        If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
             
         Dim sProducer As String
         Dim sValidationListAddr As String
@@ -111,8 +111,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Set rgIntersect = Intersect(Target, Me.Columns(ProductSeriesCol))
         
         If Not rgIntersect Is Nothing Then
-            If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-            If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+            If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+            If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
             
             sProducer = rgIntersect.Offset(0, ProducerCol - ProductSeriesCol).Value
             sProductName = rgIntersect.Offset(0, ProductNameCol - ProductSeriesCol).Value
@@ -131,8 +131,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
             Set rgIntersect = Intersect(Target, Me.Columns(ProductUnitCol))
             
             If Not rgIntersect Is Nothing Then
-                If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-                If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+                If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+                If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
                 
                 sProducer = rgIntersect.Offset(0, ProducerCol - ProductUnitCol).Value
                 sProductName = rgIntersect.Offset(0, ProductNameCol - ProductUnitCol).Value
@@ -152,7 +152,7 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         End If
     End If
     
-exit_sub:
+Exit_Sub:
     fEnableExcelOptionsAll
     Application.ScreenUpdating = True
     

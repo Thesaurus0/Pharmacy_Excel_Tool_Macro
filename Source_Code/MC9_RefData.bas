@@ -896,13 +896,7 @@ exit_fun:
 End Function
 '------------------------------------------------------------------------------
 
-Function fGetReplaceUnifyErrorRowCount() As Long
-    fGetReplaceUnifyErrorRowCount = CLng(fGetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT"))
-End Function
 
-Function fSetReplaceUnifyErrorRowCount(ByVal rowCnt As Long) As Long
-    Call fSetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT", CStr(rowCnt))
-End Function
 
 Function fCheckIfProductExistsInProductMaster(arrData, iColProducer As Integer, iColProductName As Integer, iColProductSeries As Integer _
                 , Optional ByRef alErrRowNo As Long, Optional ByRef alErrColNo As Long)
@@ -933,8 +927,8 @@ Function fCheckIfProductExistsInProductMaster(arrData, iColProducer As Integer, 
     Next
 End Function
 
-
-Function fCheckIfProducerExistsInProducerMaster(arrData, iColProducer As Integer, Optional sErr As String = "")
+Function fCheckIfProducerExistsInProducerMaster(arrData, iColProducer As Integer, Optional sErr As String = "" _
+                    , Optional lErrRowNo As Long, Optional lErrColNo As Long)
     Dim lEachRow As Long
     Dim sProducer As String
     
@@ -944,6 +938,8 @@ Function fCheckIfProducerExistsInProducerMaster(arrData, iColProducer As Integer
         sProducer = Trim(arrData(lEachRow, iColProducer))
         
         If Not fProducerExistsInProducerMaster(sProducer) Then
+            lErrRowNo = (lEachRow + 1)
+            lErrColNo = iColProducer
             fErr IIf(fZero(sErr), "药品厂家", sErr) & "不存在于药品厂家主表中" & vbCr & "行号：" & (lEachRow + 1)
             Exit For
         End If
@@ -1074,14 +1070,14 @@ Function fReadExcludeProductListConfig2Dictionary()
                                 , lOutConfigHeaderAtRow:=lConfigHeaderAtRow _
                                 , abNoDataConfigThenError:=True)
     
-    Call fValidateDuplicateInArray(arrConfigData, Array(arrColsIndex(1), arrColsIndex(2), arrColsIndex(3)), False, shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "药品厂家 + 名称 + 规格")
+   ' Call fValidateDuplicateInArray(arrConfigData, Array(arrColsIndex(1), arrColsIndex(2), arrColsIndex(3)), False, shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "药品厂家 + 名称 + 规格")
     Call fValidateBlankInArray(arrConfigData, arrColsIndex(1), shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "药品厂家")
     Call fValidateBlankInArray(arrConfigData, arrColsIndex(2), shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "药品名称")
     Call fValidateBlankInArray(arrConfigData, arrColsIndex(3), shtStaticData, lConfigHeaderAtRow, lConfigStartCol, "药品规格")
     
     Set dictExcludeProducts = fReadArray2DictionaryMultipleKeysWithKeysOnly(arrConfigData _
                                 , Array(arrColsIndex(1), arrColsIndex(2), arrColsIndex(3)) _
-                                , DELIMITER)
+                                , DELIMITER, , False)
 
 '    Dim lEachRow As Long
 '    Dim lActualRow As Long

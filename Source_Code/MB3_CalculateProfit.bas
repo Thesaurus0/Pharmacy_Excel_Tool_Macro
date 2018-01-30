@@ -616,3 +616,8 @@ Private Function fComposeSalesManList(sSalesManager As String, sSalesMan_1 As St
     fComposeSalesManList = sOut
 End Function
 
+
+Function fGetReplaceUnifyErrorRowCount() As Long
+    fGetReplaceUnifyErrorRowCount = CLng(fGetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT"))
+End Function
+

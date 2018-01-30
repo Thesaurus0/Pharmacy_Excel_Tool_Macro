@@ -15,8 +15,8 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     Call fResetdictHospitalMaster
 End Sub
 
-Function fValidateSheet(Optional bErrMsgBox As Boolean = True)
-    On Error GoTo exit_sub
+Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
+    On Error GoTo Exit_Sub
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -33,8 +33,8 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True)
     
     Call fSortDataInSheetSortSheetData(Me, dictColIndex("Hospital"))
     
-    fMsgBox "[" & Me.Name & "]主表 没有发现错误", vbInformation
-exit_sub:
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]主表 没有发现错误", vbInformation
+Exit_Sub:
     fEnableExcelOptionsAll
     Set dictColIndex = Nothing
     Erase arrData

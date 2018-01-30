@@ -8,11 +8,12 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Private Sub btnValidate_Click()
-    Call sub_Validate
+    Call fValidateSheet
 End Sub
 
-Function fValidateSheet()
-    On Error GoTo exit_sub
+Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
+    On Error GoTo Exit_Sub
+    Dim lErrRowNo As Long, lErrColNo As Long
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -32,10 +33,10 @@ Function fValidateSheet()
                                   , dictColIndex("ToProducer")) _
                                 , False, Me, 1, 1, "生产厂家+替换为")
 
-    Call fCheckIfProducerExistsInProducerMaster(arrData, dictColIndex("ToProducer"), "[替换为]")
+    Call fCheckIfProducerExistsInProducerMaster(arrData, dictColIndex("ToProducer"), "[替换为]", lErrRowNo, lErrColNo)
     
-    fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-exit_sub:
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+Exit_Sub:
     fEnableExcelOptionsAll
     Set dictColIndex = Nothing
     Erase arrData
@@ -45,6 +46,9 @@ exit_sub:
         fValidateSheet = False
     Else
         fValidateSheet = True
+    End If
+    If lErrRowNo > 0 Then
+        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
 End Function
 

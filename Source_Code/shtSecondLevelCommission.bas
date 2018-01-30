@@ -12,7 +12,7 @@ Private Sub btnShtSecondLevelValidation_Click()
 End Sub
 
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
-    On Error GoTo exit_sub
+    On Error GoTo Exit_Sub
     Application.ScreenUpdating = False
     
     Const ProducerCol = 3
@@ -24,8 +24,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
     
     If Not rgIntersect Is Nothing Then
-        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+        If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+        If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
             
         Dim sProducer As String
         Dim sValidationListAddr As String
@@ -45,8 +45,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Set rgIntersect = Intersect(Target, Me.Columns(ProductSeriesCol))
         
         If Not rgIntersect Is Nothing Then
-            If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-            If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+            If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+            If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
             
             sProducer = rgIntersect.Offset(0, ProducerCol - ProductSeriesCol).Value
             sProductName = rgIntersect.Offset(0, ProductNameCol - ProductSeriesCol).Value
@@ -85,15 +85,15 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         End If
     End If
     
-exit_sub:
+Exit_Sub:
     fEnableExcelOptionsAll
     Application.ScreenUpdating = True
     
     If Err.Number <> 0 Then fMsgBox Err.Description
 End Sub
 
-Function fValidateSheet()
-    On Error GoTo exit_sub
+Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
+    On Error GoTo Exit_Sub
     
     Dim lErrRowNo As Long, lErrColNo As Long
     
@@ -121,12 +121,12 @@ Function fValidateSheet()
     Call fValidateBlankInArray(arrData, dictColIndex("ProductSeries"), Me, 1, 1, "药品规格")
     
     Call fCheckIfHospitalExistsInHospitalMaster(arrData, dictColIndex("Hospital"))
-    Call fCheckIfProducerExistsInProducerMaster(arrData, dictColIndex("ProductProducer"))
+    Call fCheckIfProducerExistsInProducerMaster(arrData, dictColIndex("ProductProducer"), , lErrRowNo, lErrColNo)
     Call fCheckIfProductNameExistsInProductNameMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), "", lErrRowNo, lErrColNo)
     Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), lErrRowNo, lErrColNo)
     
-    fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-exit_sub:
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+Exit_Sub:
     Set dictColIndex = Nothing
     fEnableExcelOptionsAll
     Erase arrData

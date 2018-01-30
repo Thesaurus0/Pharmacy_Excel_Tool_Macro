@@ -12,8 +12,8 @@ Private Sub btnValidate_Click()
     Call fValidateSheet
 End Sub
 
-Function fValidateSheet() As Boolean
-    On Error GoTo exit_sub
+Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
+    On Error GoTo Exit_Sub
     
     Dim lErrRowNo As Long, lErrColNo As Long
     
@@ -45,16 +45,16 @@ Function fValidateSheet() As Boolean
                                   , dictColIndex("BidPrice")) _
                                 , False, Me, 1, 1, "商业公司+医院+生产厂家+药品名称+规格+中标价")
                                 
-    Call fCheckIfProducerExistsInProducerMaster(arrData, dictColIndex("ProductProducer"), "[药品生产厂家]")
-    Call fCheckIfProductNameExistsInProductNameMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), "药品名称")
+    Call fCheckIfProducerExistsInProducerMaster(arrData, dictColIndex("ProductProducer"), "[药品生产厂家]", lErrRowNo, lErrColNo)
+    Call fCheckIfProductNameExistsInProductNameMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), "药品名称", lErrRowNo, lErrColNo)
     Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), lErrRowNo, lErrColNo)
 
     Call fCheckIfSalesManExistsInSalesManMaster(arrData, dictColIndex("SalesMan1"), "[业务员1]", lErrRowNo, lErrColNo)
     Call fCheckIfSalesManExistsInSalesManMaster(arrData, dictColIndex("SalesMan2"), "[业务员2]", lErrRowNo, lErrColNo)
     Call fCheckIfSalesManExistsInSalesManMaster(arrData, dictColIndex("SalesMan3"), "[业务员3]", lErrRowNo, lErrColNo)
 
-    fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-exit_sub:
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+Exit_Sub:
     fEnableExcelOptionsAll
     Set dictColIndex = Nothing
     Erase arrData
@@ -72,7 +72,7 @@ exit_sub:
 End Function
 
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
-    On Error GoTo exit_sub
+    On Error GoTo Exit_Sub
     Application.ScreenUpdating = False
     
     Const ProducerCol = 3
@@ -88,8 +88,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
     
     If Not rgIntersect Is Nothing Then
-        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+        If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+        If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
 
         sProducer = rgIntersect.Offset(0, ProducerCol - ProductNameCol).Value
         
@@ -106,8 +106,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Set rgIntersect = Intersect(Target, Me.Columns(ProductSeriesCol))
         
         If Not rgIntersect Is Nothing Then
-            If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-            If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+            If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
+            If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
             
             sProducer = rgIntersect.Offset(0, ProducerCol - ProductSeriesCol).Value
             sProductName = rgIntersect.Offset(0, ProductNameCol - ProductSeriesCol).Value
@@ -123,7 +123,7 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         End If
     End If
     
-exit_sub:
+Exit_Sub:
     fEnableExcelOptionsAll
     Application.ScreenUpdating = True
     
