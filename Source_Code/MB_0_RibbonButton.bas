@@ -274,27 +274,25 @@ Sub subMain_ValidateAllSheetsData()
     gProBar.ShowBar
     gProBar.ChangeProcessBarValue 0.1
     If Not shtHospital.fValidateSheet(False) Then GoTo Exit_Sub
-    gProBar.ChangeProcessBarValue 0.2
     If Not shtProductMaster.fValidateSheet(False) Then GoTo Exit_Sub
-    gProBar.ChangeProcessBarValue 0.3
+    gProBar.ChangeProcessBarValue 0.2
     If Not shtProductNameMaster.fValidateSheet(False) Then GoTo Exit_Sub
-    gProBar.ChangeProcessBarValue 0.4
     If Not shtProductProducerMaster.fValidateSheet(False) Then GoTo Exit_Sub
-    gProBar.ChangeProcessBarValue 0.5
+    gProBar.ChangeProcessBarValue 0.3
     If Not shtSalesManMaster.fValidateSheet(False) Then GoTo Exit_Sub
     If Not shtSalesManCommConfig.fValidateSheet(False) Then GoTo Exit_Sub
     
-    gProBar.ChangeProcessBarValue 0.6
+    gProBar.ChangeProcessBarValue 0.4
     If Not shtNewRuleProducts.fValidateSheet(False) Then GoTo Exit_Sub
     
-    gProBar.ChangeProcessBarValue 0.7
     If Not shtHospitalReplace.fValidateSheet(False) Then GoTo Exit_Sub
+    gProBar.ChangeProcessBarValue 0.5
     If Not shtProductProducerReplace.fValidateSheet(False) Then GoTo Exit_Sub
     If Not shtProductNameReplace.fValidateSheet(False) Then GoTo Exit_Sub
-    gProBar.ChangeProcessBarValue 0.8
+    gProBar.ChangeProcessBarValue 0.7
     If Not shtProductSeriesReplace.fValidateSheet(False) Then GoTo Exit_Sub
     If Not shtProductUnitRatio.fValidateSheet(False) Then GoTo Exit_Sub
-    gProBar.ChangeProcessBarValue 0.9
+    gProBar.ChangeProcessBarValue 0.8
     If Not shtFirstLevelCommission.fValidateSheet(False) Then GoTo Exit_Sub
     If Not shtSecondLevelCommission.fValidateSheet(False) Then GoTo Exit_Sub
     gProBar.ChangeProcessBarValue 1
@@ -302,7 +300,7 @@ Sub subMain_ValidateAllSheetsData()
     If Not shtSelfSalesOrder.fValidateSheet(False) Then GoTo Exit_Sub
     
     gProBar.DestroyBar
-    fMsgBox "done, not error found.", vbInformation
+    fMsgBox "没有发现错误！", vbInformation
 Exit_Sub:
     'If Err.Number <> 0 Then fMsgBox Err.Number
     gProBar.DestroyBar

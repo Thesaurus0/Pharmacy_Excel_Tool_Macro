@@ -72,6 +72,7 @@ End Sub
 
 Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     On Error GoTo Exit_Sub
+    Dim lErrRowNo As Long, lErrColNo As Long
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -96,7 +97,7 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
                                 , False, Me, 1, 1, "生产厂家+药品名称+原始规格+替换")
                                 
     
-    Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ToProductSeries"))
+    Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ToProductSeries"), lErrRowNo, lErrColNo)
 
     If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
 Exit_Sub:
@@ -109,6 +110,10 @@ Exit_Sub:
         fValidateSheet = False
     Else
         fValidateSheet = True
+    End If
+    If lErrRowNo > 0 Then
+        fShowAndActiveSheet Me
+        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
 End Function
 

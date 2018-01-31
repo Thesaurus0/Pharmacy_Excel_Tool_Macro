@@ -85,6 +85,7 @@ End Sub
 
 Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     On Error GoTo Exit_Sub
+    Dim lErrRowNo As Long, lErrColNo As Long
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -110,7 +111,9 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     For lEachRow = LBound(arrData, 1) To UBound(arrData, 1)
         If Not fProductNameExistsInProductNameMaster(CStr(arrData(lEachRow, dictColIndex("ProductProducer"))) _
                                             , CStr(arrData(lEachRow, dictColIndex("ProductName")))) Then
-            fErr "【药品厂家 + 药品名称】不存在于药品名称主表中。" & vbCr & "行号：" & lEachRow + 1
+            lErrRowNo = (lEachRow + 1)
+            lErrColNo = dictColIndex("ProductName")
+            fErr "表：【" & Me.Name & "】" & vbCr & vbCr & "【药品名称】不存在于药品名称主表中。" & vbCr & "行号：" & lEachRow + 1
         End If
     Next
     
@@ -125,5 +128,9 @@ Exit_Sub:
         fValidateSheet = False
     Else
         fValidateSheet = True
+    End If
+    If lErrRowNo > 0 Then
+        fShowAndActiveSheet Me
+        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
 End Function

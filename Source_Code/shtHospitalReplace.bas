@@ -11,8 +11,9 @@ Private Sub btnValidate_Click()
     Call fValidateSheet
 End Sub
 
-Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
+Function fValidateSheet(Optional bErrMsgBox As Boolean = True, Optional ByRef alErrRowNo As Long, Optional ByRef alErrColNo As Long) As Boolean
     On Error GoTo Exit_Sub
+    Dim lErrRowNo As Long, lErrColNo As Long
     
     Call fTrimAllCellsForSheet(Me)
     
@@ -32,7 +33,7 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
                                   , dictColIndex("ToHospital")) _
                                 , False, Me, 1, 1, "医院+替换为")
 
-    Call fCheckIfHospitalExistsInHospitalMaster(arrData, dictColIndex("ToHospital"))
+    Call fCheckIfHospitalExistsInHospitalMaster(arrData, dictColIndex("ToHospital"), , lErrRowNo, lErrColNo)
 
     If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
 Exit_Sub:
@@ -45,6 +46,11 @@ Exit_Sub:
         fValidateSheet = False
     Else
         fValidateSheet = True
+    End If
+    
+    If lErrRowNo > 0 Then
+        fShowAndActiveSheet Me
+        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
 End Function
 

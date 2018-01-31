@@ -90,6 +90,7 @@ Exit_Sub:
         fValidateSheet = True
     End If
     If lErrRowNo > 0 Then
+        fShowAndActiveSheet Me
         Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
 

@@ -40,6 +40,8 @@ Exit_Sub:
     Erase arrData
     
     If Err.Number <> 0 Then
+        alErrRowNo = (lEachRow + 1)
+        alErrColNo = iColProductSeries
         fShowAndActiveSheet Me
         fValidateSheet = False
     Else

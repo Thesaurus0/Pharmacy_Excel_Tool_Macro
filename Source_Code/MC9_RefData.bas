@@ -966,7 +966,8 @@ Function fCheckIfProductNameExistsInProductNameMaster(arrData, iColProducer As I
         End If
     Next
 End Function
-Function fCheckIfHospitalExistsInHospitalMaster(arrData, iColHospital As Integer, Optional sErr As String = "")
+Function fCheckIfHospitalExistsInHospitalMaster(arrData, iColHospital As Integer, Optional sErr As String = "" _
+        , Optional ByRef alErrRowNo As Long, Optional ByRef alErrColNo As Long)
     Dim lEachRow As Long
     Dim sHospital As String
     
@@ -976,6 +977,8 @@ Function fCheckIfHospitalExistsInHospitalMaster(arrData, iColHospital As Integer
         sHospital = Trim(arrData(lEachRow, iColHospital))
         
         If Not fHospitalExistsInHospitalMaster(sHospital) Then
+            alErrRowNo = (lEachRow + 1)
+            alErrColNo = iColHospital
             fErr IIf(fZero(sErr), "医院", sErr) & "不存在于医院主表中" & vbCr & "行号：" & (lEachRow + 1)
             Exit For
         End If
