@@ -157,6 +157,8 @@ Private Function fProcessData()
     Dim sSalesMan_1 As String, sSalesMan_2 As String, sSalesMan_3 As String, sSalesManager As String
     Dim dblComm_1 As Double, dblComm_2 As Double, dblComm_3 As Double, dblSalesMgrComm As Double
     Dim dblGrossProfitAmt As Double
+    Dim dblNewRSalesTaxRate As Double
+    Dim dblNewRPurchaseTaxRate As Double
     
     Dim dblSellPrice As Double
     
@@ -229,7 +231,6 @@ Private Function fProcessData()
         
         dblGrossPrice = dblSellPrice * (1 - dblFirstLevelComm) * (1 - dblSecondLevelComm)
         arrOutput(lEachRow, dictRptColIndex("GrossPrice")) = dblGrossPrice
-        arrOutput(lEachRow, dictRptColIndex("TaxAmount")) = dblGrossPrice * fGetTaxRate
         
         '==== cost price ==========================================
         sProductKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
@@ -249,8 +250,21 @@ Private Function fProcessData()
         End If
         
         arrOutput(lEachRow, dictRptColIndex("CostPrice")) = dblCostPrice
+                                                                
+        If Not fNewRuleProduct(sProductKey) Then
+            arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = dblGrossPrice * fGetTaxRate
+            arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit")) = 0
+        Else
+            Call fGetNewRuleProductTaxRate(sProductKey, dblNewRSalesTaxRate, dblNewRPurchaseTaxRate)
+            
+            arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = (dblGrossPrice - dblCostPrice) * dblNewRSalesTaxRate
+            arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit")) = (dblGrossPrice - dblCostPrice - arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit"))) _
+                                                    * dblNewRPurchaseTaxRate
+        End If
         
-        arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblGrossPrice - dblCostPrice - arrOutput(lEachRow, dictRptColIndex("TaxAmount"))
+        arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblGrossPrice - dblCostPrice _
+                                                            - arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) _
+                                                            - arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit"))
         
         dblGrossProfitAmt = arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) * dblQuantity
         arrOutput(lEachRow, dictRptColIndex("GrossProfitAmt")) = dblGrossProfitAmt
@@ -294,6 +308,9 @@ Private Function fProcessData()
                                                                 * dblSalesMgrComm
 
         arrOutput(lEachRow, dictRptColIndex("SalesManList")) = fComposeSalesManList(sSalesManager, sSalesMan_1, sSalesMan_2, sSalesMan_3)
+        arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_1")) = dblComm_1 * dblQuantity
+        arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_2")) = dblComm_2 * dblQuantity
+        arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_3")) = dblComm_3 * dblQuantity
 next_sales:
     Next
     
@@ -607,7 +624,8 @@ Private Function fComposeSalesManList(sSalesManager As String, sSalesMan_1 As St
         End If
     Else
         If Len(Trim(sSalesManList)) > 0 Then
-            sOut = "(" & sSalesManList & ")"    'sSalesManList
+            'sOut = "(" & sSalesManList & ")"    'sSalesManList
+            sOut = sSalesManList      'sSalesManList
         Else
             sOut = ""
         End If

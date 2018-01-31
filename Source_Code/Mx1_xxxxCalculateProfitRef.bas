@@ -228,7 +228,7 @@ Private Function fProcessData()
         
         dblGrossPrice = dblSellPrice * (1 - dblFirstLevelComm) * (1 - dblSecondLevelComm)
         arrOutput(lEachRow, dictRptColIndex("GrossPrice")) = dblGrossPrice
-        arrOutput(lEachRow, dictRptColIndex("TaxAmount")) = dblGrossPrice * fGetTaxRate
+        arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = dblGrossPrice * fGetTaxRate
         
         '==== cost price ==========================================
         sProductKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
@@ -248,7 +248,7 @@ Private Function fProcessData()
         End If
         
         arrOutput(lEachRow, dictRptColIndex("CostPrice")) = dblCostPrice
-        arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblGrossPrice - dblCostPrice - arrOutput(lEachRow, dictRptColIndex("TaxAmount"))
+        arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblGrossPrice - dblCostPrice - arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit"))
         
         dblGrossProfitAmt = arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) * dblQuantity
         arrOutput(lEachRow, dictRptColIndex("GrossProfitAmt")) = dblGrossProfitAmt

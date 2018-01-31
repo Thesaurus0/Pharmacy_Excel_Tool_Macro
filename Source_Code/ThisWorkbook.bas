@@ -32,6 +32,7 @@ Private Sub Workbook_BeforeClose(Cancel As Boolean)
     Application.AskToUpdateLinks = True
     ThisWorkbook.CheckCompatibility = False
     
+    Application.OnKey "^{BACKSPACE}"
 End Sub
 
 Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
@@ -40,6 +41,7 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
 End Sub
 
 Private Sub Workbook_Open()
+    Application.OnKey "^{BACKSPACE}", "Sub_ToHomeSheet"
     fGetProgressBar
     gProBar.ShowBar
     gsEnv = fGetEnvFromSysConf

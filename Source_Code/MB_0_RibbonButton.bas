@@ -147,6 +147,7 @@ Sub subMain_InvisibleHideAllBusinessSheets()
     fVeryHideSheet shtSalesCompInventory
     fVeryHideSheet shtImportCZL2SalesCompSales
     fVeryHideSheet shtCZLSales2CompRawData
+    fVeryHideSheet shtNewRuleProducts
     
     fShowSheet shtMainMenu
     shtMainMenu.Activate

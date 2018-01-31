@@ -11,6 +11,10 @@ Private Sub btnValidate_Click()
     Call fValidateSheet
 End Sub
 
+Private Sub Worksheet_Change(ByVal Target As Range)
+    fResetdictNewRuleProducts
+End Sub
+
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     On Error GoTo Exit_Sub
     Application.ScreenUpdating = False
@@ -111,7 +115,7 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
                                                 , dictColIndex("ProductName") _
                                                 , dictColIndex("ProductSeries")) _
                 , False, Me, 1, 1, " 厂家+名称+规格")
-                 
+
     Call fValidateBlankInArray(arrData, dictColIndex("ProductProducer"), Me, 1, 1, "药品厂家")
     Call fValidateBlankInArray(arrData, dictColIndex("ProductName"), Me, 1, 1, "药品名称")
     Call fValidateBlankInArray(arrData, dictColIndex("ProductSeries"), Me, 1, 1, "药品规格")

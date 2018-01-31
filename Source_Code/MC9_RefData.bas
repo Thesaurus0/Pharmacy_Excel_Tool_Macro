@@ -54,6 +54,8 @@ Dim dictExcludeProducts As Dictionary
 Dim dictSelfPurchaseOD As Dictionary
 Dim dictSelfSalesOD As Dictionary
 
+Dim dictNewRuleProducts As Dictionary
+
 Function fReadConfigCompanyList(Optional ByRef dictCompanyNameID As Dictionary) As Dictionary
     Dim asTag As String
     Dim arrColsName()
@@ -985,6 +987,10 @@ Function fCheckIfHospitalExistsInHospitalMaster(arrData, iColHospital As Integer
     Next
 End Function
 
+Function fResetdictNewRuleProducts()
+    Set dictNewRuleProducts = Nothing
+End Function
+
 Function fResetdictSelfPurchaseOD()
     Set dictSelfPurchaseOD = Nothing
 End Function
@@ -1331,3 +1337,35 @@ Function fCalculateSelfInventory()
     Call fAppendArray2Sheet(shtSelfInventory, arrOut)
     Erase arrOut
 End Function
+
+
+'====================== ProductSeries Master =================================================================
+Function fReadSheetNewRuleProducts2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    Call fReadSheetDataByConfig("NEW_RULE_PRODUCTS_CONFIG", dictColIndex, arrData, , , , , shtNewRuleProducts)
+    Call fValidateDuplicateInArray(arrData, Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries")), False, shtNewRuleProducts, 1, 1, "厂家 + 名称 + 规格")
+    
+    Set dictNewRuleProducts = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
+                                    , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries")) _
+                                    , Array(dictColIndex("SalesTaxRate"), dictColIndex("PurchaseTaxRate")), DELIMITER, DELIMITER)
+    Set dictColIndex = Nothing
+End Function
+Function fNewRuleProduct(sProductKey As String) As Boolean
+    If dictNewRuleProducts Is Nothing Then fReadSheetNewRuleProducts2Dictionary
+    fNewRuleProduct = dictNewRuleProducts.Exists(sProductKey)
+End Function
+Function fGetNewRuleProductTaxRate(sProductKey As String, ByRef dblNewRSalesTaxRate As Double, ByRef dblNewRPurchaseTaxRate As Double)
+    If dictNewRuleProducts Is Nothing Then fReadSheetNewRuleProducts2Dictionary
+    
+    If dictNewRuleProducts.Exists(sProductKey) Then
+        dblNewRSalesTaxRate = Split(dictNewRuleProducts(sProductKey), DELIMITER)(0)
+        dblNewRPurchaseTaxRate = Split(dictNewRuleProducts(sProductKey), DELIMITER)(1)
+    Else
+        dblNewRSalesTaxRate = 0
+        dblNewRPurchaseTaxRate = 0
+    End If
+End Function
+'------------------------------------------------------------------------------
+
