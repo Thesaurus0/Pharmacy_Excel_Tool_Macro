@@ -2,6 +2,7 @@ Attribute VB_Name = "MB_0_RibbonButton"
 Option Explicit
 Option Base 1
 
+
 Sub subMain_NewRuleProducts()
     fActiveVisibleSwitchSheet shtNewRuleProducts, , False
 End Sub
@@ -120,6 +121,7 @@ Sub subMain_SecondLevelCommission()
 End Sub
 
 Sub subMain_InvisibleHideAllBusinessSheets()
+    fVeryHideSheet shtCompanyNameReplace
     fVeryHideSheet shtHospital
     fVeryHideSheet shtHospitalReplace
     fVeryHideSheet shtSalesRawDataRpt
@@ -147,6 +149,7 @@ Sub subMain_InvisibleHideAllBusinessSheets()
     fVeryHideSheet shtSalesCompInventory
     fVeryHideSheet shtImportCZL2SalesCompSales
     fVeryHideSheet shtCZLSales2CompRawData
+    fVeryHideSheet shtCZLSales2Companies
     fVeryHideSheet shtNewRuleProducts
     
     fShowSheet shtMainMenu
@@ -154,6 +157,7 @@ Sub subMain_InvisibleHideAllBusinessSheets()
 End Sub
 
 Sub subMain_ShowAllBusinessSheets()
+    fShowSheet shtCompanyNameReplace
     fShowSheet shtHospital
     fShowSheet shtHospitalReplace
     fShowSheet shtSalesRawDataRpt
@@ -181,6 +185,7 @@ Sub subMain_ShowAllBusinessSheets()
     fShowSheet shtSalesCompInventory
     fShowSheet shtImportCZL2SalesCompSales
     fShowSheet shtCZLSales2CompRawData
+    fShowSheet shtCZLSales2Companies
     
     fShowSheet shtMainMenu
     shtMainMenu.Activate
@@ -274,6 +279,7 @@ Sub subMain_ValidateAllSheetsData()
     fGetProgressBar
     gProBar.ShowBar
     gProBar.ChangeProcessBarValue 0.1
+    If Not shtCompanyNameReplace.fValidateSheet(False) Then GoTo Exit_Sub
     If Not shtHospital.fValidateSheet(False) Then GoTo Exit_Sub
     If Not shtProductMaster.fValidateSheet(False) Then GoTo Exit_Sub
     gProBar.ChangeProcessBarValue 0.2
@@ -433,6 +439,8 @@ Sub Sub_DataMigration()
     Dim sOldFile As String
     Dim arrSheetsToMigr
     
+    'to-do
+    'shtCompanyNameReplace
     arrSheetsToMigr = Array(shtHospital _
                             , shtProductProducerMaster _
                             , shtProductNameMaster _
@@ -538,7 +546,7 @@ Sub subMain_SelfInventory()
 End Sub
 
 Function fAutoFileterAllSheets()
-    
+    fResetAutoFilter shtCompanyNameReplace
     fResetAutoFilter shtHospital
     fResetAutoFilter shtHospitalReplace
     fResetAutoFilter shtSalesRawDataRpt
@@ -563,6 +571,7 @@ Function fAutoFileterAllSheets()
     fResetAutoFilter shtSalesCompInventory
     fResetAutoFilter shtImportCZL2SalesCompSales
     fResetAutoFilter shtCZLSales2CompRawData
+    fResetAutoFilter shtCZLSales2Companies
 End Function
 
 Function fResetAutoFilter(sht As Worksheet)

@@ -7,6 +7,7 @@ Function fSetValidationListForAllSheets()
     Call fSetValidationListForshtFirstLevelCommission_SalesCompany("=rngStaticSalesCompanyNames")
     Call fSetValidationListForshtSecondLevelCommission_SalesCompany("=rngStaticSalesCompanyNames")
     Call fSetValidationListForshtSalesManCommConfig_SalesCompany("=rngStaticSalesCompanyNames")
+    Call fSetValidationListForshtCompanyNameReplace_SalesCompany("=rngStaticSalesCompanyNames")
     '----------------------------------------------------------------------------------------
 
     '============== Hospital ========================================
@@ -282,6 +283,19 @@ Function fSetValidationListForshtSalesManCommConfig_SalesCompany(sValidationList
     lMaxRow = shtSalesManCommConfig.Columns(sTargetCol).End(xlDown).Row + 100000
     If lMaxRow > Rows.Count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSalesManCommConfig.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+                                    , sValidationListAddr)
+End Function
+
+Function fSetValidationListForshtCompanyNameReplace_SalesCompany(sValidationListAddr As String)
+    Dim sTargetCol As String
+    Dim lMaxRow As Long
+    
+    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - COMPANY_NAME_REPLACE_SHEET]" _
+                                            , "Column Index", "Column Tech Name=ToCompanyName")
+    
+    lMaxRow = shtCompanyNameReplace.Columns(sTargetCol).End(xlDown).Row + 10000
+    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    Call fSetValidationListForRange(shtCompanyNameReplace.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
 '----------------------------------------------------------------------------------------

@@ -1087,6 +1087,24 @@ Function fCleanSheetOutputResetSheetOutput(ByRef shtOutput As Worksheet)
     shtOutput.Cells.ClearContents
     shtOutput.UsedRange.Delete shift:=xlUp
 End Function
+
+Function fClearDataFromSheetLeaveHeader(ByRef shtOutput As Worksheet)
+    Call fRemoveFilterForSheet(shtOutput)
+    
+    Dim lMaxRow As Long
+    lMaxRow = fGetValidMaxRow(shtOutput)
+
+    If lMaxRow > 2 Then
+        With fGetRangeByStartEndPos(shtOutput, 2, 1, lMaxRow, fGetValidMaxCol(shtOutput))
+            .ClearContents
+            '.ClearFormats
+            .ClearComments
+            .ClearNotes
+            .ClearOutline
+        End With
+    End If
+End Function
+
 Function fRedimArrOutputBaseArrMaster()
     Dim lMaxCol As Long
     lMaxCol = fGetReportMaxColumn()

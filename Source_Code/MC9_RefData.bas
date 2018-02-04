@@ -12,6 +12,8 @@ Enum Company
     Selected = 7
 End Enum
  
+Dim dictCompanyNameReplace As Dictionary
+
 Dim dictHospitalMaster As Dictionary
 Dim dictHospitalReplace As Dictionary
 
@@ -531,7 +533,7 @@ Function fGetCompanyIdByCompanyName(sSalesCompName As String) As String
     sSalesCompName = Trim(sSalesCompName)
     If dictCompanyNameID Is Nothing Then Call fReadConfigCompanyList(dictCompanyNameID)
     
-    If Not dictCompanyNameID.Exists(sSalesCompName) Then fErr "公司名称有错误，请检查。"
+    If Not dictCompanyNameID.Exists(sSalesCompName) Then fErr "公司名称不存在于商业公司名称配置块rngStaticSalesCompanyNames中，请检查。"
     
     fGetCompanyIdByCompanyName = Trim(dictCompanyNameID(sSalesCompName))
 End Function
@@ -1294,8 +1296,8 @@ Function fCalculateSelfInventory()
     Call fRemoveFilterForSheet(shtSelfPurchaseOrder)
     Call fRemoveFilterForSheet(shtSelfSalesOrder)
     
-    If Not shtSelfSalesOrder.fValidateSheet Then Exit Function
-    If Not shtSelfPurchaseOrder.fValidateSheet Then Exit Function
+    If Not shtSelfSalesOrder.fValidateSheet(False) Then Exit Function
+    If Not shtSelfPurchaseOrder.fValidateSheet(False) Then Exit Function
     
     If dictSelfPurchaseOD Is Nothing Then Call fReadSheetSelfPurchaseOrder2Dictionary
     If dictSelfSalesOD Is Nothing Then Call fReadSheetSelfSalesOrder2Dictionary
@@ -1365,6 +1367,51 @@ Function fGetNewRuleProductTaxRate(sProductKey As String, ByRef dblNewRSalesTaxR
     Else
         dblNewRSalesTaxRate = 0
         dblNewRPurchaseTaxRate = 0
+    End If
+End Function
+'------------------------------------------------------------------------------
+
+
+Function fCompanyNameExistsInrngStaticSalesCompanyNames(sCompanyName As String) As Boolean
+    If dictCompanyNameID Is Nothing Then Call fReadConfigCompanyList(dictCompanyNameID)
+    
+    fCompanyNameExistsInrngStaticSalesCompanyNames = dictCompanyNameID.Exists(sCompanyName)
+End Function
+
+Function fCheckIfCompanyNameExistsInrngStaticSalesCompanyNames(arrData, iColProducer As Integer, Optional sErr As String = "" _
+                    , Optional lErrRowNo As Long, Optional lErrColNo As Long)
+    Dim lEachRow As Long
+    Dim sCompanyName As String
+        
+    For lEachRow = LBound(arrData, 1) To UBound(arrData, 1)
+        sCompanyName = Trim(arrData(lEachRow, iColProducer))
+        
+        If Not fCompanyNameExistsInrngStaticSalesCompanyNames(sCompanyName) Then
+            lErrRowNo = (lEachRow + 1)
+            lErrColNo = iColProducer
+            fErr IIf(fZero(sErr), "商业公司名称", sErr) & "不存在于商业公司名称配置块rngStaticSalesCompanyNames中" & vbCr & "行号：" & (lEachRow + 1)
+            Exit For
+        End If
+    Next
+End Function
+
+'====================== CompanyName Replacement =================================================================
+Function fReadSheetCompanyNameReplace2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    Call fReadSheetDataByConfig("COMPANY_NAME_REPLACE_SHEET", dictColIndex, arrData, , , , , shtCompanyNameReplace)
+    Set dictCompanyNameReplace = fReadArray2DictionaryWithSingleCol(arrData, dictColIndex("FromCompanyName"), dictColIndex("ToCompanyName"))
+    
+    Set dictColIndex = Nothing
+End Function
+Function fFindInConfigedReplaceCompanyName(sCompanyName As String) As String
+    If dictCompanyNameReplace Is Nothing Then Call fReadSheetCompanyNameReplace2Dictionary
+    
+    If dictCompanyNameReplace.Exists(sCompanyName) Then
+        fFindInConfigedReplaceCompanyName = dictCompanyNameReplace(sCompanyName)
+    Else
+        fFindInConfigedReplaceCompanyName = ""
     End If
 End Function
 '------------------------------------------------------------------------------

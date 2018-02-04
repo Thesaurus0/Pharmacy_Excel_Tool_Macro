@@ -83,6 +83,7 @@ Function fInitialization()
 End Function
 
 Function fSetConditionFormatForFundamentalSheets()
+    Call fClearConditionFormatAndAdd(shtCompanyNameReplace, Array(1, 2), True)
     Call fClearConditionFormatAndAdd(shtHospital, Array(1), True)
     Call fClearConditionFormatAndAdd(shtHospitalReplace, Array(1, 2), True)
     Call fClearConditionFormatAndAdd(shtProductMaster, Array(1, 2, 3, 4), True)
@@ -95,13 +96,13 @@ Function fSetConditionFormatForFundamentalSheets()
     Call fClearConditionFormatAndAdd(shtSalesManMaster, Array(1), True)
     Call fClearConditionFormatAndAdd(shtFirstLevelCommission, Array(1, 2, 3, 4), True)
     Call fClearConditionFormatAndAdd(shtSecondLevelCommission, Array(1, 2, 3, 4), True)
-    Call fClearConditionFormatAndAdd(shtSelfSalesOrder, Array(1, 2, 3, 4, 5), True)
-    Call fClearConditionFormatAndAdd(shtSelfSalesPreDeduct, Array(1, 2, 3, 4, 5), True)
+    Call fClearConditionFormatAndAdd(shtSelfSalesOrder, Array(1, 2, 3, 4, 5), True)         'to-do
+    Call fClearConditionFormatAndAdd(shtSelfSalesPreDeduct, Array(1, 2, 3, 4, 5), True)       'to-do
     Call fClearConditionFormatAndAdd(shtSalesManCommConfig, Array(1, 2, 3, 4, 5, 6), True)
     Call fClearConditionFormatAndAdd(shtException, Array(1), True)
     
-    Call fClearConditionFormatAndAdd(shtSelfPurchaseOrder, Array(1, 2, 3, 4, 5), True)
-    Call fClearConditionFormatAndAdd(shtSelfInventory, Array(1, 2, 3, 5), True)
+    Call fClearConditionFormatAndAdd(shtSelfPurchaseOrder, Array(1, 2, 3, 4, 5), True)       'to-do
+    Call fClearConditionFormatAndAdd(shtSelfInventory, Array(1, 2, 3, 5), True)       'to-do
     
     Call fClearConditionFormatAndAdd(shtNewRuleProducts, Array(1, 2, 3), True)
     
