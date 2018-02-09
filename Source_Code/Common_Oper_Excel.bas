@@ -696,4 +696,17 @@ Function fShowSheet(ByRef sht As Worksheet)
     sht.Visible = xlSheetVisible
 End Function
 
-
+Function fClearContentLeaveHeader(shtParam As Worksheet)
+    Dim lMaxRow As Long
+    lMaxRow = fGetValidMaxRow(shtParam)
+    
+    If lMaxRow > 2 Then
+        With fGetRangeByStartEndPos(shtParam, 2, 1, lMaxRow, fGetValidMaxCol(shtParam))
+            .ClearContents
+            '.ClearFormats
+            .ClearComments
+            .ClearNotes
+            .ClearOutline
+        End With
+    End If
+End Function

@@ -17,6 +17,7 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     
     Call fTrimAllCellsForSheet(Me)
     
+    
     Dim arrData()
     Dim dictColIndex As Dictionary
     
@@ -37,6 +38,8 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
 '        End If
 '    Next
     
+    Call fSortDataInSheetSortSheetData(Me, dictColIndex("SalesManName"))
+                                                
     If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
 Exit_Sub:
     Set dictColIndex = Nothing

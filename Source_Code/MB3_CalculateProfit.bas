@@ -184,6 +184,9 @@ Private Function fProcessData()
         dblQuantity = arrMaster(lEachRow, dictMstColIndex("ConvertQuantity"))
         dblSellPrice = arrMaster(lEachRow, dictMstColIndex("ConvertSellPrice"))
     
+        sProductKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+    
+        arrOutput(lEachRow, dictRptColIndex("ProductKey")) = sProductKey
         arrOutput(lEachRow, dictRptColIndex("Hospital")) = sHospital
         arrOutput(lEachRow, dictRptColIndex("SalesCompanyName")) = sSalesCompName
         arrOutput(lEachRow, dictRptColIndex("ProductProducer")) = sProducer
@@ -233,7 +236,6 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("GrossPrice")) = dblGrossPrice
         
         '==== cost price ==========================================
-        sProductKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
         
         If Not fCalculateCostPriceFromSelfSalesOrder(sProductKey, dblQuantity, dblCostPrice) Then
             mlExcepCnt = mlExcepCnt + 1
@@ -634,8 +636,7 @@ Private Function fComposeSalesManList(sSalesManager As String, sSalesMan_1 As St
     fComposeSalesManList = sOut
 End Function
 
-
-Function fGetReplaceUnifyErrorRowCount() As Long
+Private Function fGetReplaceUnifyErrorRowCount() As Long
     fGetReplaceUnifyErrorRowCount = CLng(fGetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT"))
 End Function
 

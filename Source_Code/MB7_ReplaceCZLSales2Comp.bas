@@ -244,7 +244,7 @@ Private Function fProcessData()
         ' Product Unit ration -----------------
 '        Call fGetConvertUnitAndUnitRatio
 
-        sProductMasterUnit = fGetProductMasterUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries)
+        sProductMasterUnit = fGetProductUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries)
 
         dblRatio = 0
         If Len(Trim(sProductUnit)) <= 0 Then
@@ -551,7 +551,7 @@ End Function
 '                                        , ByRef dblRatio As Double) As Boolean
 '    sReplacedProductUnit = fFindInConfigedReplaceProductUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries _
 '                                                        , sProductUnit, dblRatio)
-'  '  sProductMasterUnit = fGetProductMasterUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries)
+'  '  sProductMasterUnit = fGetProductUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries)
 '
 ''    If Len(Trim(sReplacedProductUnit)) <= 0 Then
 ''        sReplacedProductUnit = sProductUnit
@@ -580,7 +580,7 @@ End Function
 'Function fGetConvertUnitAndUnitRatio() As Boolean
 '    Dim bOut As Boolean
 '
-'        sProductMasterUnit = fGetProductMasterUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries)
+'        sProductMasterUnit = fGetProductUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries)
 '
 '        dblRatio = 0
 '        If Len(Trim(sProductUnit)) <= 0 Then
@@ -628,7 +628,7 @@ End Function
 'End Function
 
 Private Function fSetReplaceUnifyErrorRowCount(ByVal rowCnt As Long) As Long
-    Call fSetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT_COMPNAY_INVENTORY", CStr(rowCnt))
+    Call fSetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT_CZL_SALES_2_COMPANIES", CStr(rowCnt))
 End Function
 
 Function fReplaceAndValidateInrngStaticSalesCompanyNames(sCompanyName As String, ByRef sReplacedCompanyName As String) As Boolean
@@ -638,3 +638,35 @@ Function fReplaceAndValidateInrngStaticSalesCompanyNames(sCompanyName As String,
     
     fReplaceAndValidateInrngStaticSalesCompanyNames = fCompanyNameExistsInrngStaticSalesCompanyNames(sReplacedCompanyName)
 End Function
+
+Function fAddMissedSelfSalesLotNumToSheetException(dictMissedLotNum As Dictionary)
+    Dim arrMissedLotNum()
+    'Dim sErr As String
+    Dim lRecCount As Long
+    Dim lStartRow As Long
+    
+    lRecCount = fGetDictionayDelimiteredItemsCount(dictMissedLotNum)
+    If lRecCount > 0 Then
+        lStartRow = fGetshtExceptionNewRow
+        
+        arrMissedLotNum = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictMissedLotNum, , False)
+        
+        Call fPrepareHeaderToSheet(shtException, Array("药品厂家", "药品名称", "药品规格", "不存在的批号"), lStartRow)
+        shtException.Rows(lStartRow).Font.Color = RGB(255, 0, 0)
+        shtException.Rows(lStartRow).Font.Bold = True
+        fGetRangeByStartEndPos(shtException, lStartRow + 1, 4, lStartRow + UBound(arrMissedLotNum, 1), 4).NumberFormat = "@"
+        Call fAppendArray2Sheet(shtException, arrMissedLotNum)
+        'sErr = fUbound(arrMissedLotNum)
+        
+'        shtException.Cells(lStartRow + 1, 8).Resize(dictMissedLotNum.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictMissedLotNum, False)
+       ' Erase arrMissedLotNum
+        Call fFreezeSheet(shtException)
+                
+        fShowAndActiveSheet shtException
+        If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
+
+        gsBusinessErrorMsg = gsBusinessErrorMsg & lRecCount & "个药品的出货的【批号】在本公司的出货表中找不到，" & vbCr _
+            & "请检查【本公司的出货表表】"
+    End If
+End Function
+

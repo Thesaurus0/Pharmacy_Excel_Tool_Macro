@@ -4,6 +4,7 @@ Option Base 1
 Dim arrQualifiedRows()
 
 Sub subMain_ImportCZL2CompanySalesFile()
+    fResetdictCZLSalesOD
     If Not fIsDev() Then On Error GoTo error_handling
     'On Error GoTo error_handling
     

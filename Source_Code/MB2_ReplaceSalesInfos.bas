@@ -253,7 +253,7 @@ Private Function fProcessData()
         ' Product Unit ration -----------------
 '        Call fGetConvertUnitAndUnitRatio
 
-        sProductMasterUnit = fGetProductMasterUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries)
+        sProductMasterUnit = fGetProductUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries)
 
         dblRatio = 0
         If Len(Trim(sProductUnit)) <= 0 Then
@@ -592,7 +592,7 @@ End Function
 '                                        , ByRef dblRatio As Double) As Boolean
 '    sReplacedProductUnit = fFindInConfigedReplaceProductUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries _
 '                                                        , sProductUnit, dblRatio)
-'  '  sProductMasterUnit = fGetProductMasterUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries)
+'  '  sProductMasterUnit = fGetProductUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries)
 '
 ''    If Len(Trim(sReplacedProductUnit)) <= 0 Then
 ''        sReplacedProductUnit = sProductUnit
@@ -621,7 +621,7 @@ End Function
 'Function fGetConvertUnitAndUnitRatio() As Boolean
 '    Dim bOut As Boolean
 '
-'        sProductMasterUnit = fGetProductMasterUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries)
+'        sProductMasterUnit = fGetProductUnit(sReplacedProducer, sReplacedProductName, sReplacedProductSeries)
 '
 '        dblRatio = 0
 '        If Len(Trim(sProductUnit)) <= 0 Then

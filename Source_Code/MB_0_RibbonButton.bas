@@ -151,6 +151,9 @@ Sub subMain_InvisibleHideAllBusinessSheets()
     fVeryHideSheet shtCZLSales2CompRawData
     fVeryHideSheet shtCZLSales2Companies
     fVeryHideSheet shtNewRuleProducts
+    fVeryHideSheet shtCZLInventory
+    fVeryHideSheet shtCZLPurchaseOrder
+    fVeryHideSheet shtPV
     
     fShowSheet shtMainMenu
     shtMainMenu.Activate
@@ -526,24 +529,55 @@ Function fFindSheetBySheetCodeName(wb As Workbook, shtToMatch As Worksheet) As W
 End Function
 
 Sub subMain_SelfInventory()
-    Dim lMaxRow As Long
-    lMaxRow = fGetValidMaxRow(shtSelfInventory)
+    If Not fIsDev() Then On Error GoTo err_handle
+    On Error GoTo err_handle
     
-    If lMaxRow > 2 Then
-        With fGetRangeByStartEndPos(shtSelfInventory, 2, 1, lMaxRow, fGetValidMaxCol(shtSelfInventory))
-            .ClearContents
-            '.ClearFormats
-            .ClearComments
-            .ClearNotes
-            .ClearOutline
-        End With
-    End If
+    gsRptID = "CALCULATE_PROFIT"
+    
+    fClearContentLeaveHeader shtSelfInventory
     
     fCalculateSelfInventory
     fActiveVisibleSwitchSheet shtSelfInventory, , False
     
     fMsgBox "本公司库存计算完成！", vbInformation
+err_handle:
 End Sub
+
+Sub subMain_CZLInventory()
+    If fGetReplaceUnifyCZLSales2CompaniesErrorRowCount > 0 Then
+        fMsgBox "采芝林的销售数据中有药品在系统中找不到，无法计算库存，请先处理这些错误。"
+        shtSalesInfos.Visible = xlSheetVisible
+        shtException.Visible = xlSheetVisible:         shtException.Activate
+        End
+    End If
+    
+    If Not fIsDev() Then On Error GoTo err_handle
+    
+    On Error GoTo err_handle
+    
+    gsRptID = "CALCULATE_PROFIT"
+    
+    fVeryHideSheet shtException
+    Call fCleanSheetOutputResetSheetOutput(shtException)
+    fClearContentLeaveHeader shtCZLInventory
+    
+    fCalculateCZLInventory
+    fActiveVisibleSwitchSheet shtCZLInventory, , False
+    
+    fMsgBox "【采芝林】库存计算完成！", vbInformation
+err_handle:
+
+    If shtException.Visible = xlSheetVisible Then
+        Dim lExcepMaxCol As Long
+        lExcepMaxCol = fGetValidMaxCol(shtException)
+        Call fSetFormatBoldOrangeBorderForHeader(shtException, lExcepMaxCol)
+        Call fSetBorderLineForSheet(shtException, lExcepMaxCol)
+        Call fBasicCosmeticFormatSheet(shtException, lExcepMaxCol)
+        Call fSetFormatForOddEvenLineByFixColor(shtException, lExcepMaxCol)
+        shtException.Activate
+    End If
+End Sub
+
 
 Function fAutoFileterAllSheets()
     fResetAutoFilter shtCompanyNameReplace
@@ -578,3 +612,12 @@ Function fResetAutoFilter(sht As Worksheet)
     sht.Rows(1).AutoFilter
     sht.Rows(1).AutoFilter
 End Function
+
+Function fGetReplaceUnifyCZLSales2CompaniesErrorRowCount() As Long
+    fGetReplaceUnifyCZLSales2CompaniesErrorRowCount = CLng(fGetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT_CZL_SALES_2_COMPANIES"))
+End Function
+
+Sub subMain_RefreshAllPvTables()
+    ThisWorkbook.RefreshAll
+    fShowAndActiveSheet shtPV
+End Sub

@@ -2,7 +2,7 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "shtSelfSalesOrder"
+Attribute VB_Name = "shtCZLPurchaseOrder"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
@@ -76,8 +76,6 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 End Sub
 
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
-   ' fKeepCopyContent
-
     On Error GoTo Exit_Sub
     Application.ScreenUpdating = False
     
@@ -226,6 +224,4 @@ Exit_Sub:
     Application.ScreenUpdating = True
     
     If Err.Number <> 0 Then fMsgBox Err.Description
-    
-    'fCopyFromKept
 End Sub

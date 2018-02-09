@@ -952,17 +952,21 @@ Function fCRMBCurrency2Dbl(ByVal aValue As String) As Double
 End Function
 
 Function fCopyReadWholeSheetData2Array(shtToRead As Worksheet, ByRef arrDataOut() _
-            , Optional dictLetterIndex As Dictionary, Optional alDataFromRow As Long = 2)
+            , Optional dictLetterIndex As Dictionary, Optional alDataFromRow As Long = 2, Optional alMaxCol As Long = 0)
     Dim lMaxRow As Long
     Dim lMaxCol As Long
     
     lMaxRow = fGetValidMaxRow(shtToRead)
     If lMaxRow < alDataFromRow Then arrDataOut = Array(): Exit Function
     
-    If dictLetterIndex Is Nothing Then
-        lMaxCol = fGetValidMaxCol(shtToRead)
+    If alMaxCol > 0 Then
+        lMaxCol = alMaxCol
     Else
-        lMaxCol = WorksheetFunction.Max(dictLetterIndex.Items)
+        If dictLetterIndex Is Nothing Then
+            lMaxCol = fGetValidMaxCol(shtToRead)
+        Else
+            lMaxCol = WorksheetFunction.Max(dictLetterIndex.Items)
+        End If
     End If
     
     arrDataOut = fReadRangeDatatoArrayByStartEndPos(shtToRead, alDataFromRow, 1, lMaxRow, lMaxCol)

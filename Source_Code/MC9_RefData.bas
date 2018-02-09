@@ -56,6 +56,9 @@ Dim dictExcludeProducts As Dictionary
 Dim dictSelfPurchaseOD As Dictionary
 Dim dictSelfSalesOD As Dictionary
 
+Dim dictCZLSalesOD As Dictionary
+Dim dictCZLSelfSalesOD As Dictionary
+
 Dim dictNewRuleProducts As Dictionary
 
 Function fReadConfigCompanyList(Optional ByRef dictCompanyNameID As Dictionary) As Dictionary
@@ -157,6 +160,7 @@ Function fGetCompany_CompanyLongID(asCompanyID As String) As String
     fGetCompany_CompanyLongID = Split(dictCompList(asCompanyID), DELIMITER)(Company.ID - Company.REPORT_ID - 1)
 End Function
 Function fGetCompany_CompanyName(asCompanyID As String) As String
+    If dictCompList Is Nothing Then Set dictCompList = fReadConfigCompanyList
     fGetCompany_CompanyName = Split(dictCompList(asCompanyID), DELIMITER)(Company.Name - Company.REPORT_ID - 1)
 End Function
 
@@ -361,7 +365,7 @@ Function fFindInConfigedReplaceProductUnit(sProductProducer As String, sProductN
     End If
 End Function
 
-Function fGetProductMasterUnit(sProductProducer As String, sProductName As String, sProductSeries As String) As String
+Function fGetProductUnit(ByVal sProductProducer As String, ByVal sProductName As String, ByVal sProductSeries As String) As String
 '    Dim sKey As String
     
 '    If dictProductMaster Is Nothing Then Call fReadSheetProductMaster2Dictionary
@@ -372,7 +376,7 @@ Function fGetProductMasterUnit(sProductProducer As String, sProductName As Strin
     If Not fProductKeysExistsInProductMaster(sProductProducer, sProductName, sProductSeries) Then _
         fErr "药品厂家+名称+规格 还不存在于药品主表中, 会计单位找不到的情况下，计算无法进行：" & vbCr & sProductProducer & vbCr & sProductName & vbCr & sProductSeries
     
-    fGetProductMasterUnit = Split(dictProductMaster(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries), DELIMITER)(0)
+    fGetProductUnit = Split(dictProductMaster(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries), DELIMITER)(0)
 End Function
 '------------------------------------------------------------------------------
 
@@ -997,6 +1001,12 @@ Function fResetdictSelfPurchaseOD()
     Set dictSelfPurchaseOD = Nothing
 End Function
 
+Function fResetdictCZLSelfSalesOD()
+    Set dictCZLSelfSalesOD = Nothing
+End Function
+Function fResetdictCZLSalesOD()
+    Set dictCZLSalesOD = Nothing
+End Function
 Function fResetdictSelfSalesOD()
     Set dictSelfSalesOD = Nothing
 End Function
@@ -1268,7 +1278,6 @@ End Function
 Function fCheckIfSelfSellAmountIsGreaterThanPurchaseByLotNumber(arrData, iColProducer As Integer, iColProductName As Integer, iColProductSeries As Integer _
                                         , iColLotNum As Integer, Optional ByRef alErrRowNo As Long, Optional ByRef alErrColNo As Long)
     Dim i As Long
-    Dim lEachRow As Long
     Dim sKey As String
     
     Call fRemoveFilterForSheet(shtSelfPurchaseOrder)
@@ -1280,12 +1289,12 @@ Function fCheckIfSelfSellAmountIsGreaterThanPurchaseByLotNumber(arrData, iColPro
         sKey = dictSelfSalesOD.Keys(i)
         
         If Not dictSelfPurchaseOD.Exists(sKey) Then
-            fErr "【药品+批号】不存在于本公司进货表中" & vbCr & "行号：" & (lEachRow + 1) & vbCr & vbCr & sKey
+            fErr "【药品+批号】不存在于本公司进货表中" & vbCr & "行号：" & Split(dictSelfSalesOD(sKey), DELIMITER)(1) & vbCr & vbCr & sKey
         Else
             If CDbl(Split(dictSelfSalesOD(sKey), DELIMITER)(0)) > CDbl(Split(dictSelfPurchaseOD(sKey), DELIMITER)(0)) Then
                 alErrRowNo = Split(dictSelfSalesOD(sKey), DELIMITER)(1)
                 alErrColNo = iColLotNum
-                fErr "【药品+批号】的总出货数量大于本公司进货表中的进货总数量" & vbCr & vbCr & sKey
+                fErr "【药品+批号】的总出货数量大于本公司进货表中的进货总数量" & vbCr & vbCr & sKey & vbCr & "行号：" & alErrRowNo
                 Exit For
             End If
         End If
@@ -1296,8 +1305,8 @@ Function fCalculateSelfInventory()
     Call fRemoveFilterForSheet(shtSelfPurchaseOrder)
     Call fRemoveFilterForSheet(shtSelfSalesOrder)
     
-    If Not shtSelfSalesOrder.fValidateSheet(False) Then Exit Function
-    If Not shtSelfPurchaseOrder.fValidateSheet(False) Then Exit Function
+    If Not shtSelfPurchaseOrder.fValidateSheet(False) Then fErr
+    If Not shtSelfSalesOrder.fValidateSheet(False) Then fErr
     
     If dictSelfPurchaseOD Is Nothing Then Call fReadSheetSelfPurchaseOrder2Dictionary
     If dictSelfSalesOD Is Nothing Then Call fReadSheetSelfSalesOrder2Dictionary
@@ -1329,6 +1338,7 @@ Function fCalculateSelfInventory()
         arrOut(i + 1, 1) = Split(sKey, DELIMITER)(0)
         arrOut(i + 1, 2) = Split(sKey, DELIMITER)(1)
         arrOut(i + 1, 3) = Split(sKey, DELIMITER)(2)
+        arrOut(i + 1, 4) = fGetProductUnit(arrOut(i + 1, 1), arrOut(i + 1, 2), arrOut(i + 1, 3))
         arrOut(i + 1, 5) = Split(sKey, DELIMITER)(3)
         
         arrOut(i + 1, 6) = dblPurchaseQty - dblSellQty
@@ -1416,3 +1426,181 @@ Function fFindInConfigedReplaceCompanyName(sCompanyName As String) As String
 End Function
 '------------------------------------------------------------------------------
 
+'====================== CZL Sales Order =================================================================
+Function fReadSheetCZLSalesOrder2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    Call fRemoveFilterForSheet(shtSelfSalesOrder)
+    Call fReadSheetDataByConfig("CZL_SALES_ORDER", dictColIndex, arrData, , , , , shtCZLSales2Companies)
+    'Call fValidateDuplicateInArray(arrData, Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries")), False, shtSelfSalesOrder, 1, 1, "厂家 + 名称 + 规格")
+    
+    Dim lEachRow As Long
+    Dim sProducer As String
+    Dim sProductName As String
+    Dim sProductSeries As String
+    Dim sLotNum As String
+    Dim sKey As String
+    Dim dictRowNoTmp As Dictionary
+    
+    Set dictCZLSalesOD = New Dictionary
+    Set dictRowNoTmp = New Dictionary
+    
+    For lEachRow = LBound(arrData, 1) To UBound(arrData, 1)
+        sProducer = Trim(arrData(lEachRow, dictColIndex("MatchedProductProducer")))
+        sProductName = Trim(arrData(lEachRow, dictColIndex("MatchedProductName")))
+        sProductSeries = Trim(arrData(lEachRow, dictColIndex("MatchedProductSeries")))
+        sLotNum = Trim(arrData(lEachRow, dictColIndex("LotNum")))
+        
+        sKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries & DELIMITER & sLotNum
+        
+        If Not dictCZLSalesOD.Exists(sKey) Then
+            dictCZLSalesOD.Add sKey, CDbl(arrData(lEachRow, dictColIndex("Quantity")))
+        Else
+            dictCZLSalesOD(sKey) = dictCZLSalesOD(sKey) + CDbl(arrData(lEachRow, dictColIndex("Quantity")))
+        End If
+        dictRowNoTmp(sKey) = (lEachRow + 1) & DELIMITER & arrData(lEachRow, dictColIndex("SellPrice"))
+    Next
+    
+    Dim i As Long
+    For i = 0 To dictCZLSalesOD.Count - 1
+        sKey = dictCZLSalesOD.Keys(i)
+        
+        dictCZLSalesOD(sKey) = dictCZLSalesOD(sKey) & DELIMITER & dictRowNoTmp(sKey)
+    Next
+    
+    Set dictColIndex = Nothing
+    Set dictRowNoTmp = Nothing
+End Function
+
+Function fReadSheetCZLSalesOrder2Hospital2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+    
+    Call fRemoveFilterForSheet(shtSelfSalesOrder)
+    Call fReadSheetDataByConfig("CZL_SALES_ORDER_TO_HOSPITAL", dictColIndex, arrData, , , , , shtSalesInfos)
+    'Call fValidateDuplicateInArray(arrData, Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries")), False, shtSelfSalesOrder, 1, 1, "厂家 + 名称 + 规格")
+    
+    Dim sCZLCompName As String
+    Dim lEachRow As Long
+    Dim sProducer As String
+    Dim sProductName As String
+    Dim sProductSeries As String
+    Dim sLotNum As String
+    Dim sKey As String
+    Dim dictRowNoTmp As Dictionary
+    
+    sCZLCompName = fGetCompany_CompanyName("CZL")
+    
+    Set dictCZLSelfSalesOD = New Dictionary
+    Set dictRowNoTmp = New Dictionary
+    
+    For lEachRow = LBound(arrData, 1) To UBound(arrData, 1)
+        If Trim(arrData(lEachRow, dictColIndex("SalesCompanyName"))) = sCZLCompName Then
+            sProducer = Trim(arrData(lEachRow, dictColIndex("MatchedProductProducer")))
+            sProductName = Trim(arrData(lEachRow, dictColIndex("MatchedProductName")))
+            sProductSeries = Trim(arrData(lEachRow, dictColIndex("MatchedProductSeries")))
+            sLotNum = Trim(arrData(lEachRow, dictColIndex("LotNum")))
+            
+            sKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries & DELIMITER & sLotNum
+            
+            If Not dictCZLSelfSalesOD.Exists(sKey) Then
+                dictCZLSelfSalesOD.Add sKey, CDbl(arrData(lEachRow, dictColIndex("Quantity")))
+            Else
+                dictCZLSelfSalesOD(sKey) = dictCZLSelfSalesOD(sKey) + CDbl(arrData(lEachRow, dictColIndex("Quantity")))
+            End If
+            dictRowNoTmp(sKey) = (lEachRow + 1) & DELIMITER & arrData(lEachRow, dictColIndex("SellPrice"))
+        End If
+    Next
+    
+    Dim i As Long
+    For i = 0 To dictCZLSelfSalesOD.Count - 1
+        sKey = dictCZLSelfSalesOD.Keys(i)
+        
+        dictCZLSelfSalesOD(sKey) = dictCZLSelfSalesOD(sKey) & DELIMITER & dictRowNoTmp(sKey)
+    Next
+    
+    Set dictColIndex = Nothing
+    Set dictRowNoTmp = Nothing
+End Function
+'------------------------------------------------------------------------------
+Function fCalculateCZLInventory()
+    Call fRemoveFilterForSheet(shtSelfSalesOrder)       'purchase
+    Call fRemoveFilterForSheet(shtCZLSales2Companies)       'sales
+    
+    If Not shtSelfSalesOrder.fValidateSheet(False) Then fErr    'purchase
+    'If Not shtCZLSalesOrder.fValidateSheet(False) Then fErr     'sales
+    
+    If dictSelfSalesOD Is Nothing Then Call fReadSheetSelfSalesOrder2Dictionary
+    If dictCZLSalesOD Is Nothing Then Call fReadSheetCZLSalesOrder2Dictionary
+    'If dictCZLSelfSalesOD Is Nothing Then
+    Call fReadSheetCZLSalesOrder2Hospital2Dictionary
+    
+    Dim i As Long
+    Dim lEachRow As Long
+    Dim sKey As String
+    Dim sProducer As String
+    Dim sProductName As String
+    Dim sProductSeries As String
+    Dim sLotNum As String
+    Dim dblPurchaseQty As Double
+    Dim dblSellQty As Double
+    Dim arrOut()
+    
+    Dim dictMissedLot As Dictionary
+    Set dictMissedLot = New Dictionary
+    
+    For i = 0 To dictCZLSalesOD.Count - 1
+        sKey = dictCZLSalesOD.Keys(i)
+        
+        If Not dictSelfSalesOD.Exists(sKey) Then
+            dictMissedLot.Add sKey, 0
+        End If
+    Next
+    For i = 0 To dictCZLSelfSalesOD.Count - 1
+        sKey = dictCZLSelfSalesOD.Keys(i)
+        
+        If Not dictSelfSalesOD.Exists(sKey) Then
+            If Not dictMissedLot.Exists(sKey) Then dictMissedLot.Add sKey, 0
+        End If
+    Next
+    
+    If dictMissedLot.Count > 0 Then
+        Call fAddMissedSelfSalesLotNumToSheetException(dictMissedLot)
+        fErr gsBusinessErrorMsg
+    End If
+    
+    Set dictMissedLot = Nothing
+    
+    ReDim arrOut(1 To dictSelfSalesOD.Count, 7) 'purchase
+    
+    For i = 0 To dictSelfSalesOD.Count - 1  'purchase
+        sKey = dictSelfSalesOD.Keys(i)
+        
+        dblPurchaseQty = CDbl(Split(dictSelfSalesOD(sKey), DELIMITER)(0))
+        
+        If dictCZLSalesOD.Exists(sKey) Then
+            dblSellQty = CDbl(Split(dictCZLSalesOD(sKey), DELIMITER)(0))
+        Else
+            dblSellQty = 0
+        End If
+        
+        If dictCZLSelfSalesOD.Exists(sKey) Then
+            dblSellQty = dblSellQty + CDbl(Split(dictCZLSelfSalesOD(sKey), DELIMITER)(0))
+        End If
+            
+        arrOut(i + 1, 1) = Split(sKey, DELIMITER)(0)
+        arrOut(i + 1, 2) = Split(sKey, DELIMITER)(1)
+        arrOut(i + 1, 3) = Split(sKey, DELIMITER)(2)
+        arrOut(i + 1, 4) = fGetProductUnit(arrOut(i + 1, 1), arrOut(i + 1, 2), arrOut(i + 1, 3))
+        arrOut(i + 1, 5) = "'" & Split(sKey, DELIMITER)(3)
+        
+        arrOut(i + 1, 6) = dblPurchaseQty - dblSellQty
+        arrOut(i + 1, 7) = CDbl(Split(dictSelfSalesOD(sKey), DELIMITER)(1))
+    Next
+    
+    'fCalculateCZLInventory = arrOut
+    Call fAppendArray2Sheet(shtCZLInventory, arrOut)
+    Erase arrOut
+    Set dictCZLSalesOD = Nothing
+End Function

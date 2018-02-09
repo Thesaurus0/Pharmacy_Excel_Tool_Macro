@@ -105,7 +105,7 @@ Function fSetConditionFormatForFundamentalSheets()
     Call fClearConditionFormatAndAdd(shtSelfInventory, Array(1, 2, 3, 5), True)       'to-do
     
     Call fClearConditionFormatAndAdd(shtNewRuleProducts, Array(1, 2, 3), True)
-    
+    Call fClearConditionFormatAndAdd(shtCZLInventory, Array(1, 2, 3), True)
 End Function
 
 Function fClearConditionFormatAndAdd(sht As Worksheet, arrKeysCols, Optional bExtendToMore10ThousRows As Boolean = True)

@@ -7,6 +7,7 @@ Public dictCompList As Dictionary
 Dim arrQualifiedRows()
 
 Sub subMain_ImportSalesInfoFiles()
+    fResetdictCZLSelfSalesOD
     If Not fIsDev() Then On Error GoTo error_handling
     'On Error GoTo error_handling
     
