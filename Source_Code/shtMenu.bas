@@ -13,6 +13,10 @@ Private Sub btnBatchImportSaleInfoFiles_Click()
     
 End Sub
 
+Private Sub btnImportCommon_Click()
+    subMain_ImportSalesInfoFiles_Common
+End Sub
+
 Private Sub btnSelect_CZL_Click()
     Call fOpenFileSelectDialogAndSetToSheetRangeForCompany("CZL")
 End Sub
@@ -65,6 +69,13 @@ Private Sub btnSelect_ZSY_Click()
     Call fOpenFileSelectDialogAndSetToSheetRangeForCompany("ZSY")
 End Sub
 
+Private Sub btnSelectFile_Common_Click()
+    Dim sFile As String
+    
+    sFile = fSelectFileDialog(Trim(shtMenu.Range("rngSalesFilePathComm").Value), , "请选择销售文件：" & Me.cbbCompanyList.Value)
+    If Len(sFile) > 0 Then shtMenu.Range("rngSalesFilePathComm").Value = sFile
+End Sub
+
 Private Sub btnSelectGY_Click()
     Call fOpenFileSelectDialogAndSetToSheetRangeForCompany("GY")
 End Sub
@@ -76,3 +87,18 @@ Function fOpenFileSelectDialogAndSetToSheetRangeForCompany(sCompany As String)
     Call fOpenFileSelectDialogAndSetToSheetRange("rngSalesFilePath_" & sCompany, , sHeader, Me)
 End Function
 
+Sub sub_Initialize_CompanyListCombobox()
+    Me.cbbCompanyList.Clear
+    
+    Dim dictComp As Dictionary
+    Set dictComp = fGetCompanyListCommon
+    
+    Dim i As Integer
+    For i = 0 To dictComp.Count - 1
+        Me.cbbCompanyList.AddItem dictComp.Keys(i)
+    Next
+    
+    Set dictComp = Nothing
+    
+    Me.cbbCompanyList.Activate
+End Sub

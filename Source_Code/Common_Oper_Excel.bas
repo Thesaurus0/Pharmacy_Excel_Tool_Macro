@@ -27,7 +27,7 @@ Function fFindInWorksheet(rngToFindIn As Range, sWhatToFind As String _
     Set rngFound = rngToFindIn.Find(What:=sWhatToFind _
                                     , after:=rngToFindIn.Cells(rngToFindIn.Rows.Count, rngToFindIn.Columns.Count) _
                                     , LookIn:=xlValues _
-                                    , Lookat:=xlWhole _
+                                    , LookAt:=xlWhole _
                                     , SearchOrder:=xlByRows _
                                     , SearchDirection:=xlNext _
                                     , MatchCase:=False _
@@ -49,7 +49,7 @@ Function fFindInWorksheet(rngToFindIn As Range, sWhatToFind As String _
                 Set rngFound = rngToFindIn.Find(What:=sWhatToFind _
                                             , after:=rngFound _
                                             , LookIn:=xlValues _
-                                            , Lookat:=xlWhole _
+                                            , LookAt:=xlWhole _
                                             , SearchOrder:=xlByRows _
                                             , SearchDirection:=xlNext _
                                             , MatchCase:=False _
@@ -696,12 +696,15 @@ Function fShowSheet(ByRef sht As Worksheet)
     sht.Visible = xlSheetVisible
 End Function
 
-Function fClearContentLeaveHeader(shtParam As Worksheet)
+Function fClearContentLeaveHeader(shtParam As Worksheet, Optional alHeaderByRow As Long = 1)
     Dim lMaxRow As Long
     lMaxRow = fGetValidMaxRow(shtParam)
     
-    If lMaxRow > 2 Then
-        With fGetRangeByStartEndPos(shtParam, 2, 1, lMaxRow, fGetValidMaxCol(shtParam))
+    Dim lDataStartRow As Long
+    lDataStartRow = alHeaderByRow + 1
+    
+    If lMaxRow > lDataStartRow Then
+        With fGetRangeByStartEndPos(shtParam, lDataStartRow, 1, lMaxRow, fGetValidMaxCol(shtParam))
             .ClearContents
             '.ClearFormats
             .ClearComments

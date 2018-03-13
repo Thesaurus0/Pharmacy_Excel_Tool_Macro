@@ -930,7 +930,10 @@ Function fCdateStr(sDate As String, Optional sFormat As String = "") As Date
             sMonth = Split(sDate, sDelimiter)(1)
             sDay = Split(sDate, sDelimiter)(2)
         Case Else
-            fErr "sFormat is not covered in fCdateStr, please change this function."
+            fErr "sFormat is not covered in fCdateStr, please change this function." & vbCr _
+             & "sFormat: " & sFormat & vbCr _
+             & "sDelimiter: " & sDelimiter & vbCr _
+             & "sDate: " & sDate
     End Select
     
     If Val(sYear) <= 0 Then fErr "Year is in correct in date:" & vbCr & sDate
@@ -947,8 +950,13 @@ Function fCPercentage2Dbl(ByVal aValue As String) As Double
 End Function
 Function fCRMBCurrency2Dbl(ByVal aValue As String) As Double
     aValue = Trim(aValue)
-    aValue = Right(aValue, Len(aValue) - 1)
-    fCRMBCurrency2Dbl = Val(aValue)
+    
+    If Left(aValue, 1) = "гд" Then
+        aValue = Right(aValue, Len(aValue) - 1)
+        fCRMBCurrency2Dbl = Val(aValue)
+    Else
+        fCRMBCurrency2Dbl = Val(aValue)
+    End If
 End Function
 
 Function fCopyReadWholeSheetData2Array(shtToRead As Worksheet, ByRef arrDataOut() _
@@ -1165,6 +1173,7 @@ Function fBasicCosmeticFormatSheet(ByRef sht As Worksheet, Optional lMaxCol As L
     ActiveWindow.DisplayGridlines = False
     'Call fFreezeSheet(sht, alSplitCol, alSplitRow)
     
+    If sht.AutoFilterMode Then sht.AutoFilterMode = False
     fGetRangeByStartEndPos(sht, 1, 1, 1, lMaxCol).AutoFilter
     sht.Cells.EntireColumn.AutoFit
     sht.Cells.EntireRow.AutoFit
@@ -1580,7 +1589,12 @@ Function fCheckIfGotBusinessError() As Boolean
         End If
     End If
     
-    If gErrNum <> 0 Then fCheckIfGotBusinessError = True:            Exit Function
+    If gErrNum <> 0 Then
+        fCheckIfGotBusinessError = True:            Exit Function
+    Else
+        'fCheckIfGotBusinessError = False:            Exit Function
+    End If
+    
     If fNzero(gsBusinessErrorMsg) Then
         fMsgBox gsBusinessErrorMsg
         fCheckIfGotBusinessError = True

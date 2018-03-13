@@ -4,10 +4,10 @@ Option Base 1
 
 Function fSetValidationListForAllSheets()
     '============== SalesCompany ========================================
-    Call fSetValidationListForshtFirstLevelCommission_SalesCompany("=rngStaticSalesCompanyNames")
-    Call fSetValidationListForshtSecondLevelCommission_SalesCompany("=rngStaticSalesCompanyNames")
-    Call fSetValidationListForshtSalesManCommConfig_SalesCompany("=rngStaticSalesCompanyNames")
-    Call fSetValidationListForshtCompanyNameReplace_SalesCompany("=rngStaticSalesCompanyNames")
+    Call fSetValidationListForshtFirstLevelCommission_SalesCompany("=rngStaticSalesCompanyNames_Comm")
+    Call fSetValidationListForshtSecondLevelCommission_SalesCompany("=rngStaticSalesCompanyNames_Comm")
+    Call fSetValidationListForshtSalesManCommConfig_SalesCompany("=rngStaticSalesCompanyNames_Comm")
+    Call fSetValidationListForshtCompanyNameReplace_SalesCompany("=rngStaticSalesCompanyNames_Comm")
     '----------------------------------------------------------------------------------------
 
     '============== Hospital ========================================

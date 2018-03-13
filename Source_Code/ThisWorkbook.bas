@@ -58,6 +58,9 @@ Private Sub Workbook_Open()
     ThisWorkbook.Saved = True
     ThisWorkbook.CheckCompatibility = False
     
+    gProBar.ChangeProcessBarValue 0.9, "给通用功能初始化下拉列表框"
+    shtMenu.sub_Initialize_CompanyListCombobox
+    
     gProBar.ChangeProcessBarValue 1, "已经就绪！"
 '    Application.CommandBars("cell").FindControl(ID:=19).OnAction = ""
 '    Application.OnKey "^c", ""

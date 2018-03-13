@@ -49,7 +49,14 @@ Sub subMain_ImportSalesInfoFiles()
         gsCompanyID = dictCompList.Keys(i)
         
         If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
-            Call fLoadFilesAndRead2Variables
+            'Call fLoadFilesAndRead2Variables
+            
+            Call fLoadFileByFileTag(gsCompanyID)
+            
+            fGetInputFileSheetAfterLoadingToThisWorkBook(gsCompanyID).Cells.Replace _
+            What:="￥", Replacement:="", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+            
+            Call fReadMasterSheetData(gsCompanyID)
             
 '            If gsCompanyID = "PW" Then
 '                arrMaster = fFileterTwoDimensionArray(arrMaster, dictMstColIndex("RecordType"), "销售出库")
@@ -102,20 +109,21 @@ error_handling:
     Call fSetReneratedReport(, shtSalesRawDataRpt.Name)
     fMsgBox "成功整合在工作表：[" & shtSalesRawDataRpt.Name & "] 中，请检查！", vbInformation
     
+    Application.Goto shtSalesRawDataRpt.Range("A" & fGetValidMaxRow(shtSalesRawDataRpt)), True
 reset_excel_options:
     Err.Clear
     fEnableExcelOptionsAll
     End
 End Sub
 
-Private Function fLoadFilesAndRead2Variables()
-    'gsCompanyID
-    Call fLoadFileByFileTag(gsCompanyID)
-    Call fReadMasterSheetData(gsCompanyID)
+'Private Function fLoadFilesAndRead2Variables()
+'    'gsCompanyID
+'    Call fLoadFileByFileTag(gsCompanyID)
+'    Call fReadMasterSheetData(gsCompanyID)
+'
+'End Function
 
-End Function
-
-Function fValidateUserInputAndSetToConfigSheet()
+Private Function fValidateUserInputAndSetToConfigSheet()
     Dim ckb As Object
     Dim i As Integer
     Dim sEachCompanyID As String
@@ -195,7 +203,7 @@ Private Function fProcessDataAll()
     Next
 End Function
 
-Function fGetQualfiedRows()
+Private Function fGetQualfiedRows()
     Dim sProductProducer As String
     Dim sProductName As String
     Dim sProductSeries As String

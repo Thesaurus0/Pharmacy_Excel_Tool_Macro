@@ -60,6 +60,7 @@ Dim dictCZLSalesOD As Dictionary
 Dim dictCZLSelfSalesOD As Dictionary
 
 Dim dictNewRuleProducts As Dictionary
+Dim dictPromotionProducts As Dictionary
 
 Function fReadConfigCompanyList(Optional ByRef dictCompanyNameID As Dictionary) As Dictionary
     Dim asTag As String
@@ -136,7 +137,7 @@ next_row:
     Set dictOut = Nothing
 End Function
 
-Function fComposeStrForDictCompanyList(arrConfigData, lEachRow As Long) As String
+Private Function fComposeStrForDictCompanyList(arrConfigData, lEachRow As Long) As String
     Dim sOut As String
     Dim i As Integer
     
@@ -1364,9 +1365,9 @@ Function fReadSheetNewRuleProducts2Dictionary()
                                     , Array(dictColIndex("SalesTaxRate"), dictColIndex("PurchaseTaxRate")), DELIMITER, DELIMITER)
     Set dictColIndex = Nothing
 End Function
-Function fNewRuleProduct(sProductKey As String) As Boolean
+Function fIsNewRuleProduct(sProductKey As String) As Boolean
     If dictNewRuleProducts Is Nothing Then fReadSheetNewRuleProducts2Dictionary
-    fNewRuleProduct = dictNewRuleProducts.Exists(sProductKey)
+    fIsNewRuleProduct = dictNewRuleProducts.Exists(sProductKey)
 End Function
 Function fGetNewRuleProductTaxRate(sProductKey As String, ByRef dblNewRSalesTaxRate As Double, ByRef dblNewRPurchaseTaxRate As Double)
     If dictNewRuleProducts Is Nothing Then fReadSheetNewRuleProducts2Dictionary
@@ -1491,6 +1492,7 @@ Function fReadSheetCZLSalesOrder2Hospital2Dictionary()
     Dim dictRowNoTmp As Dictionary
     
     sCZLCompName = fGetCompany_CompanyName("CZL")
+    If sCZLCompName <> fGetCompanyNameByID_Common("CZL") Then fErr "CZL的名字设置不一致： [Sales Company List - Common Importing] 和 [Sales Company List]"
     
     Set dictCZLSelfSalesOD = New Dictionary
     Set dictRowNoTmp = New Dictionary
@@ -1509,6 +1511,7 @@ Function fReadSheetCZLSalesOrder2Hospital2Dictionary()
             Else
                 dictCZLSelfSalesOD(sKey) = dictCZLSelfSalesOD(sKey) + CDbl(arrData(lEachRow, dictColIndex("Quantity")))
             End If
+            
             dictRowNoTmp(sKey) = (lEachRow + 1) & DELIMITER & arrData(lEachRow, dictColIndex("SellPrice"))
         End If
     Next
@@ -1567,7 +1570,9 @@ Function fCalculateCZLInventory()
     
     If dictMissedLot.Count > 0 Then
         Call fAddMissedSelfSalesLotNumToSheetException(dictMissedLot)
-        fErr gsBusinessErrorMsg
+        'fErr gsBusinessErrorMsg
+'        fMsgBox gsBusinessErrorMsg
+        gsBusinessErrorMsg = gsBusinessErrorMsg
     End If
     
     Set dictMissedLot = Nothing
@@ -1593,10 +1598,13 @@ Function fCalculateCZLInventory()
         arrOut(i + 1, 2) = Split(sKey, DELIMITER)(1)
         arrOut(i + 1, 3) = Split(sKey, DELIMITER)(2)
         arrOut(i + 1, 4) = fGetProductUnit(arrOut(i + 1, 1), arrOut(i + 1, 2), arrOut(i + 1, 3))
-        arrOut(i + 1, 5) = "'" & Split(sKey, DELIMITER)(3)
+        arrOut(i + 1, 5) = "'" & Split(sKey, DELIMITER)(3)  'lot num
         
         arrOut(i + 1, 6) = dblPurchaseQty - dblSellQty
-        arrOut(i + 1, 7) = CDbl(Split(dictSelfSalesOD(sKey), DELIMITER)(1))
+        If IsNumeric(Split(dictSelfSalesOD(sKey), DELIMITER)(2)) Then
+            arrOut(i + 1, 7) = CDbl(Split(dictSelfSalesOD(sKey), DELIMITER)(2))     'purcahse price
+        Else
+        End If
     Next
     
     'fCalculateCZLInventory = arrOut
@@ -1604,3 +1612,26 @@ Function fCalculateCZLInventory()
     Erase arrOut
     Set dictCZLSalesOD = Nothing
 End Function
+
+
+
+'====================== Promotion Product List =================================================================
+Function fReadSheetPromotionProducts2Dictionary()
+    Dim arrData()
+    Dim dictColIndex As Dictionary
+
+    Call fReadSheetDataByConfig("PROMOTION_PRODUCTS_CONFIG", dictColIndex, arrData, , , , , shtPromotionProduct)
+    Call fValidateDuplicateInArray(arrData, Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries")), False, shtPromotionProduct, 1, 1, "3§?ò + ??3? + 1???")
+
+    Set dictPromotionProducts = fReadArray2DictionaryMultipleKeysWithKeysOnly(arrData _
+                                    , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries")) _
+                                    , DELIMITER)
+    Set dictColIndex = Nothing
+End Function
+Function fIsPromotionProduct(sProductKey As String) As Boolean
+    If dictPromotionProducts Is Nothing Then fReadSheetPromotionProducts2Dictionary
+    fIsPromotionProduct = dictPromotionProducts.Exists(sProductKey)
+End Function
+'------------------------------------------------------------------------------
+
+

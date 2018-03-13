@@ -37,6 +37,7 @@ Sub subMain_ReplaceCZLSales2Comp()
     alWarningCnt = 0
     
     Call fProcessData
+    
     If alErrCnt > 0 Then
         ReDim Preserve arrErrRows(1 To alErrCnt)
     Else
@@ -394,7 +395,7 @@ Function fAddNewFoundMissedProducerToSheetException(dictNewProducer As Dictionar
     '======= Producer end ===============================================
 End Function
 
-Function fAddNewFoundMissedProductNameToSheetException(dictNewProductName As Dictionary)
+Private Function fAddNewFoundMissedProductNameToSheetException(dictNewProductName As Dictionary)
     '======= ProductName Validation ===============================================
     Dim arrNewProductName()
     'Dim sErr As String
@@ -496,6 +497,9 @@ Function fAddNewFoundMissedProductUnitToSheetException(dictNewProductUnit As Dic
 '            lStartRow = lStartRow + 5
 '        End If
         
+        Call fPrepareHeaderToSheet(shtException, Array("药品单位与本系统中所设定的不一致，或可以单位换算中增加设置"), lStartRow)
+        shtException.Range("A" & lStartRow).WrapText = False
+        lStartRow = lStartRow + 1
         Call fPrepareHeaderToSheet(shtException, Array("药品厂家", "药品名称", "药品规格", "药品会计单位", "原始文件单位", "行号"), lStartRow)
         shtException.Rows(lStartRow).Font.Color = RGB(255, 0, 0)
         shtException.Rows(lStartRow).Font.Bold = True

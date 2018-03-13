@@ -11,7 +11,7 @@ Sub subMain_ImportSalesCompanyInventory()
     fActiveVisibleSwitchSheet shtMenuCompInvt, "A63", False
 End Sub
 Sub subMain_Ribbon_ImportSalesInfoFiles()
-    fActiveVisibleSwitchSheet shtMenu, "A63", False
+    fActiveVisibleSwitchSheet shtMenu, "A74", False
 End Sub
 
 Sub subMain_Hospital()
@@ -154,6 +154,8 @@ Sub subMain_InvisibleHideAllBusinessSheets()
     fVeryHideSheet shtCZLInventory
     fVeryHideSheet shtCZLPurchaseOrder
     fVeryHideSheet shtPV
+    fVeryHideSheet shtPromotionProduct
+    fVeryHideSheet shtCZLInvDiff
     
     fShowSheet shtMainMenu
     shtMainMenu.Activate
@@ -189,6 +191,8 @@ Sub subMain_ShowAllBusinessSheets()
     fShowSheet shtImportCZL2SalesCompSales
     fShowSheet shtCZLSales2CompRawData
     fShowSheet shtCZLSales2Companies
+    fShowSheet shtPromotionProduct
+    fShowSheet shtCZLInvDiff
     
     fShowSheet shtMainMenu
     shtMainMenu.Activate
@@ -308,6 +312,7 @@ Sub subMain_ValidateAllSheetsData()
     gProBar.ChangeProcessBarValue 1
     If Not shtSelfPurchaseOrder.fValidateSheet(False) Then GoTo Exit_Sub
     If Not shtSelfSalesOrder.fValidateSheet(False) Then GoTo Exit_Sub
+    If Not shtPromotionProduct.fValidateSheet(False) Then GoTo Exit_Sub
     
     gProBar.DestroyBar
     fMsgBox "没有发现错误！", vbInformation
@@ -443,7 +448,6 @@ Sub Sub_DataMigration()
     Dim arrSheetsToMigr
     
     'to-do
-    'shtCompanyNameReplace
     arrSheetsToMigr = Array(shtHospital _
                             , shtProductProducerMaster _
                             , shtProductNameMaster _
@@ -459,6 +463,9 @@ Sub Sub_DataMigration()
                             , shtSelfSalesOrder _
                             , shtFirstLevelCommission _
                             , shtSecondLevelCommission _
+                            , shtNewRuleProducts _
+                            , shtPromotionProduct _
+                            , shtCompanyNameReplace _
                               )
 
     sOldFile = fSelectFileDialog(, "Macro File=*.xlsm", "Old Version With Latest User Data")
@@ -553,8 +560,6 @@ Sub subMain_CZLInventory()
     
     If Not fIsDev() Then On Error GoTo err_handle
     
-    On Error GoTo err_handle
-    
     gsRptID = "CALCULATE_PROFIT"
     
     fVeryHideSheet shtException
@@ -564,9 +569,8 @@ Sub subMain_CZLInventory()
     fCalculateCZLInventory
     fActiveVisibleSwitchSheet shtCZLInventory, , False
     
-    fMsgBox "【采芝林】库存计算完成！", vbInformation
+    If fZero(gsBusinessErrorMsg) Then fMsgBox "【采芝林】库存计算完成！", vbInformation
 err_handle:
-
     If shtException.Visible = xlSheetVisible Then
         Dim lExcepMaxCol As Long
         lExcepMaxCol = fGetValidMaxCol(shtException)
@@ -576,6 +580,18 @@ err_handle:
         Call fSetFormatForOddEvenLineByFixColor(shtException, lExcepMaxCol)
         shtException.Activate
     End If
+    
+    If fCheckIfGotBusinessError Then
+        GoTo reset_excel_options
+    End If
+    
+    If fCheckIfUnCapturedExceptionAbnormalError Then
+        GoTo reset_excel_options
+    End If
+reset_excel_options:
+    Err.Clear
+    fEnableExcelOptionsAll
+    End
 End Sub
 
 
@@ -606,6 +622,8 @@ Function fAutoFileterAllSheets()
     fResetAutoFilter shtImportCZL2SalesCompSales
     fResetAutoFilter shtCZLSales2CompRawData
     fResetAutoFilter shtCZLSales2Companies
+    fResetAutoFilter shtPromotionProduct
+    fResetAutoFilter shtCZLInvDiff
 End Function
 
 Function fResetAutoFilter(sht As Worksheet)

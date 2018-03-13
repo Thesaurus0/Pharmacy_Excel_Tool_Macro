@@ -475,7 +475,7 @@ Function fAddNewFoundMissedProductNameToSheetException(dictNewProductName As Dic
     '======= ProductName end ===============================================
 End Function
 
-Function fAddNewFoundMissedProductSeriesToSheetException(dictNewProductSeries As Dictionary)
+Private Function fAddNewFoundMissedProductSeriesToSheetException(dictNewProductSeries As Dictionary)
     '======= ProductSeries Validation ===============================================
     Dim arrNewProductSeries()
     'Dim sErr As String

@@ -429,7 +429,7 @@ Function fAddNewFoundMissedProducerToSheetException(dictNewProducer As Dictionar
     '======= Producer end ===============================================
 End Function
 
-Function fAddNewFoundMissedProductNameToSheetException(dictNewProductName As Dictionary)
+Private Function fAddNewFoundMissedProductNameToSheetException(dictNewProductName As Dictionary)
     '======= ProductName Validation ===============================================
     Dim arrNewProductName()
     'Dim sErr As String

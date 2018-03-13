@@ -199,6 +199,9 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("SellAmount")) = arrMaster(lEachRow, dictMstColIndex("RecalSellAmount"))
         arrOutput(lEachRow, dictRptColIndex("LotNum")) = "'" & arrMaster(lEachRow, dictMstColIndex("LotNum"))
         
+        arrOutput(lEachRow, dictRptColIndex("SalesRecordKey")) = sSalesCompName & sProducer & sProductName & sProductSeries & sHospital & format(arrMaster(lEachRow, dictMstColIndex("SalesDate")), "yyyymmdd") & dblQuantity & arrMaster(lEachRow, dictMstColIndex("LotNum"))
+        
+        
         '==== first level czl commission ==========================================
         sFirstLevelCommKey = sSalesCompName & DELIMITER & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
         
@@ -234,10 +237,12 @@ Private Function fProcessData()
         
         dblGrossPrice = dblSellPrice * (1 - dblFirstLevelComm) * (1 - dblSecondLevelComm)
         arrOutput(lEachRow, dictRptColIndex("GrossPrice")) = dblGrossPrice
+        arrOutput(lEachRow, dictRptColIndex("GrossAmount")) = dblGrossPrice * dblQuantity
         
         '==== cost price ==========================================
-        
-        If Not fCalculateCostPriceFromSelfSalesOrder(sProductKey, dblQuantity, dblCostPrice) Then
+        If fIsPromotionProduct(sProductKey) Then
+            dblCostPrice = 0
+        ElseIf Not fCalculateCostPriceFromSelfSalesOrder(sProductKey, dblQuantity, dblCostPrice) Then
             mlExcepCnt = mlExcepCnt + 1
             arrExceptionRows(mlExcepCnt) = (lEachRow + 1)
             mlExcepCnt = mlExcepCnt + 1
@@ -252,8 +257,12 @@ Private Function fProcessData()
         End If
         
         arrOutput(lEachRow, dictRptColIndex("CostPrice")) = dblCostPrice
-                                                                
-        If Not fNewRuleProduct(sProductKey) Then
+        arrOutput(lEachRow, dictRptColIndex("CostAmount")) = dblCostPrice * dblQuantity
+                                                              
+        If fIsPromotionProduct(sProductKey) Then
+            arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = 0
+            arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit")) = 0
+        ElseIf Not fIsNewRuleProduct(sProductKey) Then
             arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = dblGrossPrice * fGetTaxRate
             arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit")) = 0
         Else
@@ -313,6 +322,13 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_1")) = dblComm_1 * dblQuantity
         arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_2")) = dblComm_2 * dblQuantity
         arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_3")) = dblComm_3 * dblQuantity
+        arrOutput(lEachRow, dictRptColIndex("SalesCommission_Total")) = arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_1")) _
+                                                                        + arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_2")) _
+                                                                        + arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_3"))
+        
+        If arrOutput(lEachRow, dictRptColIndex("SellAmount")) > 0 Then _
+        arrOutput(lEachRow, dictRptColIndex("NetProfitRate")) = arrOutput(lEachRow, dictRptColIndex("NetProfitAmount")) _
+                                                                / arrOutput(lEachRow, dictRptColIndex("SellAmount"))
 next_sales:
     Next
     

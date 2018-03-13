@@ -11,6 +11,10 @@ Private Sub btnCalculateCZLInventory_Click()
     subMain_CZLInventory
 End Sub
 
+Private Sub btnCompareCZLInv_Click()
+    subMain_CompareCZLInventory
+End Sub
+
 Private Sub btnCZLPurchaseOrder_Click()
     Dim arrSelf()
     fClearContentLeaveHeader shtCZLPurchaseOrder
@@ -51,6 +55,10 @@ Private Sub btnCZLSalesToCompRawData_Click()
     fActiveVisibleSwitchSheet shtCZLSales2CompRawData, , False
 End Sub
 
+Private Sub btnImportCompInventory_Click()
+    subMain_ImportSalesCompanyInventory
+End Sub
+
 Private Sub btnImportCZLSalesToSaleComp_Click()
     
     fActiveVisibleSwitchSheet shtImportCZL2SalesCompSales, "AK15", False
@@ -68,8 +76,24 @@ Private Sub btnProductMaster_Click()
     subMain_ProductMaster
 End Sub
 
+Private Sub btnProfit_Click()
+subMain_Profit
+End Sub
+
+Private Sub btnPromotionProducts_Click()
+    fActiveVisibleSwitchSheet shtPromotionProduct, , False
+End Sub
+
 Private Sub btnPvTables_Click()
     subMain_RefreshAllPvTables
+End Sub
+
+Private Sub btnRawSalesInfo_Click()
+subMain_RawSalesInfos
+End Sub
+
+Private Sub btnReplaceCompInv_Click()
+    subMain_ReplaceInventory
 End Sub
 
 Private Sub btnReplaceCZLSales2Comp_Click()
@@ -94,6 +118,10 @@ End Sub
 
 Private Sub btnTrialCalProfit_Click()
     subMain_CalculateProfit_PreCal
+End Sub
+
+Private Sub btnUnifiedSalesInfo_Click()
+subMain_SalesInfos
 End Sub
 
 Private Sub btnValidateAllSheet_Click()

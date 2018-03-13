@@ -46,7 +46,11 @@ Sub subMain_ImportInventoryFiles()
         gsCompanyID = dictCompList.Keys(i)
         
         If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
-            Call fLoadFilesAndRead2Variables
+            'Call fLoadFilesAndRead2Variables
+            
+            Call fLoadFileByFileTag(gsCompanyID)
+            
+            Call fReadMasterSheetData(gsCompanyID)
             
 '            If gsCompanyID = "PW" Then
 '                arrMaster = fFileterTwoDimensionArray(arrMaster, dictMstColIndex("RecordType"), "ÏúÊÛ³ö¿â")
@@ -105,14 +109,14 @@ reset_excel_options:
     End
 End Sub
 
-Private Function fLoadFilesAndRead2Variables()
-    'gsCompanyID
-    Call fLoadFileByFileTag(gsCompanyID)
-    Call fReadMasterSheetData(gsCompanyID)
+'Private Function fLoadFilesAndRead2Variables()
+'    'gsCompanyID
+'    Call fLoadFileByFileTag(gsCompanyID)
+'    Call fReadMasterSheetData(gsCompanyID)
+'
+'End Function
 
-End Function
-
-Function fValidateUserInputAndSetToConfigSheet()
+Private Function fValidateUserInputAndSetToConfigSheet()
     Dim ckb As Object
     Dim i As Integer
     Dim sEachCompanyID As String
@@ -205,7 +209,7 @@ Private Function fProcessDataAll()
     Next
 End Function
 
-Function fGetQualfiedRows()
+Private Function fGetQualfiedRows()
     Dim sProductProducer As String
     Dim sProductName As String
     Dim sProductSeries As String

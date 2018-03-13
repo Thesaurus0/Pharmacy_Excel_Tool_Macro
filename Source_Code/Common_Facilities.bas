@@ -221,6 +221,8 @@ End Function
 Sub sub_SwitchDevProdMode()
     gsEnv = fGetEnvFromSysConf
     
+    Call fEnableExcelOptionsAll
+    
     If gsEnv = "DEV" Then
         gsEnv = "PROD"
     ElseIf gsEnv = "PROD" Then

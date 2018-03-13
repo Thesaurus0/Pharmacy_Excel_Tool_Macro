@@ -931,7 +931,7 @@ Function fValidateDuplicateInArrayForCombineCols(arrParam, arrKeyCols _
         If dict.Exists(sKeyStr) Then
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
             fShowSheet shtAt
-            Application.GoTo shtAt.Cells(lActualRow, arrKeyCols(UBound(arrKeyCols)))
+            Application.Goto shtAt.Cells(lActualRow, arrKeyCols(UBound(arrKeyCols)))
             fErr "Duplicate key was found:" & vbCr & sKeyStr & vbCr & sPos
         Else
             dict.Add sKeyStr, 0
@@ -942,6 +942,99 @@ next_row:
     Set dict = Nothing
 End Function
 
+Function fReadArray2DictionaryWithMultipleKeyColsSingleItemCol(arrData, arrKeyCols, lItemCol As Long _
+                , Optional asKeysDelimiter As String = "" _
+                , Optional IgnoreBlankKeys As Boolean = False _
+                , Optional WhenKeyDuplicateThenError As Boolean = True) As Dictionary
+    Dim dictOut As Dictionary
+    
+    Set dictOut = New Dictionary
+    
+    If fArrayIsEmptyOrNoData(arrData) Then GoTo exit_fun
+    If fArrayIsEmptyOrNoData(arrKeyCols) Then fErr "arrKeyCols is empty !"
+    If fArrayHasDuplicateElement(arrKeyCols) Then fErr "arrKeyCols has duplicate element"
+    If lItemCol < 0 Then fErr "lItemCol < 0 to fReadArray2DictionaryWithMultipleKeyColsSingleItemCol"
+    
+    If InStr(asKeysDelimiter, " ") > 0 Then fErr "asKeysDelimiter cannot be space or contains space"
+    
+    Dim i As Long
+    Dim j As Integer
+    Dim sKeyStr As String
+    For i = LBound(arrData, 1) To UBound(arrData, 1)
+        sKeyStr = ""
+        For j = LBound(arrKeyCols) To UBound(arrKeyCols)
+            sKeyStr = sKeyStr & asKeysDelimiter & Trim(CStr(arrData(i, arrKeyCols(j))))
+        Next
+        
+        If fZero(Replace(sKeyStr, asKeysDelimiter, "")) Then
+            If Not IgnoreBlankKeys Then fErr "IgnoreBlankKeys is false, but a keystr is blank"
+            GoTo next_row
+        End If
+        
+        If Len(asKeysDelimiter) > 0 Then sKeyStr = Right(sKeyStr, Len(sKeyStr) - Len(asKeysDelimiter))
+        
+        If dictOut.Exists(sKeyStr) Then
+            If WhenKeyDuplicateThenError Then
+                fErr "Duplicate key was found " & vbCr & sKeyStr
+            End If
+            GoTo next_row
+        End If
+        
+        dictOut.Add sKeyStr, arrData(i, lItemCol)
+next_row:
+    Next
+    
+exit_fun:
+    Set fReadArray2DictionaryWithMultipleKeyColsSingleItemCol = dictOut
+    Set dictOut = Nothing
+End Function
+
+
+
+
+Function fReadArray2DictionaryWithMultipleKeyColsSingleItemColSum(arrData, arrKeyCols, lItemCol As Long _
+                , Optional asKeysDelimiter As String = "" _
+                , Optional IgnoreBlankKeys As Boolean = False) As Dictionary
+    Dim dictOut As Dictionary
+    
+    Set dictOut = New Dictionary
+    
+    If fArrayIsEmptyOrNoData(arrData) Then GoTo exit_fun
+    If fArrayIsEmptyOrNoData(arrKeyCols) Then fErr "arrKeyCols is empty !"
+    If fArrayHasDuplicateElement(arrKeyCols) Then fErr "arrKeyCols has duplicate element"
+    If lItemCol < 0 Then fErr "lItemCol < 0 to fReadArray2DictionaryWithMultipleKeyColsSingleItemCol"
+    
+    If InStr(asKeysDelimiter, " ") > 0 Then fErr "asKeysDelimiter cannot be space or contains space"
+    
+    Dim i As Long
+    Dim j As Integer
+    Dim sKeyStr As String
+    For i = LBound(arrData, 1) To UBound(arrData, 1)
+        sKeyStr = ""
+        For j = LBound(arrKeyCols) To UBound(arrKeyCols)
+            sKeyStr = sKeyStr & asKeysDelimiter & Trim(CStr(arrData(i, arrKeyCols(j))))
+        Next
+        
+        If fZero(Replace(sKeyStr, asKeysDelimiter, "")) Then
+            If Not IgnoreBlankKeys Then fErr "IgnoreBlankKeys is false, but a keystr is blank"
+            GoTo next_row
+        End If
+        
+        If Len(asKeysDelimiter) > 0 Then sKeyStr = Right(sKeyStr, Len(sKeyStr) - Len(asKeysDelimiter))
+        
+        If Not dictOut.Exists(sKeyStr) Then
+            dictOut.Add sKeyStr, arrData(i, lItemCol)
+        Else
+            dictOut(sKeyStr) = dictOut(sKeyStr) + arrData(i, lItemCol)
+        End If
+        
+next_row:
+    Next
+    
+exit_fun:
+    Set fReadArray2DictionaryWithMultipleKeyColsSingleItemColSum = dictOut
+    Set dictOut = Nothing
+End Function
 Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
                                             , Optional bAllowBlankIgnore As Boolean = False _
                                             , Optional shtAt As Worksheet _
@@ -975,7 +1068,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
                 'sPos = sPos & lActualRow & " / " & sColLetter
                 sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
                 fShowSheet shtAt
-                Application.GoTo shtAt.Cells(lActualRow, lKeyCol)
+                Application.Goto shtAt.Cells(lActualRow, lKeyCol)
                 fErr "Keys [" & sColLetter & "] is blank!" & sPos
             End If
             
@@ -986,7 +1079,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
             'sPos = sPos & lActualRow & " / " & sColLetter
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
             fShowSheet shtAt
-            Application.GoTo shtAt.Cells(lActualRow, lKeyCol)
+            Application.Goto shtAt.Cells(lActualRow, lKeyCol)
             fErr "Duplicate key [" & sKeyStr & "] was found " & sPos
         Else
             dict.Add sKeyStr, 0
@@ -1932,6 +2025,29 @@ Function fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(ByRef dict As Di
     Erase arrOut
 End Function
 
+Function fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(ByRef dict As Dictionary, Optional asDelimiter As String = DELIMITER _
+            , Optional bSetDictToNothing As Boolean = True) As Variant
+    Dim arrTmp
+    Dim i As Long
+    Dim j As Long
+    Dim sEachLine As String
+    Dim arrEachLine
+    Dim arrOut()
+    
+    ReDim arrOut(1 To dict.Count, 1 To UBound(Split(dict.Keys(0), asDelimiter)) + 1)
+    
+    For i = 0 To dict.Count - 1
+        sEachLine = dict.Items(i)
+        arrEachLine = Split(sEachLine, asDelimiter)
+        
+        For j = LBound(arrEachLine) To UBound(arrEachLine)
+            arrOut(i + 1, j + 1) = arrEachLine(j)
+        Next
+    Next
+    
+    fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste = arrOut
+    Erase arrOut
+End Function
 Function fTrimArrayElement(ByRef arr)
     Dim i As Long
     Dim j As Long

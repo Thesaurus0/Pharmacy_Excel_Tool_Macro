@@ -109,7 +109,7 @@ End Function
 
 
 
-Function fValidateUserInputAndSetToConfigSheet()
+Private Function fValidateUserInputAndSetToConfigSheet()
     Dim sEachFilePath  As String
      
     sEachFilePath = Trim(shtImportCZL2SalesCompSales.Range("rngCZL2CompSalesFile").Value)
@@ -164,7 +164,7 @@ Private Function fProcessDataAll()
     Next
 End Function
 
-Function fGetQualfiedRows()
+Private Function fGetQualfiedRows()
     Dim sProductProducer As String
     Dim sProductName As String
     Dim sProductSeries As String
@@ -244,4 +244,139 @@ End Function
 '    fIfClearImport = bClearImport
 'End Function
 
+Sub subMain_CompareCZLInventory()
+    If fGetReplaceUnifyCZLSales2CompaniesErrorRowCount > 0 Then
+        fErr "采芝林的销售数据中有药品在系统中找不到，无法计算库存，请先处理这些错误。"
+        shtSalesInfos.Visible = xlSheetVisible
+        shtException.Visible = xlSheetVisible:         shtException.Activate
+        End
+    End If
+    
+    If Not fIsDev() Then On Error GoTo error_handling
+    
+    fRemoveFilterForSheet shtCZLInventory
+    fRemoveFilterForSheet shtProductMaster
+    fClearContentLeaveHeader shtCZLInvDiff
+    
+    fInitialization
+    
+    gsRptID = "COMPARE_CZL_INVENTORY"
+    Call fReadSysConfig_InputTxtSheetFile
+    
+    gsRptFilePath = fReadSysConfig_Output(, gsRptType)
+    
+    Call fLoadFileByFileTag("PRODUCT_MASTER")
+    Call fReadMasterSheetData("PRODUCT_MASTER", shtProductMaster)
+    
+    Dim dictCZLInformedInv As Dictionary
+    Set dictCZLInformedInv = fReadArray2DictionaryWithMultipleKeyColsSingleItemCol(arrMaster _
+                            , Array(dictMstColIndex("ProductProducer"), dictMstColIndex("ProductName"), dictMstColIndex("ProductSeries")) _
+                            , CLng(dictMstColIndex("CZLInformedInventory")), DELIMITER)
+    Erase arrMaster
+    
+    Dim dictCZLInv As Dictionary
+    Dim arrCZLInv()
+    Call fCopyReadWholeSheetData2Array(shtCZLInventory, arrCZLInv)
+    'fReadArray2DictionaryWithMultipleKeyColsSingleItemCol
+    Set dictCZLInv = fReadArray2DictionaryWithMultipleKeyColsSingleItemColSum(arrCZLInv _
+                            , Array(1, 2, 3) _
+                            , 6, DELIMITER)
+    Erase arrCZLInv
+    
+    Dim dictInventoryDiff As Dictionary
+    Set dictInventoryDiff = fCompare2Inventory(dictCZLInformedInv, dictCZLInv)
+    
+    arrOutput = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictInventoryDiff, , False)
+    Call fAppendArray2Sheet(shtCZLInvDiff, arrOutput)
+    arrOutput = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictInventoryDiff)
+    shtCZLInvDiff.Cells(2, 5).Resize(UBound(arrOutput, 1), UBound(arrOutput, 2)).Value = arrOutput
+     
+    Call fFormatOutputSheet(shtCZLInvDiff)
+    
+    shtCZLInvDiff.Rows(1).RowHeight = 25
+    shtCZLInvDiff.Visible = xlSheetVisible
+    shtCZLInvDiff.Activate
+    shtCZLInvDiff.Range("A1").Select
+error_handling:
+    If fCheckIfGotBusinessError Then
+        Call fSetReneratedReport(, "-")
+        GoTo reset_excel_options
+    End If
+    
+    If fCheckIfUnCapturedExceptionAbnormalError Then
+        Call fSetReneratedReport(, "-")
+        GoTo reset_excel_options
+    End If
+    
+    Call fSetReneratedReport(, shtCZLSales2CompRawData.Name)
+    fMsgBox "采芝林库存差异计算结果在表：[" & shtCZLInvDiff.Name & "] 中，请检查！", vbInformation
+    
+reset_excel_options:
+    Err.Clear
+    fEnableExcelOptionsAll
+    End
+    
+End Sub
 
+Function fCompare2Inventory(dictCZLInformedInv As Dictionary, dictCZLInv As Dictionary) As Dictionary
+    Dim dictOut As Dictionary
+     
+    Dim i As Long
+    Dim sProdLotKey As String
+    Dim dblInformedInv As Double
+    Dim dblCalculatedInv As Double
+    
+    Set dictOut = New Dictionary
+    
+    For i = 0 To dictCZLInformedInv.Count - 1
+        sProdLotKey = dictCZLInformedInv.Keys(i)
+        dblInformedInv = CDbl(dictCZLInformedInv.Items(i))
+        
+        If Not dictCZLInv.Exists(sProdLotKey) Then
+            dictOut.Add sProdLotKey, dblInformedInv & DELIMITER & "0" & DELIMITER & dblInformedInv
+        Else
+            dblCalculatedInv = dictCZLInv(sProdLotKey)
+            dictOut.Add sProdLotKey, dblInformedInv & DELIMITER & dblCalculatedInv & DELIMITER & (dblInformedInv - dblCalculatedInv)
+        End If
+    Next
+    
+    Set fCompare2Inventory = dictOut
+    Set dictOut = Nothing
+End Function
+
+
+'Public Function fAddDictionaryToSheetException(dictNewProductSeries As Dictionary)
+'    '======= ProductSeries Validation ===============================================
+'    Dim arrNewProductSeries()
+'    'Dim sErr As String
+'    Dim lRecCount As Long
+'        Dim lStartRow As Long
+'
+'    lRecCount = fGetDictionayDelimiteredItemsCount(dictNewProductSeries)
+'    If lRecCount > 0 Then
+'        lStartRow = fGetshtExceptionNewRow
+'
+'        arrNewProductSeries = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNewProductSeries, , False)
+'
+'        Call fPrepareHeaderToSheet(shtException, Array("药品厂家", "药品名称", "本系统中找不到的药品【规格】", "行号"), lStartRow)
+'        shtException.Rows(lStartRow).Font.Color = RGB(255, 0, 0)
+'        shtException.Rows(lStartRow).Font.Bold = True
+'        Call fAppendArray2Sheet(shtException, arrNewProductSeries)
+'        'sErr = fUbound(arrNewProductSeries)
+'
+'        shtException.Cells(lStartRow + 1, 4).Resize(dictNewProductSeries.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductSeries, False)
+'       ' Erase arrNewProductSeries
+'        Call fFreezeSheet(shtException)
+'
+''        shtException.Visible = xlSheetVisible
+''        shtException.Activate
+'
+'        If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
+'
+'        gsBusinessErrorMsg = gsBusinessErrorMsg & lRecCount & "个药品【规格】在本系统中找不到，您可能要：" & vbCr _
+'            & "(1). 在【药品规格替换表】中添加一条替换记录" & vbCr _
+'            & "(2). 在【药品主表】中新增一个规格" & vbCr _
+'            & "** 请注意：药品厂家和药品名称没有问题，都匹配到了。" & vbCr & vbCr _
+'            & "本次导入失败，完善数据后，请再次点击按钮进行【匹配替换统一】"
+'    End If
+'End Function
