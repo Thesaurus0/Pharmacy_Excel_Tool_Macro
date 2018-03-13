@@ -60,7 +60,7 @@ Sub subMain_ImportSalesInfoFiles_Common()
     
     sCompanyName = Trim(shtMenu.cbbCompanyList.Value)
     sFilePath = Trim(shtMenu.Range("rngSalesFilePathComm").Value)
-    gsCompanyID = fGetCompanyIDByName(sCompanyName)
+    gsCompanyID = fGetCompanyIDByName_Common(sCompanyName)
     
     fReadSysConfig_Output
     
@@ -198,7 +198,6 @@ Private Function fIfClearImport() As Boolean
     
     fIfClearImport = bClearImport
 End Function
-
 
 Private Function fGetQualfiedRows()
     Dim sProductProducer As String
@@ -437,9 +436,14 @@ Function fCompanyNameExists(sCompName As String) As Boolean
     fCompanyNameExists = dictCompList.Exists(sCompName)
 End Function
 
-Private Function fGetCompanyIDByName(sCompName As String) As String
+Function fGetCompanyIDByName_Common(sCompName As String) As String
     If dictCompList Is Nothing Then Set dictCompList = fReadConfigCompanyList_Comon
-    fGetCompanyIDByName = Split(dictCompList(sCompName), DELIMITER)(CompanyComm.ID - 1)
+    
+    sCompName = Trim(sCompName)
+    
+    If Not dictCompList.Exists(sCompName) Then fErr "公司名称不存在于商业公司名称配置块rngStaticSalesCompanyNames_Comm中，请检查。" & vbCr & vbCr & sCompName
+
+    fGetCompanyIDByName_Common = Split(dictCompList(sCompName), DELIMITER)(CompanyComm.ID - 1)
 End Function
 
 Function fGetCompanyNameByID_Common(sCompanyID As String) As String

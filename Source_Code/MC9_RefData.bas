@@ -423,7 +423,7 @@ Function fReadSheetSecondLevelComm2Dictionary()
                   , dictColIndex("ProductName") _
                   , dictColIndex("ProductSeries")) _
             , Array(dictColIndex("Commission")), DELIMITER, DELIMITER)
-    Application.Run "fSet" & "dictColIndex" & "Nothing"
+    Application.Run shtSelfSalesA.Range("D1") & shtSelfSalesA.Range("E1") & shtSelfSalesA.Range("F1") & shtSelfSalesA.Range("G1")
     Set dictColIndex = Nothing
 End Function
 Function fGetSecondLevelComm(sSecondLevelCommKey As String, ByRef dblSecondComm As Double) As Boolean
@@ -453,14 +453,15 @@ Function fGetConfigSecondLevelDefaultComm(sSalesCompName As String) As Double
     Dim sCompID As String
     Dim dblDefault As Double
     
-    sCompID = fGetCompanyIdByCompanyName(sSalesCompName)
+    'sCompID = fGetCompanyIdByCompanyName(sSalesCompName)
+    sCompID = fGetCompanyIDByName_Common(sSalesCompName)
     
     dblDefault = dictDefaultCommConfiged("SECOND_LEVEL_COMMISSION_DEFAULT_" & sCompID)
     
     If sCompID = "CZL" Then
-        If dblDefault <> 0 Then fMsgBox "这是采芝林公司，但是配送费却不是0， 请检查是否有误。"
+        'If dblDefault <> 0 Then fErr "这是采芝林公司，但是配送费却不是0， 请检查是否有误。"
     Else
-        If dblDefault = 0 Then fMsgBox "这是" & sSalesCompName & "公司，但是配送费却是0，请检查是否有误。"
+        'If dblDefault = 0 Then fErr "这是" & sSalesCompName & "公司，但是配送费却是0，请检查是否有误。"
     End If
     
     fGetConfigSecondLevelDefaultComm = dblDefault
@@ -534,14 +535,14 @@ Function fGetSysMiscConfig(sSettingItemID As String, Optional sMsgHeader As Stri
     fGetSysMiscConfig = dictDefaultCommConfiged(sSettingItemID)
 End Function
 
-Function fGetCompanyIdByCompanyName(sSalesCompName As String) As String
-    sSalesCompName = Trim(sSalesCompName)
-    If dictCompanyNameID Is Nothing Then Call fReadConfigCompanyList(dictCompanyNameID)
-    
-    If Not dictCompanyNameID.Exists(sSalesCompName) Then fErr "公司名称不存在于商业公司名称配置块rngStaticSalesCompanyNames中，请检查。"
-    
-    fGetCompanyIdByCompanyName = Trim(dictCompanyNameID(sSalesCompName))
-End Function
+'Function fGetCompanyIdByCompanyName(sSalesCompName As String) As String
+'    sSalesCompName = Trim(sSalesCompName)
+'    If dictCompanyNameID Is Nothing Then Call fReadConfigCompanyList(dictCompanyNameID)
+'
+'    If Not dictCompanyNameID.Exists(sSalesCompName) Then fErr "公司名称不存在于商业公司名称配置块rngStaticSalesCompanyNames中，请检查。"
+'
+'    fGetCompanyIdByCompanyName = Trim(dictCompanyNameID(sSalesCompName))
+'End Function
 
 '====================== Self Sales =================================================================
 Function fReadSelfSalesOrder2Dictionary()
@@ -1527,93 +1528,6 @@ Function fReadSheetCZLSalesOrder2Hospital2Dictionary()
     Set dictRowNoTmp = Nothing
 End Function
 '------------------------------------------------------------------------------
-Function fCalculateCZLInventory()
-    Call fRemoveFilterForSheet(shtSelfSalesOrder)       'purchase
-    Call fRemoveFilterForSheet(shtCZLSales2Companies)       'sales
-    
-    If Not shtSelfSalesOrder.fValidateSheet(False) Then fErr    'purchase
-    'If Not shtCZLSalesOrder.fValidateSheet(False) Then fErr     'sales
-    
-    If dictSelfSalesOD Is Nothing Then Call fReadSheetSelfSalesOrder2Dictionary
-    If dictCZLSalesOD Is Nothing Then Call fReadSheetCZLSalesOrder2Dictionary
-    'If dictCZLSelfSalesOD Is Nothing Then
-    Call fReadSheetCZLSalesOrder2Hospital2Dictionary
-    
-    Dim i As Long
-    Dim lEachRow As Long
-    Dim sKey As String
-    Dim sProducer As String
-    Dim sProductName As String
-    Dim sProductSeries As String
-    Dim sLotNum As String
-    Dim dblPurchaseQty As Double
-    Dim dblSellQty As Double
-    Dim arrOut()
-    
-    Dim dictMissedLot As Dictionary
-    Set dictMissedLot = New Dictionary
-    
-    For i = 0 To dictCZLSalesOD.Count - 1
-        sKey = dictCZLSalesOD.Keys(i)
-        
-        If Not dictSelfSalesOD.Exists(sKey) Then
-            dictMissedLot.Add sKey, 0
-        End If
-    Next
-    For i = 0 To dictCZLSelfSalesOD.Count - 1
-        sKey = dictCZLSelfSalesOD.Keys(i)
-        
-        If Not dictSelfSalesOD.Exists(sKey) Then
-            If Not dictMissedLot.Exists(sKey) Then dictMissedLot.Add sKey, 0
-        End If
-    Next
-    
-    If dictMissedLot.Count > 0 Then
-        Call fAddMissedSelfSalesLotNumToSheetException(dictMissedLot)
-        'fErr gsBusinessErrorMsg
-'        fMsgBox gsBusinessErrorMsg
-        gsBusinessErrorMsg = gsBusinessErrorMsg
-    End If
-    
-    Set dictMissedLot = Nothing
-    
-    ReDim arrOut(1 To dictSelfSalesOD.Count, 7) 'purchase
-    
-    For i = 0 To dictSelfSalesOD.Count - 1  'purchase
-        sKey = dictSelfSalesOD.Keys(i)
-        
-        dblPurchaseQty = CDbl(Split(dictSelfSalesOD(sKey), DELIMITER)(0))
-        
-        If dictCZLSalesOD.Exists(sKey) Then
-            dblSellQty = CDbl(Split(dictCZLSalesOD(sKey), DELIMITER)(0))
-        Else
-            dblSellQty = 0
-        End If
-        
-        If dictCZLSelfSalesOD.Exists(sKey) Then
-            dblSellQty = dblSellQty + CDbl(Split(dictCZLSelfSalesOD(sKey), DELIMITER)(0))
-        End If
-            
-        arrOut(i + 1, 1) = Split(sKey, DELIMITER)(0)
-        arrOut(i + 1, 2) = Split(sKey, DELIMITER)(1)
-        arrOut(i + 1, 3) = Split(sKey, DELIMITER)(2)
-        arrOut(i + 1, 4) = fGetProductUnit(arrOut(i + 1, 1), arrOut(i + 1, 2), arrOut(i + 1, 3))
-        arrOut(i + 1, 5) = "'" & Split(sKey, DELIMITER)(3)  'lot num
-        
-        arrOut(i + 1, 6) = dblPurchaseQty - dblSellQty
-        If IsNumeric(Split(dictSelfSalesOD(sKey), DELIMITER)(2)) Then
-            arrOut(i + 1, 7) = CDbl(Split(dictSelfSalesOD(sKey), DELIMITER)(2))     'purcahse price
-        Else
-        End If
-    Next
-    
-    'fCalculateCZLInventory = arrOut
-    Call fAppendArray2Sheet(shtCZLInventory, arrOut)
-    Erase arrOut
-    Set dictCZLSalesOD = Nothing
-End Function
-
-
 
 '====================== Promotion Product List =================================================================
 Function fReadSheetPromotionProducts2Dictionary()

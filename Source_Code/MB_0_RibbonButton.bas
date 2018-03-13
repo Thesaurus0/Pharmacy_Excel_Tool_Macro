@@ -550,50 +550,6 @@ Sub subMain_SelfInventory()
 err_handle:
 End Sub
 
-Sub subMain_CZLInventory()
-    If fGetReplaceUnifyCZLSales2CompaniesErrorRowCount > 0 Then
-        fMsgBox "采芝林的销售数据中有药品在系统中找不到，无法计算库存，请先处理这些错误。"
-        shtSalesInfos.Visible = xlSheetVisible
-        shtException.Visible = xlSheetVisible:         shtException.Activate
-        End
-    End If
-    
-    If Not fIsDev() Then On Error GoTo err_handle
-    
-    gsRptID = "CALCULATE_PROFIT"
-    
-    fVeryHideSheet shtException
-    Call fCleanSheetOutputResetSheetOutput(shtException)
-    fClearContentLeaveHeader shtCZLInventory
-    
-    fCalculateCZLInventory
-    fActiveVisibleSwitchSheet shtCZLInventory, , False
-    
-    If fZero(gsBusinessErrorMsg) Then fMsgBox "【采芝林】库存计算完成！", vbInformation
-err_handle:
-    If shtException.Visible = xlSheetVisible Then
-        Dim lExcepMaxCol As Long
-        lExcepMaxCol = fGetValidMaxCol(shtException)
-        Call fSetFormatBoldOrangeBorderForHeader(shtException, lExcepMaxCol)
-        Call fSetBorderLineForSheet(shtException, lExcepMaxCol)
-        Call fBasicCosmeticFormatSheet(shtException, lExcepMaxCol)
-        Call fSetFormatForOddEvenLineByFixColor(shtException, lExcepMaxCol)
-        shtException.Activate
-    End If
-    
-    If fCheckIfGotBusinessError Then
-        GoTo reset_excel_options
-    End If
-    
-    If fCheckIfUnCapturedExceptionAbnormalError Then
-        GoTo reset_excel_options
-    End If
-reset_excel_options:
-    Err.Clear
-    fEnableExcelOptionsAll
-    End
-End Sub
-
 
 Function fAutoFileterAllSheets()
     fResetAutoFilter shtCompanyNameReplace
