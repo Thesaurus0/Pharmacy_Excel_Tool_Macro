@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
+	<commands>
+
+		<command idMso="FileSaveAs" enabled="false" />
+
+	</commands>
+	<ribbon startFromScratch="false">
+		<tabs>
+			<tab id="ERP_2010" label="公司ERP系统">
+				<group id="customGroup" label="Custom Group">
+					<button id="customButton" label="Custom Button" image="Home10" size="large" onAction="Callback" />
+					<button idMso="Copy" size="large"  />
+				</group>
+			</tab>
+		</tabs>
+	</ribbon>
+
+	<backstage>
+		<button id="MyCustomButton1" label="My Macro"		imageMso="HappyFace" isDefinitive="true" onAction="Macro1"/>
+
+		<button idMso="FileSave" visible="false"/>
+		<button idMso="FileSaveAs" visible="true"/>
+		<button idMso="FileOpen" visible="false"/>
+		<button idMso="FileClose" visible="false"/>
+		<button idMso="ApplicationOptionsDialog" visible="false"/>
+		<button idMso="FileExit" visible="false"/>
+		<button idMso="HistoryTab" visible="false"/>
+		<button idMso="OfficeFeedback" visible="false"/>
+		<tab idMso="TabInfo" visible="true"/>
+		<tab idMso="TabRecent" visible="false"/>
+		<tab idMso="TabNew" visible="false"/>
+		<tab idMso="TabPrint" visible="false"/>
+		<tab idMso="TabShare" visible="false"/>
+		<tab idMso="TabHelp" visible="false"/>
+		<tab idMso="TabPublish" visible="false"/>
+		<tab idMso="TabSave" visible="true"/>
+		<tab idMso="TabOfficeStart" visible="false"/>
+		<tab idMso="Publish2Tab" visible="false"/>
+		<tab idMso="TabOfficeFeedback" visible="false"/>
+
+		<tab id="dynamicFormatTab" label="Dynamic Control Format"			insertAfterMso="TabInfo">
+			<firstColumn>
+				<!-- The getStyle and getHelperText callbacks dynamically set the Work Status Group style and text. -->
+				<group id="workStatusGroup" label="Work Status" getHelperText="GetWorkStatusHelperText" getStyle="GetWorkStatusStyle" >
+					<primaryItem>
+						<button id="sendStatusMailButton" label="Send Status E-Mail" imageMso="ReplyAll" />
+					</primaryItem>
+				</group>
+			</firstColumn>
+		</tab>
+		<!-- This button defines a fast command that displays in thebuilt-in Fast Command task bar above the Backstage view tabs. -->
+		<button id="saveAndCloseButton" label="Save &amp;&amp; Close" insertAfterMso="FileSaveAs" imageMso="SourceControlCheckIn" onAction="SaveAndClose" isDefinitive="true" />
+	</backstage>
+
+</customUI>

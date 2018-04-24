@@ -1,6 +1,31 @@
+Private Declare Function ShellExecute Lib "shell32.dll" _
+  Alias "ShellExecuteA" (ByVal hWnd As Long, _
+  ByVal lpOperation As String, ByVal lpFile As String, _
+  ByVal lpParameters As String, ByVal lpDirectory As String, _
+  ByVal nShowCmd As Long) As Long
+
+
+Sub OpenFile()
+    Dim FileName As String
+    Dim Result As Long
+    FileName = "E:\1.sqd"
+        Result = ShellExecute(0&, vbNullString, FileName, _
+        vbNullString, vbNullString, vbNormalFocus)
+    If Result < 32 Then MsgBox "Error"
+End Sub
+
+
+API:
+http://www.360doc.com/content/13/0221/12/406571_267018521.shtml
+
+
+
 http://club.excelhome.net/forum.php?mod=viewthread&tid=395683&extra=page%3D1&page=1
 http://club.excelhome.net/thread-395683-65-1.html
 
+	<backstage onShow="OnShow">
+	
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui"	onLoad="OnLoad">
 
 Call fCheckIfSheetHasNodata_RaiseErrToStop(arrMaster)
 

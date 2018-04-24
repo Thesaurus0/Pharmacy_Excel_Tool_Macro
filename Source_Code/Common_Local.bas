@@ -57,6 +57,14 @@ Function fConvertFomulaToValueForSheetIfAny(sht As Worksheet)
     rng.Parent.UsedRange.Value = rng.Parent.UsedRange.Value
 End Function
 
+Function fSaveAndCloseWorkBook(wb As Workbook)
+    wb.Saved = True
+    wb.CheckCompatibility = False
+    wb.Save
+    wb.CheckCompatibility = True
+    wb.Close
+    Set wb = Nothing
+End Function
 Function fCloseWorkBookWithoutSave(wb As Workbook)
     wb.Saved = True
     wb.Close savechanges:=False
@@ -220,7 +228,7 @@ Function fImportTxtFile(sFileFullPath, arrColFormat, asDelmiter As String _
     shtTo.Cells.ClearContents
     
     With shtTo.QueryTables.Add(Connection:="TEXT;" & sFileFullPath _
-        , Destination:=shtTo.Range("$A$1"))
+        , destination:=shtTo.Range("$A$1"))
         '.CommandType = 0
         .Name = shtTo.Name
         .FieldNames = True
@@ -921,7 +929,7 @@ Function fCdateStr(sDate As String, Optional sFormat As String = "") As Date
             sYear = Left(sDate, 2)
             sMonth = Mid(sDate, 3, 2)
             sDay = Mid(sDate, 5, 2)
-        Case "YYMMDD"
+        Case "YYYYMMDD"
             sYear = Left(sDate, 4)
             sMonth = Mid(sDate, 5, 2)
             sDay = Mid(sDate, 7, 2)
@@ -1581,9 +1589,15 @@ Function fSetFormatBoldOrangeBorderForRangeEspeciallyForHeader(ByRef rgTarget As
     End With
 End Function
 
-Function fCheckIfGotBusinessError() As Boolean
-    If Err.Number <> 0 Then
-        If Err.Number = vbObjectError + ERROR_NUMBER Then
+Function fCheckIfGotBusinessError(Optional bMsgbox As Boolean = True) As Boolean
+    If fNzero(gsBusinessErrorMsg) Then
+        If bMsgbox Then fMsgBox gsBusinessErrorMsg
+        fCheckIfGotBusinessError = True
+        Exit Function
+    End If
+    
+    If Err.Number <> 0 Or gErrNum <> 0 Then
+        If Err.Number = vbObjectError + BUSINESS_ERROR_NUMBER Or gErrNum = vbObjectError + BUSINESS_ERROR_NUMBER Then
             fCheckIfGotBusinessError = True
             Exit Function
         End If
@@ -1595,21 +1609,19 @@ Function fCheckIfGotBusinessError() As Boolean
         'fCheckIfGotBusinessError = False:            Exit Function
     End If
     
-    If fNzero(gsBusinessErrorMsg) Then
-        fMsgBox gsBusinessErrorMsg
-        fCheckIfGotBusinessError = True
-        Exit Function
-    End If
-    
     fCheckIfGotBusinessError = False
 End Function
 Function fCheckIfUnCapturedExceptionAbnormalError() As Boolean
-    If Err.Number <> 0 Then
-        fMsgBox "Error has occurred:" _
-                & vbCr & vbCr _
-                & "Error Number: " & Err.Number & vbCr _
-                & "Error Description:" & Err.Description
+    If Err.Number <> 0 And Err.Number <> vbObjectError + BUSINESS_ERROR_NUMBER Then
         fCheckIfUnCapturedExceptionAbnormalError = True
+        
+        If Err.Number = vbObjectError + CONFIG_ERROR_NUMBER Then
+        Else
+            fMsgBox "Error has occurred:" _
+                    & vbCr & vbCr _
+                    & "Error Number: " & Err.Number & vbCr _
+                    & "Error Description:" & Err.Description
+        End If
         Exit Function
     End If
     

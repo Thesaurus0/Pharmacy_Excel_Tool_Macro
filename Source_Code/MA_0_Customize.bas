@@ -3,7 +3,6 @@ Option Explicit
 Option Base 1
 
 Function fSetBackToConfigSheetAndUpdategDict_UserTicket()
-    
     Dim ckb As Object
     
     'Dim eachObj As Object
@@ -71,6 +70,8 @@ Function fInitialization()
     gsBusinessErrorMsg = ""
     gbUserCanceled = False
     gbCheckCompatibility = True
+    Set gDictInputFiles = Nothing
+    gsRptID = ""
     
     If fZero(gsEnv) Then gsEnv = fGetEnvFromSysConf
     
@@ -105,12 +106,19 @@ Function fSetConditionFormatForFundamentalSheets()
     Call fClearConditionFormatAndAdd(shtSelfInventory, Array(1, 2, 3, 5), True)       'to-do
     
     Call fClearConditionFormatAndAdd(shtNewRuleProducts, Array(1, 2, 3), True)
-    Call fClearConditionFormatAndAdd(shtPromotionProduct, Array(1, 2, 3), True)
+    Call fClearConditionFormatAndAdd(shtPromotionProduct, Array(1, 2, 3, 4), True)
     Call fClearConditionFormatAndAdd(shtCZLInventory, Array(1, 2, 3), True)
     Call fClearConditionFormatAndAdd(shtPromotionProduct, Array(1, 2, 3), True)
     Call fClearConditionFormatAndAdd(shtSelfInventory, Array(1, 2, 3), True)
     Call fClearConditionFormatAndAdd(shtCZLPurchaseOrder, Array(1, 2, 3), True)
+    Call fClearConditionFormatAndAdd(shtCZLInventory, Array(1, 2, 3), True)
     Call fClearConditionFormatAndAdd(shtCZLInvDiff, Array(1, 2, 3), True)
+    Call fClearConditionFormatAndAdd(shtCZLRolloverInv, Array(1, 2, 3), True)
+    Call fClearConditionFormatAndAdd(shtSalesCompInvCalcd, Array(1, 2, 3, 4), True)
+    Call fClearConditionFormatAndAdd(shtSalesCompInvUnified, Array(1, 2, 3, 4), True)
+    Call fClearConditionFormatAndAdd(shtSalesCompRolloverInv, Array(1, 2, 3, 4), True)
+    Call fClearConditionFormatAndAdd(shtSalesCompInvDiff, Array(1, 2, 3, 4), True)
+    Call fClearConditionFormatAndAdd(shtProductTaxRate, Array(ProdTaxRate.ProductProducer, ProdTaxRate.ProductName, ProdTaxRate.ProductSeries, ProdTaxRate.TaxRate), True)
     
 End Function
 

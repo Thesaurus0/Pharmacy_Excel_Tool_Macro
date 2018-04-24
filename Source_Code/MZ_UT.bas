@@ -163,8 +163,10 @@ Sub aaaa()
 
 '    Dim sht ' As Worksheet
 '     sht = Evaluate("shtSelfSalesCal")
-     
-     fKeepCopyContent
-     Application.CutCopyMode = 0
-     fCopyFromKept
+'
+'     fKeepCopyContent
+'     Application.CutCopyMode = 0
+'     fCopyFromKept
+
+   Debug.Print fCheckPath("F:\Github_Local_Repository\Pharmacy_Excel_Tool_Macro\customUI\customUI\a\b\c\d")
 End Sub

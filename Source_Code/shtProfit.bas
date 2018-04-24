@@ -7,3 +7,11 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
+Enum Profit
+    SalesCompany = 1
+    ProductProducer = 3
+    ProductName = 4
+    ProductSeries = 5
+    LotNum = 34
+End Enum
+

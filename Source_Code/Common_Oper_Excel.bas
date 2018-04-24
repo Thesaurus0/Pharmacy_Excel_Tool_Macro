@@ -280,6 +280,8 @@ Function fAutoFilterAutoFitSheet(sht As Worksheet, Optional alMaxCol As Long = 0
         lMaxCol = fGetValidMaxCol(sht)
     End If
     
+    If lMaxCol <= 0 Then Exit Function
+    
     If sht.AutoFilterMode Then sht.AutoFilterMode = False
     
     fGetRangeByStartEndPos(sht, 1, 1, 1, lMaxCol).AutoFilter
@@ -324,7 +326,12 @@ Function fDeleteBlankRowsFromAllSheets(Optional wb As Workbook)
     
     Dim sht As Worksheet
     For Each sht In wb.Worksheets
+        If sht.CodeName = shtSysConf.CodeName Then GoTo next_sht
+        If sht.CodeName = shtMainMenu.CodeName Then GoTo next_sht
+        If sht.CodeName = shtMenu.CodeName Then GoTo next_sht
+        If sht.CodeName = shtMenuCompInvt.CodeName Then GoTo next_sht
         Call fDeleteBlankRowsFromSheet(sht)
+next_sht:
     Next
     
     Set sht = Nothing
@@ -413,10 +420,34 @@ Function fSheetExists(asShtName As String, Optional ByRef shtOut As Worksheet, O
     fSheetExists = bOut
 End Function
 
+Function fSheetExistsByCodeName(asShtCodeName As String, Optional ByRef shtOut As Worksheet, Optional wb As Workbook _
+                , Optional abPromptErrMsgIfNotFound As Boolean = False) As Boolean
+    Dim sht As Worksheet
+    Dim bOut As Boolean
+    
+    If wb Is Nothing Then Set wb = ThisWorkbook
+    
+    bOut = False
+    asShtCodeName = UCase(Trim(asShtCodeName))
+    
+    For Each sht In wb.Worksheets
+        If UCase(sht.CodeName) = asShtCodeName Then
+            bOut = True
+            Set shtOut = sht
+            Exit For
+        End If
+    Next
+    
+    Set sht = Nothing
+    fSheetExistsByCodeName = bOut
+    
+    If abPromptErrMsgIfNotFound Then
+        If Not bOut Then fErr "The workbook " & wb.Name & " does not have a sheet whose code name is " & asShtCodeName
+    End If
+End Function
 Function fIfExcelFileOpenedToCloseIt(sExcelFile As String)
     If fExcelFileIsOpen(sExcelFile) Then
-        fErr "Excel File is open, pleae close it first." _
-             & vbCr & fGetFileBaseName(sExcelFile)
+        fErr "Excel File is open, pleae close it first." & vbCr & fGetFileBaseName(sExcelFile)
     End If
 End Function
  
@@ -694,9 +725,12 @@ End Function
 
 Function fShowSheet(ByRef sht As Worksheet)
     sht.Visible = xlSheetVisible
+    sht.Activate
 End Function
 
 Function fClearContentLeaveHeader(shtParam As Worksheet, Optional alHeaderByRow As Long = 1)
+    fRemoveFilterForSheet shtParam
+    
     Dim lMaxRow As Long
     lMaxRow = fGetValidMaxRow(shtParam)
     
@@ -704,12 +738,30 @@ Function fClearContentLeaveHeader(shtParam As Worksheet, Optional alHeaderByRow 
     lDataStartRow = alHeaderByRow + 1
     
     If lMaxRow > lDataStartRow Then
+        On Error Resume Next
         With fGetRangeByStartEndPos(shtParam, lDataStartRow, 1, lMaxRow, fGetValidMaxCol(shtParam))
             .ClearContents
-            '.ClearFormats
+          '  .ClearFormats
             .ClearComments
             .ClearNotes
             .ClearOutline
         End With
+        If Err.Number <> 0 Then Err.Clear
     End If
 End Function
+
+Function fOpenWorkbook(asFileFullPath As String, Optional asSheetName As String = "", Optional bReadOnly As Boolean = True) As Workbook
+    Dim wbOut As Workbook
+    
+    Call fIfExcelFileOpenedToCloseIt(asFileFullPath)
+
+    Set wbOut = Workbooks.Open(Filename:=asFileFullPath, ReadOnly:=bReadOnly)
+    If Len(Trim(asSheetName)) > 0 Then
+        If Not fSheetExists(wbOut, asSheetName) Then
+            fErr "The workbook does not have a sheet named as [" & asSheetName & "], please chedk."
+        End If
+    End If
+    Set fOpenWorkbook = wbOut
+    Set wbOut = Nothing
+End Function
+

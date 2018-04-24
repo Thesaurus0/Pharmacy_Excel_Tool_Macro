@@ -7,6 +7,15 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
+Enum PromoteProduct
+    Hospital = 1
+    ProductProducer = 2
+    ProductName = 3
+    ProductSeries = 4
+    SalesPrice = 5
+    Rebate = 6
+End Enum
+
 Private Sub btnValidate_Click()
     Call fValidateSheet
 End Sub
@@ -16,7 +25,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 End Sub
 
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
-    On Error GoTo Exit_Sub
+    On Error GoTo exit_sub
     Application.ScreenUpdating = False
     
     Const ProducerCol = 1
@@ -28,8 +37,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
     
     If Not rgIntersect Is Nothing Then
-        If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
-        If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
+        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
             
         Dim sProducer As String
         Dim sValidationListAddr As String
@@ -49,8 +58,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Set rgIntersect = Intersect(Target, Me.Columns(ProductSeriesCol))
         
         If Not rgIntersect Is Nothing Then
-            If rgIntersect.Areas.Count > 1 Then GoTo Exit_Sub    'fErr "不能选多个"
-            If rgIntersect.Rows.Count <> 1 Then GoTo Exit_Sub
+            If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+            If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
             
             sProducer = rgIntersect.Offset(0, ProducerCol - ProductSeriesCol).Value
             sProductName = rgIntersect.Offset(0, ProductNameCol - ProductSeriesCol).Value
@@ -89,7 +98,7 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         End If
     End If
     
-Exit_Sub:
+exit_sub:
     fEnableExcelOptionsAll
     Application.ScreenUpdating = True
     
@@ -97,7 +106,7 @@ Exit_Sub:
 End Sub
 
 Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
-    On Error GoTo Exit_Sub
+    On Error GoTo exit_sub
     
     Dim lErrRowNo As Long, lErrColNo As Long
     
@@ -125,7 +134,7 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), lErrRowNo, lErrColNo)
     
     If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
-Exit_Sub:
+exit_sub:
     Set dictColIndex = Nothing
     fEnableExcelOptionsAll
     Erase arrData

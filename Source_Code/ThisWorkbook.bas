@@ -20,12 +20,11 @@ Function fIfSomeFundamentalSheetsWereDeleted() As Boolean
     
     Set sht = Sheet4
     fIfSomeFundamentalSheetsWereDeleted = (sht Is Nothing)
-    
 End Function
 
 Private Sub Workbook_BeforeClose(Cancel As Boolean)
     Call fRemoveAllCommandbarsByConfig
-        
+
     Application.ScreenUpdating = True
     Application.EnableEvents = True
     Application.DisplayAlerts = True
@@ -37,7 +36,6 @@ End Sub
 
 Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
     If fIfSomeFundamentalSheetsWereDeleted() Then Cancel = False
-
 End Sub
 
 Private Sub Workbook_Open()
@@ -47,28 +45,31 @@ Private Sub Workbook_Open()
     gsEnv = fGetEnvFromSysConf
 
     gProBar.ChangeProcessBarValue 0.1, "创建工具栏和按钮"
-    
+
     Call fRefreshGetAllCommandbarsList
     Call sub_WorkBookInitialization
-    
+
     gProBar.ChangeProcessBarValue 0.7, "为画面设置初始数据"
     Call fSetIntialValueForShtMenuInitialize
 
     Call sub_RemoveCommandBar("Team")
     ThisWorkbook.Saved = True
     ThisWorkbook.CheckCompatibility = False
-    
+
     gProBar.ChangeProcessBarValue 0.9, "给通用功能初始化下拉列表框"
-    shtMenu.sub_Initialize_CompanyListCombobox
-    
+    shtMenu.sub_Initialize_CompanyListCombobox_SalesInfo
+    shtMenuCompInvt.sub_Initialize_CompanyListCombobox_Inventory
+
     gProBar.ChangeProcessBarValue 1, "已经就绪！"
 '    Application.CommandBars("cell").FindControl(ID:=19).OnAction = ""
 '    Application.OnKey "^c", ""
     gProBar.SleepBar 500
     'gProBar.DestroyBar
-    
+
     shtSelfSalesA.Range("A1").Value = shtSelfSalesA.Range("A1").Value2 + 1
-    End
+    ThisWorkbook.Saved = True
+    gProBar.DestroyBar
+    'End
 End Sub
 
 Sub sub_WorkBookInitialization()
@@ -79,15 +80,16 @@ Sub sub_WorkBookInitialization()
         shtStaticData.Visible = xlSheetVisible
         shtFileSpec.Visible = xlSheetVisible
     Else
-        shtSysConf.Visible = xlSheetVeryHidden
-        shtStaticData.Visible = xlSheetVeryHidden
-        shtFileSpec.Visible = xlSheetVeryHidden
+        shtSysConf.Visible = xlSheetHidden
+        shtStaticData.Visible = xlSheetHidden
+        shtFileSpec.Visible = xlSheetHidden
     End If
     
     shtMenu.AutoFilterMode = False
     shtMenuCompInvt.AutoFilterMode = False
     fHideSheet shtDataStage
 
+    fGetProgressBar
     gProBar.ChangeProcessBarValue 0.2, "去除所有工作表的过滤条件"
     Call fRemoveFilterForAllSheets
     
@@ -113,7 +115,6 @@ Sub sub_WorkBookInitialization()
     'shtDataStage.UsedRange.ClearHyperlinks
 '    shtDataStage.UsedRange.ClearNotes
 '    shtDataStage.UsedRange.ClearOutline
-    
 End Sub
 
 Function fRefreshGetAllCommandbarsList()
@@ -154,26 +155,36 @@ Private Sub Workbook_Deactivate()
     
 End Sub
 
-
-
-Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)
-    Application.EnableEvents = False
-
-    On Error GoTo exit_function
-
-    If Sh Is shtSysConf Then
-        Call fShtSysConf_SheetChange_DevProdChange(Target)
-        'Call shtSysConf_SheetChange_CommandBarConfig(Target)
-    End If
-
-exit_function:
-    Application.EnableEvents = True
-End Sub
-
 Private Sub Workbook_SheetActivate(ByVal Sh As Object)
+   ' fGetRibbonReference.Invalidate
 End Sub
+
+'Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)
+'    Application.EnableEvents = False
+'
+'    On Error GoTo exit_function
+'
+'    If Sh Is shtSysConf Then
+'        Call fShtSysConf_SheetChange_DevProdChange(Target)
+'        'Call shtSysConf_SheetChange_CommandBarConfig(Target)
+'    End If
+'
+'exit_function:
+'    Application.EnableEvents = True
+'End Sub
+'
+
 Private Sub Workbook_SheetDeactivate(ByVal Sh As Object)
     'If Sh.Parent Is ThisWorkbook Then
         Call fAppendDataToLastCellOfColumn(shtDataStage, 2, Sh.Name)
     'End If
+    'fGetRibbonReference.Invalidate
+End Sub
+
+Private Sub Workbook_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)
+    'fReGetValue_tgSearchBy
+'    If tgSearchBy_Val Then
+'        'fGetRibbonReference.InvalidateControl "tgSearchBy"
+'        fPresstgSearchBy (tgSearchBy_Val)
+'    End If
 End Sub

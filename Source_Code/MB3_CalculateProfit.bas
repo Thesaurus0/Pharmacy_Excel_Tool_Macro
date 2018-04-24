@@ -13,15 +13,17 @@ Dim arrExceptionRows()
 Dim mlExcepCnt As Long
 
 Sub subMain_CalculateProfit()
-    'If Not fIsDev Then On Error GoTo error_handling
-    'On Error GoTo error_handling
-    
-    If fGetReplaceUnifyErrorRowCount > 0 Then
-        fMsgBox "销售流向数据中有药品在系统中找不到，无法计算利润和佣金，请先处理这些错误。"
-        shtSalesInfos.Visible = xlSheetVisible
-        shtException.Visible = xlSheetVisible:         shtException.Activate
-        End
-    End If
+    If Not fIsDev Then On Error GoTo error_handling
+    fCheckIfErrCountNotZero_SCompSalesInfo
+'    Dim iErr As Long
+'    iErr = fGetReplaceUnifyErrorRowCount_SCompSalesInfo
+'    If iErr <> 0 Then
+'        If iErr = 999 Then fMsgBox "销售流向数据中有药品在系统中找不到，无法计算利润和佣金，请先处理这些错误。"
+'        If iErr = 100 Then fMsgBox "原始销售流向还没有做替换，请先替换统一原始销售流向。"
+'        shtSalesInfos.Visible = xlSheetVisible
+'        shtException.Visible = xlSheetVisible:         shtException.Activate
+'        End
+'    End If
     
     shtSalesInfos.Visible = xlSheetVisible
     shtException.Visible = xlSheetVeryHidden
@@ -82,9 +84,12 @@ Sub subMain_CalculateProfit()
         shtProfit.Range("A1").Select
         
 error_handling:
+    If fCheckIfUnCapturedExceptionAbnormalError Then GoTo reset_excel_options
+    
     If shtException.Visible = xlSheetVisible Then
         Dim lExcepMaxCol As Long
         lExcepMaxCol = fGetValidMaxCol(shtException)
+        
         Call fSetFormatBoldOrangeBorderForHeader(shtException, lExcepMaxCol)
         Call fSetBorderLineForSheet(shtException, lExcepMaxCol)
         Call fBasicCosmeticFormatSheet(shtException, lExcepMaxCol)
@@ -100,7 +105,10 @@ error_handling:
     
     If mlExcepCnt > 0 Then Call fSetFormatForExceptionCells(shtProfit, arrExceptionRows, "REPORT_ERROR_COLOR")
     
-    fMsgBox "计算完成，请检查工作表：[" & shtProfit.Name & "] 中，请检查！", vbInformation
+    If Not fCheckIfGotBusinessError(False) Then
+        fMsgBox "计算完成，请检查工作表：[" & shtProfit.Name & "] 中，请检查！", vbInformation
+    End If
+    
     Call fSetReneratedReport(, shtProfit.Name)
     If fCheckIfGotBusinessError Then GoTo reset_excel_options
     If fCheckIfUnCapturedExceptionAbnormalError Then GoTo reset_excel_options
@@ -152,7 +160,7 @@ Private Function fProcessData()
     Dim dblQuantity As Double
     Dim dblFirstLevelComm As Double
     Dim dblSecondLevelComm As Double
-    Dim dblGrossPrice As Double
+    Dim dblGrossPrice2CZL As Double
     Dim dblCostPrice As Double
     Dim sSalesMan_1 As String, sSalesMan_2 As String, sSalesMan_3 As String, sSalesManager As String
     Dim dblComm_1 As Double, dblComm_2 As Double, dblComm_3 As Double, dblSalesMgrComm As Double
@@ -235,12 +243,17 @@ Private Function fProcessData()
         End If
         '-----------------------------------------------------------------------------------------------
         
-        dblGrossPrice = dblSellPrice * (1 - dblFirstLevelComm) * (1 - dblSecondLevelComm)
-        arrOutput(lEachRow, dictRptColIndex("GrossPrice")) = dblGrossPrice
-        arrOutput(lEachRow, dictRptColIndex("GrossAmount")) = dblGrossPrice * dblQuantity
+        If fIsPromotionProduct(sHospital, sProductKey, dblSellPrice) Then
+            dblGrossPrice2CZL = dblSellPrice * fGetPromotionProductRebate(sHospital, sProductKey, dblSellPrice)
+        Else
+            dblGrossPrice2CZL = dblSellPrice * (1 - dblFirstLevelComm) * (1 - dblSecondLevelComm)
+        End If
+        
+        arrOutput(lEachRow, dictRptColIndex("GrossPrice2CZL")) = dblGrossPrice2CZL
+        arrOutput(lEachRow, dictRptColIndex("GrossAmount2CZL")) = dblGrossPrice2CZL * dblQuantity
         
         '==== cost price ==========================================
-        If fIsPromotionProduct(sProductKey) Then
+        If fIsPromotionProduct(sHospital, sProductKey, dblSellPrice) Then
             dblCostPrice = 0
         ElseIf Not fCalculateCostPriceFromSelfSalesOrder(sProductKey, dblQuantity, dblCostPrice) Then
             mlExcepCnt = mlExcepCnt + 1
@@ -258,24 +271,28 @@ Private Function fProcessData()
         
         arrOutput(lEachRow, dictRptColIndex("CostPrice")) = dblCostPrice
         arrOutput(lEachRow, dictRptColIndex("CostAmount")) = dblCostPrice * dblQuantity
-                                                              
-        If fIsPromotionProduct(sProductKey) Then
+
+        If fIsPromotionProduct(sHospital, sProductKey, dblSellPrice) Then
             arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = 0
             arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit")) = 0
         ElseIf Not fIsNewRuleProduct(sProductKey) Then
-            arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = dblGrossPrice * fGetTaxRate
+            arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = dblGrossPrice2CZL * fGetTaxRate(sProductKey)
             arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit")) = 0
         Else
             Call fGetNewRuleProductTaxRate(sProductKey, dblNewRSalesTaxRate, dblNewRPurchaseTaxRate)
             
-            arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = (dblGrossPrice - dblCostPrice) * dblNewRSalesTaxRate
-            arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit")) = (dblGrossPrice - dblCostPrice - arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit"))) _
+            arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = (dblGrossPrice2CZL - dblCostPrice) * dblNewRSalesTaxRate
+            arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit")) = (dblGrossPrice2CZL - dblCostPrice - arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit"))) _
                                                     * dblNewRPurchaseTaxRate
         End If
         
-        arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblGrossPrice - dblCostPrice _
+        If fIsPromotionProduct(sHospital, sProductKey, dblSellPrice) Then
+            arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblSellPrice * fGetPromotionProductRebate(sHospital, sProductKey, dblSellPrice)
+        Else
+            arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblGrossPrice2CZL - dblCostPrice _
                                                             - arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) _
                                                             - arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit"))
+        End If
         
         dblGrossProfitAmt = arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) * dblQuantity
         arrOutput(lEachRow, dictRptColIndex("GrossProfitAmt")) = dblGrossProfitAmt
@@ -463,8 +480,8 @@ End Function
 '    fCalculateCostPrice = dblCostPrice
 'End Function
 
-'Function fCalculateGrossPrice(lEachRow As Long, ByRef dictMissedFirstLComm As Dictionary, ByRef dictMissedSecondLComm As Dictionary) As Double
-'    Dim dblGrossPrice As Double
+'Function fCalculateGrossPrice2CZL(lEachRow As Long, ByRef dictMissedFirstLComm As Dictionary, ByRef dictMissedSecondLComm As Dictionary) As Double
+'    Dim dblGrossPrice2CZL As Double
 '
 '    Dim dblFirstLevelComm As Double
 '    Dim dblSecondLevelComm As Double
@@ -507,9 +524,9 @@ End Function
 '
 '    Dim dblSellPrice As Double
 '    dblSellPrice = arrOutput(lEachRow, dictRptColIndex("SellPrice"))
-'    dblGrossPrice = dblSellPrice * (1 - dblFirstLevelComm) * (1 - dblSecondLevelComm)
+'    dblGrossPrice2CZL = dblSellPrice * (1 - dblFirstLevelComm) * (1 - dblSecondLevelComm)
 '
-'    fCalculateGrossPrice = dblGrossPrice
+'    fCalculateGrossPrice2CZL = dblGrossPrice2CZL
 'End Function
 
 Function fComposeFirstLevelColumnsStryByConfig(sSalesCompName As String, sProducer As String _
@@ -613,11 +630,32 @@ Sub subMain_CalculateProfit_MonthEnd()
 End Sub
 
 Sub subMain_CalculateProfit_PreCal()
+'    If Not fIsDev() Then On Error GoTo error_handling
+    
     Set shtSelfSalesCal = shtSelfSalesPreDeduct
+    
     Call fRemoveFilterForSheet(shtSelfSalesOrder)
     Call fRemoveFilterForSheet(shtSelfSalesPreDeduct)
+    
     shtSelfSalesOrder.Cells.Copy shtSelfSalesCal.Cells
     Call subMain_CalculateProfit
+'error_handling:
+'    If fCheckIfGotBusinessError Then
+'        GoTo reset_excel_options
+'    End If
+'
+'    If fCheckIfUnCapturedExceptionAbnormalError Then
+'        GoTo reset_excel_options
+'    End If
+'
+'    Call fSetReneratedReport(, shtSalesRawDataRpt.Name)
+'    fMsgBox "成功整合在工作表：[" & shtSalesRawDataRpt.Name & "] 中，请检查！", vbInformation
+'
+'    Application.Goto shtSalesRawDataRpt.Range("A" & fGetValidMaxRow(shtSalesRawDataRpt)), True
+'reset_excel_options:
+'    Err.Clear
+'    fEnableExcelOptionsAll
+'    End
 End Sub
 
 Private Function fComposeSalesManList(sSalesManager As String, sSalesMan_1 As String, sSalesMan_2 As String, sSalesMan_3 As String) As String
@@ -650,9 +688,5 @@ Private Function fComposeSalesManList(sSalesManager As String, sSalesMan_1 As St
     End If
     
     fComposeSalesManList = sOut
-End Function
-
-Private Function fGetReplaceUnifyErrorRowCount() As Long
-    fGetReplaceUnifyErrorRowCount = CLng(fGetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=REPLACE_UNIFY_ERR_ROW_COUNT"))
 End Function
 

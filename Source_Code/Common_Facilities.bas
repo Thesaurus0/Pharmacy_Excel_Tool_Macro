@@ -231,7 +231,6 @@ Sub sub_SwitchDevProdMode()
     
     Call fSetSpecifiedConfigCellValue(shtSysConf, "[Facility For Testing]", "Value", "Setting Item ID=DEVELOPMENT_OR_FORMAL_RELEASE" _
                                     , gsEnv, False)
-    
     shtMenu.Activate
     Range("A1").Select
 End Sub
@@ -423,6 +422,8 @@ Function fShtSysConf_SheetChange_DevProdChange(Target As Range)
         Call ThisWorkbook.sub_WorkBookInitialization
         Call fSetIntialValueForShtMenuInitialize
         Call fSetDEVUATPRODNotificationInSheetMenu
+        
+        fGetRibbonReference.Invalidate
     End If
     
     Set rgAimed = Nothing
@@ -613,7 +614,7 @@ Sub Sub_FilterBySelectedCells()
             
             If IsNumeric(eachCell.Value) Then
                 rgData.AutoFilter Field:=eachCell.Column _
-                                , Criteria1:=">=" & eachCell.Value _
+                                , Criteria1:=eachCell.Value _
                                 , Operator:=xlAnd
             Else
                 rgData.AutoFilter Field:=eachCell.Column _
@@ -734,6 +735,7 @@ Function fSetFilterForSheet(sht As Worksheet, aColToFilter, aFilterValue)
     Dim i As Integer
     If IsArray(aColToFilter) Then
         For i = LBound(aColToFilter) To UBound(aColToFilter)
+            If Len(Trim(CStr(aFilterValue(i)))) > 0 Then _
             fGetRangeByStartEndPos(sht, 1, 1, lMaxRow, lMaxCol).AutoFilter _
                 Field:=aColToFilter(i), Criteria1:="=*" & aFilterValue(i) & "*", Operator:=xlAnd
         Next

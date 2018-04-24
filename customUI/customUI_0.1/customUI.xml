@@ -1,0 +1,13 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui">
+	<ribbon startFromScratch="false">
+		<tabs>
+			<tab id="CompanyERP_Profit" label="公司ERP系统">			
+				<group id="customGroup1" label="Contoso Tools">
+					<button id="customButton12" label="ConBold" size="large" onAction="conBoldSub" imageMso="Bold" />
+					<button id="customButton23" label="ConItalic" size="large" onAction="conItalicSub" imageMso="Italic" />
+					<button id="customButton34" label="ConUnderline" size="large" onAction="conUnderlineSub" imageMso="Underline" />
+				</group>
+			</tab>
+		</tabs>
+	</ribbon>
+</customUI>
