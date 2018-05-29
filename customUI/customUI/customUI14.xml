@@ -6,28 +6,25 @@
 	<ribbon startFromScratch="false">
 		<tabs>
 			<tab id="ERP_2010" label="公司ERP系统">
-				<group id="grpBasicNavi" label="Navigation">
-					<button id="btnHome" label="主菜单" imageMso="OpenStartPage" size="normal" onAction="UIbtnHome" />
-					 
+				<group id="grpBasicNavi" label="主菜单">
+					<button id="btnHome" getLabel="Button_getLabel" getImage="Button_getImage" getSize="Button_getSize" onAction="Button_onAction" />
+					<button id="btnCloseAllSheets" getLabel="Button_getLabel" getImage="Button_getImage" getSize="Button_getSize" onAction="Button_onAction" /> <!-- 关闭所有 --> 
 				</group>
 				<group id="grpSearchInAnySheet" label="搜索">
-					<editBox id="ebSalesCompany" label="商业公司"   keytip="R" sizeString="1234567980123456789" 
-							onChange="subUIebSalesCompany_onChange"
-							getText="subUIebSalesCompany_getText"/>
-					<editBox id="ebProductProducer" label="生产厂家"   keytip="R" sizeString="1234567980123456789" 
-							onChange="subUIebProductProducer_onChange"
-							getText="subUIebProductProducer_getText"/>
-					<editBox id="ebProductName" label="药品名称"   keytip="R" sizeString="1234567980123456789" 
-							onChange="subUIebProductName_onChange"
-							getText="subUIebProductName_getText"/>
-					<editBox id="ebProductSeries" label="规格"   keytip="R" sizeString="1234567980123456789" 
-							onChange="subUIebProductSeries_onChange"
-							getText="subUIebProductSeries_getText"/>
-					<editBox id="ebLotnum" label="批号"   keytip="R" sizeString="1234567980" 
-							onChange="subUIebLotnum_onChange"
-							getText="subUIebLotnum_getText"/>
+					<editBox id="ebSalesCompany" label="商业公司:"   keytip="R" sizeString="123456798012345"
+							onChange="EditBox_onChange" getText="EditBox_getText"/>
+					<editBox id="ebProductProducer" label="生产厂家:"   keytip="R" sizeString="123456798012345"
+							onChange="EditBox_onChange" getText="EditBox_getText"/>
+					<editBox id="ebProductName" label="药品名称:"   keytip="R" sizeString="123456798012345"
+							onChange="EditBox_onChange" getText="EditBox_getText"/>
+					<editBox id="ebProductSeries" label="规格:"   keytip="R" sizeString="123456798012345"
+							onChange="EditBox_onChange" getText="EditBox_getText"/>
+					<editBox id="ebLotnum" label="批号:"   keytip="R" sizeString="123456798012345"
+							onChange="EditBox_onChange" getText="EditBox_getText"/>
+					<editBox id="ebHospital" label="医院:"   keytip="R" sizeString="123456798012345"
+							onChange="EditBox_onChange" getText="EditBox_getText"/>
 					<separator id="spSearch01"/>
-				<!--		<toggleButton id="tgSearchBy" label="按当前表当前行" size="normal" imageMso="MagicEightBall" onAction="tgSearchBy_Click" getPressed="tgSearchBy_getPressed"/> 
+				<!--		<toggleButton id="tgSearchBy" label="按当前表当前行" size="normal" imageMso="MagicEightBall" onAction="tgSearchBy_Click" getPressed="tgSearchBy_getPressed"/>
 					<separator id="spSearch02"/> -->
 				<!--	<dropDown id="dwSearchTables" label="检索表：" visible="true" onAction="dwSearchTables_Click"
 						getItemID="dwSearchTables_getItemID"
@@ -35,104 +32,136 @@
 						getItemLabel="dwSearchTables_getItemLabel"
 						/>
 					<separator id="spSearch03"/> -->
-				<!--		<menu id="mnSearchTables" size="normal" label="检索表"  imageMso="FilterByResource"  > 
+				<!--		<menu id="mnSearchTables" size="normal" label="检索表"  imageMso="FilterByResource"  >
 						<button id="btnSCompInvImported" label="(商业公司)库存表(导入的)" imageMso="PageSetupSheetDialog"  onAction="btnSCompInvImported_Click" />
 						<button id="tbSCompInvCalcd" label="(商业公司)库存表(计算的)"  imageMso="ControlSubFormReport"  onAction="tbSCompInvCalcd_Click" />
 					</menu> -->
 				</group>
 				<group id="grpSearchTableMenu" label="检索表">
 					<splitButton id="spbSearch" size="large">
-					<!--	<toggleButton id="tgSearchBy" label="按当前表当前行"  imageMso="ActiveXRadioButton" onAction="tgSearchBy_Click" getPressed="tgSearchBy_getPressed"/> -->
-						<button id="tgSearchBy" label="获取当前行"  imageMso="RecurrenceEdit" onAction="tgSearchBy_Click" />
-					
-						<menu id="mnSearchTables"  label="检索表"  imageMso="FilterByResource"  > 
-							<button id="btnSCompInvImported" label="(商业公司)库存表(导入的)" imageMso="PageSetupSheetDialog"  onAction="btnSCompInvImported_Click" />
-							<button id="btnSCompInvCalcd" label="(商业公司)库存表(计算的)"  imageMso="ControlSubFormReport"  onAction="tbSCompInvCalcd_Click" />
+					<!--	<toggleButton id="tgSearchBy" label="按当前表当前行"  imageMso="ActiveXRadioButton" onAction="tgSearchBy_Click" getPressed="tgSearchBy_getPressed"/>
+						<button id="tgSearchBy" label="获取当前行"  imageMso="RecurrenceEdit" onAction="tgSearchBy_Click" />-->
+						<button id="tgSearchBy" getLabel="Button_getLabel" getImage="Button_getImage" onAction="Button_onAction" />
+
+						<menu id="mnSearchTables"  label="检索表"  imageMso="FilterByResource">
+							<button id="btnSecondLevelComm" getLabel="Button_getLabel" getImage="Button_getImage" onAction="Button_onAction" />	<!-- 商业公司配送费 -->
+							<menuSeparator id="MnSepSearch_btnSecondLevelComm_01" />
+							<button id="btnSalesInfo" getLabel="Button_getLabel" getImage="Button_getImage" onAction="Button_onAction" />	<!-- 销售流向 -->
+							<button id="btnProfit" label="利润表"  imageMso="ControlSubFormReport"  onAction="btnProfit_Click" />
+							<button id="btnRefund" label="补差表"  imageMso="ControlSubFormReport"  onAction="btnRefund_Click" />
+							<button id="btnCZLSalesToSCompAll" label="采芝林销售流向(本月+历史))(补差试算)"  imageMso="ControlSubFormReport"  onAction="btnCZLSalesToSCompAll_Click" />
+							<menuSeparator id="MnSepSearch_01" />
+							<button id="btnProductNameReplace" label="药品名称替换"  imageMso="ControlSubFormReport"  onAction="btnProductNameReplace_Click" />
+							<button id="btnProductSeriesReplace" label="药品规格替换"  imageMso="ControlSubFormReport"  onAction="btnProductSeriesReplace_Click" />
+							<menuSeparator id="MnSepSearch_SCompInvDiff" />
+							<button id="btnSCompInvDiff" label="(商业公司)库存差异" imageMso="PageSetupSheetDialog"  onAction="btnSCompInvDiff_Click" />
+							<menuSeparator id="MnSepSearch_04" />
+							<button id="btnSCompInvImported" getLabel="Button_getLabel" getImage="Button_getImage" onAction="Button_onAction" />	<!-- (商业公司)库存表(导入的) -->
+							<button id="btnSCompInvCalcd" label="(商业公司)库存表(计算的)"  imageMso="ControlSubFormReport"  onAction="tbSCompInvCalcd_Click" />								
+							<menuSeparator id="MnSepSearch_SCompInvCal" />
+							<button id="btnSCompRolloverInv" label="(商业公司)期初库存"  imageMso="ControlSubFormReport"  onAction="btnSCompRolloverInv_Click" />
+							<button id="btnSCompPurchase" label="(商业公司)采购入库"  imageMso="ControlSubFormReport"  onAction="btnSCompPurchase_Click" />
+							<button id="btnSCompSalesToHospital" label="商业公司销售"  imageMso="ControlSubFormReport"  onAction="btnSCompSalesToHospital_Click" />
+							
+							<menuSeparator id="MnSepSearch_CZLInvDiff" />
+							<button id="btnCZLInvDiff" label="(采芝林)库存差异" imageMso="PageSetupSheetDialog"  onAction="btnCZLInvDiff_Click" />
 							<menuSeparator id="MnSepSearch_06" />
 							<button id="btnCZLInvImported" label="(采芝林)库存表(导入的)" imageMso="PageSetupSheetDialog"  onAction="btnCZLInvImported_Click" />
 							<button id="btnCZLInvCalcd" label="(采芝林)库存表(计算的)"  imageMso="ControlSubFormReport"  onAction="tbCZLInvCalcd_Click" />
 							<menuSeparator id="MnSepSearch_05" />
-							<button id="btnCZLSalesToSComp" label="采芝林销售给商业公司的"  imageMso="ControlSubFormReport"  onAction="btnCZLSalesToSComp_Click" />
+							<button id="btnCZLRolloverInv" label="(采芝林)期初库存"  imageMso="ControlSubFormReport"  onAction="btnCZLRolloverInv_Click" />
+							<button id="btnCZLPurchase" label="(采芝林)采购入库"  imageMso="ControlSubFormReport"  onAction="btnCZLPurchase_Click" />
+							<button id="btnCZLSalesToSComp" label="采芝林销售流向(到商业公司)"  imageMso="ControlSubFormReport"  onAction="btnCZLSalesToSComp_Click" />
+							<button id="btnCZLSalesToHospital" label="采芝林销售流向(到医院)"  imageMso="ControlSubFormReport"  onAction="btnCZLSalesToHospital_Click" />
 							<menuSeparator id="MnSepSearch_03" />
 							<button id="btnSelfInventory" label="(本公司)库存表" imageMso="PageSetupSheetDialog"  onAction="btnSelfInventory_Click" />
 							<button id="btnSelfSales" label="(本公司)销售" imageMso="PageSetupSheetDialog"  onAction="btnSelfSales_Click" />
 							<button id="btnSelfPurchase" label="(本公司)采购" imageMso="PageSetupSheetDialog"  onAction="btnSelfPurchase_Click" />
-							<menuSeparator id="MnSepSearch_04" />
-							<button id="btnProfit" label="利润表"  imageMso="ControlSubFormReport"  onAction="btnProfit_Click" />
-							<menuSeparator id="MnSepSearch_01" />
-							<button id="btnProductNameReplace" label="药品名称替换"  imageMso="ControlSubFormReport"  onAction="btnProductNameReplace_Click" />
-							<button id="btnProductSeriesReplace" label="药品规格替换"  imageMso="ControlSubFormReport"  onAction="btnProductSeriesReplace_Click" />
-							
 							<menuSeparator id="MnSepSearch_02" />
 							<button id="btnProductMaster" label="药品主表"  imageMso="ControlSubFormReport"  onAction="btnProductMaster_Click" />
 						</menu>
 					</splitButton>
-					
+
 				<!--	<separator id="insideSearchGrp01"/>-->
-					<button id="btnRemoveFilter" label="清除过滤" imageMso="FilterClearAllFilters" size="normal" onAction="btnRemoveFilter_Click" />
-					<button id="btnCloseAllSheets" label="关闭所有" imageMso="DeclineInvitation" size="normal" onAction="btnCloseAllSheets_Click" />
+						
+					<button id="btnFilterBySelected" getLabel="Button_getLabel" getImage="Button_getImage" getSize="Button_getSize" onAction="Button_onAction" />	<!-- 以所选过滤 --> 
+					<button id="btnRemoveFilter" getLabel="Button_getLabel" getImage="Button_getImage" getSize="Button_getSize" onAction="Button_onAction" />	<!-- 清除过滤 -->
+					<button id="btnSortBySelected" getLabel="Button_getLabel" getImage="Button_getImage" getSize="Button_getSize" onAction="Button_onAction" />	<!-- 以所选排序 -->
 				</group>
-				
+
 				<group id="grpAllBusinessSheets" label="所有表">
 					<box id="boxAllBizSheets" boxStyle="vertical" >
-						<menu id="mnHospitalTables"  label="医院"  imageMso="ControlSubFormReport"  > 
-							<toggleButton id="tbtHospital" label="医院"   imageMso="ControlSubFormReport" tag="shtHospital" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-							<toggleButton id="tbtnHospitalReplace" label="医院替换"   imageMso="ControlSubFormReport" tag="shtHospitalReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
+						<menu id="mnHospitalTables"  label="医院"  imageMso="ControlSubFormReport"  >
+							<toggleButton id="tbtHospital" label="医院"   imageMso="ControlSubFormReport" tag="shtHospital" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+							<toggleButton id="tbtnHospitalReplace" label="医院替换"   imageMso="ControlSubFormReport" tag="shtHospitalReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
 						</menu>
-						<menu id="mnProductTables"  label="药品"  imageMso="ControlSubFormReport"  > 
-							<toggleButton id="tbtProductProducerMaster" label="药品厂家"   imageMso="ControlSubFormReport" tag="shtProductProducerMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-							<toggleButton id="tbtnProductNameMaster" label="药品名称"   imageMso="ControlSubFormReport" tag="shtProductNameMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-							<toggleButton id="tbtnProductMaster" label="药品"   imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
+						<menu id="mnProductTables"  label="药品"  imageMso="ControlSubFormReport"  >
+							<toggleButton id="tbtProductProducerMaster" label="药品厂家"   imageMso="ControlSubFormReport" tag="shtProductProducerMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+							<toggleButton id="tbtnProductNameMaster" label="药品名称"   imageMso="ControlSubFormReport" tag="shtProductNameMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+							<toggleButton id="tbtnProductMaster" label="药品"   imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
 							<menuSeparator id="mnProductTables_SepSearch_01" />
-							<toggleButton id="tbtnProductProducerReplace" label="药品生产厂家替换"   imageMso="ControlSubFormReport" tag="shtProductProducerReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-							<toggleButton id="tbtnProductNameReplace" label="药品名称替换"  imageMso="ControlSubFormReport" tag="shtProductNameReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-							<toggleButton id="tbtnProductSeriesReplace" label="药品规格替换"   imageMso="ControlSubFormReport" tag="shtProductSeriesReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
+							<toggleButton id="tbtnProductProducerReplace" label="药品生产厂家替换"   imageMso="ControlSubFormReport" tag="shtProductProducerReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+							<toggleButton id="tbtnProductNameReplace" label="药品名称替换"  imageMso="ControlSubFormReport" tag="shtProductNameReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+							<toggleButton id="tbtnProductSeriesReplace" label="药品规格替换"   imageMso="ControlSubFormReport" tag="shtProductSeriesReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
 							<menuSeparator id="mnProductTables_SepSearch_02" />
-							<toggleButton id="tbtnProductUnitRatio" label="药品单位换算"   imageMso="NameUseInFormula" tag="shtProductUnitRatio" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
+							<toggleButton id="tbtnProductUnitRatio" label="药品单位换算"   imageMso="NameUseInFormula" tag="shtProductUnitRatio" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
 							<menuSeparator id="mnProductTables_SepSearch_03" />
-							<toggleButton id="tbtnCompanyReplace" label="商业公司名称替换"   imageMso="NameUseInFormula" tag="shtCompanyNameReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-						</menu> 
-						<menu id="mnProfitUsedConfig"  label="利润设置"  imageMso="NameUseInFormula"  > 
-							<toggleButton id="tbtnSpecialProductConig" label="两票制药品"   imageMso="ControlSubFormReport" tag="shtNewRuleProducts" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-							<toggleButton id="tbtnPromptProduct" label="推广药品"   imageMso="ControlSubFormReport" tag="shtPromotionProduct" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-							<toggleButton id="tbtnProductTaxRate" label="药品【税金税点】设置"   imageMso="ControlSubFormReport" tag="shtProductTaxRate" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-							<menuSeparator id="mnProfitUsedConfig_SepSearch_01" />
-							<toggleButton id="tbtnSalesManComm" label="业务员佣金设置"   imageMso="ControlSubFormReport" tag="shtSalesManCommConfig" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-							<toggleButton id="tbtnCZLComm" label="采芝林配送费设置"   imageMso="ControlSubFormReport" tag="shtFirstLevelCommission" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-							<toggleButton id="tbtnSCompComm" label="商业公司配送费设置"   imageMso="ControlSubFormReport" tag="shtSecondLevelCommission" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
+							<toggleButton id="tbtnCompanyReplace" label="商业公司名称替换"   imageMso="NameUseInFormula" tag="shtCompanyNameReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
 						</menu>
-					<!--	
-						<toggleButton id="tbtProductProducerMaster" label="药品厂家" size="normal" imageMso="ControlSubFormReport" tag="shtProductProducerMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-						<toggleButton id="tbtnProductNameMaster" label="药品名称" size="normal" imageMso="ControlSubFormReport" tag="shtProductNameMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-						<toggleButton id="tbtnProductMaster" label="药品" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-						<toggleButton id="tbtnProductProducerReplace" label="药品生产厂家替换" size="normal" imageMso="ControlSubFormReport" tag="shtProductProducerReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-						<toggleButton id="tbtnProductNameReplace" label="药品名称替换" size="normal" imageMso="ControlSubFormReport" tag="shtProductNameReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-						<toggleButton id="tbtnProductSeriesReplace" label="药品规格替换" size="normal" imageMso="ControlSubFormReport" tag="shtProductSeriesReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
+						<menu id="mnProfitUsedConfig"  label="计算设置"  imageMso="NameUseInFormula"  >
+							<toggleButton id="tbtnSpecialProductConig" label="两票制药品"   imageMso="ControlSubFormReport" tag="shtNewRuleProducts" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+							<toggleButton id="tbtnPromptProduct" label="推广药品"   imageMso="ControlSubFormReport" tag="shtPromotionProduct" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+							<toggleButton id="tbtnProductTaxRate" label="药品【税金税点】设置"   imageMso="ControlSubFormReport" tag="shtProductTaxRate" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+							<menuSeparator id="mnProfitUsedConfig_SepSearch_01" />
+							<toggleButton id="tbtnSalesManComm" label="业务员佣金设置"   imageMso="ControlSubFormReport" tag="shtSalesManCommConfig" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+							<toggleButton id="tbtnCZLComm" label="采芝林配送费设置"   imageMso="ControlSubFormReport" tag="shtFirstLevelCommission" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+							<toggleButton id="tbtnSCompComm" label="商业公司配送费设置"   imageMso="ControlSubFormReport" tag="shtSecondLevelCommission" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+						</menu>
+					<!--
+						<toggleButton id="tbtProductProducerMaster" label="药品厂家" size="normal" imageMso="ControlSubFormReport" tag="shtProductProducerMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+						<toggleButton id="tbtnProductNameMaster" label="药品名称" size="normal" imageMso="ControlSubFormReport" tag="shtProductNameMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+						<toggleButton id="tbtnProductMaster" label="药品" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+						<toggleButton id="tbtnProductProducerReplace" label="药品生产厂家替换" size="normal" imageMso="ControlSubFormReport" tag="shtProductProducerReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+						<toggleButton id="tbtnProductNameReplace" label="药品名称替换" size="normal" imageMso="ControlSubFormReport" tag="shtProductNameReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+						<toggleButton id="tbtnProductSeriesReplace" label="药品规格替换" size="normal" imageMso="ControlSubFormReport" tag="shtProductSeriesReplace" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
 					-->
 					<!--
-						<toggleButton id="tbtnProductMaster" label="药品主表" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-						<toggleButton id="tbtnProductMaster" label="药品主表" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-						<toggleButton id="tbtnProductMaster" label="药品主表" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-						<toggleButton id="tbtnProductMaster" label="药品主表" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-						<toggleButton id="tbtnProductMaster" label="药品主表" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
-						<toggleButton id="tbtnProductMaster" label="药品主表" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/> 
+						<toggleButton id="tbtnProductMaster" label="药品主表" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+						<toggleButton id="tbtnProductMaster" label="药品主表" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+						<toggleButton id="tbtnProductMaster" label="药品主表" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+						<toggleButton id="tbtnProductMaster" label="药品主表" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+						<toggleButton id="tbtnProductMaster" label="药品主表" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+						<toggleButton id="tbtnProductMaster" label="药品主表" size="normal" imageMso="ControlSubFormReport" tag="shtProductMaster" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
 					-->
 					</box>
+					<box id="boxAllInventory" boxStyle="vertical" >
+						<menu id="mnInventory" label="库存" imageMso="FileSaveAsExcel97_2003"  >
+							<toggleButton id="tbtnSelfInv" getLabel="Button_getLabel" tag="shtSelfInventory" getImage="Button_getImage" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+							<toggleButton id="tbtnCZLInvCalcd" getLabel="Button_getLabel" tag="shtCZLInventory" getImage="Button_getImage" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+						</menu>
+						<menu id="mnAccountSheets" label="结果表" imageMso="FileSaveAsExcel97_2003"  >
+							<toggleButton id="tbtnProfitSheet" getLabel="Button_getLabel" tag="shtProfit" getImage="Button_getImage" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+							<toggleButton id="tbtnRefundSheet" getLabel="Button_getLabel" tag="shtRefund" getImage="Button_getImage" onAction="ToggleButtonToSwitchSheet_onAction" getPressed="ToggleButtonToSwitchSheet_getPressed"/>
+						</menu>
+					</box>
+					<!--
+					<box id="boxAllBizSheets02" boxStyle="vertical" >
+					</box>
+					-->
 				</group>
-				
+
 				<group id="grpSwitchDevProd" label="开发" getVisible="btnSwitchDevProd_getVisible" >
-					<toggleButton id="btnSwitchDevProd" label="开发模式" size="large" imageMso="TrustCenter"   
-						onAction="btnSwitchDevProd_onAction" getPressed="btnSwitchDevProd_getPressed" getVisible="btnSwitchDevProd_getVisible" /> 
+					<toggleButton id="btnSwitchDevProd" label="开发模式" size="large" imageMso="TrustCenter"
+						onAction="btnSwitchDevProd_onAction" getPressed="btnSwitchDevProd_getPressed" getVisible="btnSwitchDevProd_getVisible" />
 				</group>
 				<group id="grpDevFacilities" label="开发工具" getVisible="grpDevFacilities_getVisible" >
 					<box id="boxDevFacilities_01" boxStyle="vertical" >
-						
-						<button id="btnResetOnError" label="Rest On Error" size="normal" imageMso="ControlToolboxOutlook" onAction="btnResetOnError_onAction"  /> 
-						<button id="btnGenAlphabetList" label="Gen A…XFD" size="normal" imageMso="A" onAction="btnGenAlphabetList_onAction"  /> 
-						<button id="btnGenNumberList" label="Gen 1…9999" size="normal" imageMso="_1" onAction="btnGenNumberList_onAction"  /> 
-						<button id="btnListAllFunctions" label="List All Functions" size="normal" imageMso="SmartArtAddBullet" onAction="btnListAllFunctions_onAction"  /> 
-						<button id="btnExportSourceCode" label="Export Source Code" size="normal" imageMso="ViewPrintLayoutView" onAction="btnExportSourceCode_onAction"  /> 
-						<button id="btnListAllActiveXOnCurrSheet" label="List ActiveX On Sheet" size="normal" imageMso="ModuleInsert" onAction="btnListAllActiveXOnCurrSheet_onAction"  /> 
+						<button id="btnResetOnError" label="Rest On Error" size="normal" imageMso="ControlToolboxOutlook" onAction="btnResetOnError_onAction"  />
+						<button id="btnGenAlphabetList" label="Gen A…XFD" size="normal" imageMso="A" onAction="btnGenAlphabetList_onAction"  />
+						<button id="btnGenNumberList" label="Gen 1…9999" size="normal" imageMso="_1" onAction="btnGenNumberList_onAction"  />
+						<button id="btnListAllFunctions" label="List All Functions" size="normal" imageMso="SmartArtAddBullet" onAction="btnListAllFunctions_onAction"  />
+						<button id="btnExportSourceCode" label="Export Source Code" size="normal" imageMso="ViewPrintLayoutView" onAction="btnExportSourceCode_onAction"  />
+						<button id="btnListAllActiveXOnCurrSheet" label="List ActiveX On Sheet" size="normal" imageMso="ModuleInsert" onAction="btnListAllActiveXOnCurrSheet_onAction"  />
 					</box>
 				</group>
 			</tab>
@@ -149,7 +178,7 @@
 		<button idMso="ApplicationOptionsDialog" visible="true" enabled="false"/>
 		<button idMso="FileExit" visible="true"/>
 		<button idMso="HistoryTab" visible="true" enabled="false"/>
-		<button idMso="OfficeFeedback" visible="true" enabled="false"/> 
+		<button idMso="OfficeFeedback" visible="true" enabled="false"/>
 		<tab idMso="TabRecent"  enabled="false"/>
 		<tab idMso="TabNew"  enabled="false"/>
 		<tab idMso="TabPrint" visible="true"/>
