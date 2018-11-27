@@ -59,6 +59,7 @@ Function fSetValidationForNumberForSheetColumns(sht As Worksheet, arrCols, aNumM
 End Function
 
 Function fSetValidationListForAllSheets()
+    gProBar.ChangeProcessBarValue 0.4, "fSetValidationListForAllSheets: start"
     '============== SalesCompany ========================================
     Call fSetValidationListForshtFirstLevelCommission_SalesCompany("=rngStaticSalesCompanyNames_Comm")
     Call fSetValidationListForshtSecondLevelCommission_SalesCompany("=rngStaticSalesCompanyNames_Comm")

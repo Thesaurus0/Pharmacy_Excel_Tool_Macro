@@ -1367,16 +1367,33 @@ Function fReadSheetPromotionProducts2Dictionary()
 End Function
 Function fIsPromotionProduct(sHospital As String, sProductKey As String, dblSalesPrice As Double) As Boolean
     Dim sKey As String
+    Dim bOut As Boolean
+    
+    bOut = False
     
     If dictPromotionProducts Is Nothing Then fReadSheetPromotionProducts2Dictionary
     
     sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & sHospital
     If dictPromotionProducts.Exists(sKey) Then
-        fIsPromotionProduct = True
+        bOut = True
     Else
         sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & ""
-        fIsPromotionProduct = dictPromotionProducts.Exists(sKey)
+        bOut = dictPromotionProducts.Exists(sKey)
     End If
+    
+    If Not bOut Then
+        dblSalesPrice = WorksheetFunction.Round(dblSalesPrice, 2)
+        
+        sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & sHospital
+        If dictPromotionProducts.Exists(sKey) Then
+            bOut = True
+        Else
+            sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & ""
+            bOut = dictPromotionProducts.Exists(sKey)
+        End If
+    End If
+    
+    fIsPromotionProduct = bOut
 End Function
 Function fGetPromotionProductRebate(sHospital As String, sProductKey As String, dblSalesPrice As Double) As Double
     Dim sKey As String

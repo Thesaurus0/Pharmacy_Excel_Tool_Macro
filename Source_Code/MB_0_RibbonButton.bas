@@ -139,41 +139,76 @@ Sub subMain_InvisibleHideAllBusinessSheets()
     fVeryHideSheet shtProductNameMaster
     fVeryHideSheet shtException
     fVeryHideSheet shtProfit
+    
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: shtProfit"
+    
     fVeryHideSheet shtSelfSalesOrder
+    
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 1"
+    
     fVeryHideSheet shtSelfSalesPreDeduct
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 2"
     fVeryHideSheet shtSelfPurchaseOrder
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 3"
     fVeryHideSheet shtSalesManMaster
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 4"
     fVeryHideSheet shtFirstLevelCommission
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 5"
     fVeryHideSheet shtSecondLevelCommission
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 6"
     fVeryHideSheet shtSalesManCommConfig
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 7"
     fVeryHideSheet shtSelfInventory
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 8"
     fVeryHideSheet shtMenuCompInvt
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 9"
     fVeryHideSheet shtMenu
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 10"
     fVeryHideSheet shtInventoryRawDataRpt
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 11"
     fVeryHideSheet shtImportCZL2SalesCompSales
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 12"
     fVeryHideSheet shtCZLSales2CompRawData
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 13"
     fVeryHideSheet shtCZLSales2Companies
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 14"
     fVeryHideSheet shtNewRuleProducts
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 15"
     fVeryHideSheet shtPV
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 16"
     fVeryHideSheet shtPromotionProduct
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 17"
     fVeryHideSheet shtCZLInvDiff
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 18"
     fVeryHideSheet shtCZLInventory
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 19"
     fVeryHideSheet shtCZLPurchaseOrder
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 20"
     'fVeryHideSheet shtCZLInformedInvInput
     fVeryHideSheet shtCZLRolloverInv
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 21"
     fVeryHideSheet shtSalesCompInvCalcd
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 22"
     fVeryHideSheet shtSalesCompInvUnified
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 23"
     fVeryHideSheet shtSalesCompRolloverInv
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 24"
     fVeryHideSheet shtSalesCompInvDiff
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 25"
     fVeryHideSheet shtProductTaxRate
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 26"
     fVeryHideSheet shtRefund
+    gProBar.ChangeProcessBarValue 0.28, "隐藏所有业务工作表: 27"
     'fVeryHideSheet shtMenuRefund
     fVeryHideSheet shtCZLSales2SCompAll
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 28"
     
     fShowSheet shtMainMenu
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 29"
     shtMainMenu.Activate
     
-    If Not mRibbonObj Is Nothing Then fGetRibbonReference.Invalidate
+    gProBar.ChangeProcessBarValue 0.28, "隐藏所有业务工作表: done"
+    'If Not mRibbonObj Is Nothing Then fGetRibbonReference.Invalidate
 End Sub
 
 Sub subMain_ShowAllBusinessSheets()

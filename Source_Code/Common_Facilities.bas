@@ -199,7 +199,8 @@ Sub sub_ResetOnError_Initialize()
     
     gsEnv = fGetEnvFromSysConf
     
-    Call fEnableExcelOptionsAll
+    Application.EnableEvents = False
+    Call fDisableExcelOptionsAll
     
     gProBar.ChangeProcessBarValue 0.2
     Call sub_RemoveAllCommandBars
@@ -219,6 +220,7 @@ err_exit:
     Err.Clear
     ThisWorkbook.CheckCompatibility = False
     Set gProBar = Nothing
+    Call fEnableExcelOptionsAll
     'End
 End Sub
 Function fGetEnvFromSysConf() As String
