@@ -990,7 +990,7 @@ Function fReadSalesManCommissionConfig2Dictionary()
         If Not dictSalesManCommFrom.Exists(sTmpKey) Then
             dictSalesManCommFrom.Add sTmpKey, lEachRow
         Else
-            fErr "一个中标价只能有一条记录三个业务员设置！请检查业务员佣金设置表" & vbCr & sTmpKey
+            fErr "一个中标价只能有一条业务员佣金记录！请检查业务员佣金设置表" & vbCr & sTmpKey
         End If
         dictSalesManCommTo(sTmpKey) = lEachRow
 next_row:

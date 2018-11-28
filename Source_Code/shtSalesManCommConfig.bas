@@ -17,10 +17,10 @@ Enum SalesManComm
     Commission1 = 8
     Commission2 = 10
     Commission3 = 12
-    ManagerCommRatio = 14
-    Commission4 = 16
-    Commission5 = 18
-    Commission6 = 20
+    Commission4 = 14
+    Commission5 = 16
+    Commission6 = 18
+    ManagerCommRatio = 20
     [_first] = SalesCompany
     [_last] = 100
 End Enum

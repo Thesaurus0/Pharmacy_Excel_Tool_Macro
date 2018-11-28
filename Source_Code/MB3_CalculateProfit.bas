@@ -421,8 +421,9 @@ Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary
         lStartRow = fGetshtExceptionNewRow
         arrNewProductSeries = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNoValidSelfSales, , False)
         
-        shtException.Columns(4).ColumnWidth = 100
+        'shtException.Columns(4).ColumnWidth = 100
         shtException.Cells(lStartRow - 1, 1).Value = "找不到可扣的本公司出货记录(若为退货，则是找不到退货可抵扣)"
+        shtException.Cells(lStartRow - 1, 1).WrapText = False
         Call fPrepareHeaderToSheet(shtException, Array("药品厂家", "药品名称", "规格", "历史价格(供参考)", "借误信息", "行号"), lStartRow)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Color = RGB(255, 0, 0)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Bold = True
@@ -460,6 +461,7 @@ Function fAddNoSalesManConfToSheetException(dictNoSalesManConf As Dictionary)
         lStartRow = fGetshtExceptionNewRow
         
         shtException.Cells(lStartRow - 1, 1).Value = "找不到业务员的记录  --> 有可能只是中价标没有！"
+        shtException.Cells(lStartRow - 1, 1).WrapText = False
         Call fPrepareHeaderToSheet(shtException, Array("商业公司", "医院", "药品厂家", "药品名称", "规格", "中标价", "行号"), lStartRow)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Color = RGB(255, 0, 0)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Bold = True

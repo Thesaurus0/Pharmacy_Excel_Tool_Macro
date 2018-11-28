@@ -671,8 +671,9 @@ Private Function fAddNoValidCZLSalesToSheetException(dictNoValidCZLSales As Dict
         lStartRow = fGetshtExceptionNewRow
         arrLeftPart = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNoValidCZLSales, , False)
         
-        shtException.Columns(4).ColumnWidth = 100
+        'shtException.Columns(4).ColumnWidth = 100
         shtException.Cells(lStartRow - 1, 1).Value = "找不到可扣的采芝林销售流向(若为退货，则是先找退货，找不到再找医院销售，去抵扣)"
+        shtException.Cells(lStartRow - 1, 1).WrapText = False
         Call fPrepareHeaderToSheet(shtException, Array("商业公司", "药品厂家", "药品名称", "规格", "历史价格(供参考)", "借误信息", "行号"), lStartRow)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Color = RGB(255, 0, 0)
         shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Bold = True
