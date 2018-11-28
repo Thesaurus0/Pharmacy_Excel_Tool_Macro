@@ -5,7 +5,7 @@ Option Base 1
 Function fSetValidationForNumberAndDateColumnsForAllSheets()
     Call fSetValidationForNumberForSheetColumns(shtFirstLevelCommission, FirstLevelComm.Commission, 0, 1)
     Call fSetValidationForNumberForSheetColumns(shtSecondLevelCommission, SecondLevelComm.Commission, 0, 1)
-    Call fSetValidationForNumberForSheetColumns(shtSalesManCommConfig, Array(SalesManComm.Commission1, SalesManComm.Commission2, SalesManComm.Commission3), 0, 999999)
+    Call fSetValidationForNumberForSheetColumns(shtSalesManCommConfig, Array(SalesManComm.Commission1, SalesManComm.Commission2, SalesManComm.Commission3, SalesManComm.Commission4, SalesManComm.Commission5, SalesManComm.Commission6), 0, 999999)
     Call fSetValidationForNumberForSheetColumns(shtSalesManCommConfig, SalesManComm.ManagerCommRatio, 0, 1)
     Call fSetValidationForNumberForSheetColumns(shtProductUnitRatio, UnitRatio.Raio, 0, 999999)
     

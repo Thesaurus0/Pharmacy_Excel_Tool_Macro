@@ -18,6 +18,9 @@ Enum SalesManComm
     Commission2 = 10
     Commission3 = 12
     ManagerCommRatio = 14
+    Commission4 = 16
+    Commission5 = 18
+    Commission6 = 20
     [_first] = SalesCompany
     [_last] = 100
 End Enum
@@ -45,6 +48,9 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     Call fValidateNumericColInArray(arrData, dictColIndex("Commission1"), Me, 1, 1, "佣金1")
     Call fValidateNumericColInArray(arrData, dictColIndex("Commission2"), Me, 1, 1, "佣金2")
     Call fValidateNumericColInArray(arrData, dictColIndex("Commission3"), Me, 1, 1, "佣金3")
+    Call fValidateNumericColInArray(arrData, dictColIndex("Commission4"), Me, 1, 1, "佣金4")
+    Call fValidateNumericColInArray(arrData, dictColIndex("Commission5"), Me, 1, 1, "佣金5")
+    Call fValidateNumericColInArray(arrData, dictColIndex("Commission6"), Me, 1, 1, "佣金6")
     
     Call fValidateBlankInArray(arrData, dictColIndex("ProductProducer"), Me, 1, 1, "生产厂家")
     Call fValidateBlankInArray(arrData, dictColIndex("ProductName"), Me, 1, 1, "药品名称")

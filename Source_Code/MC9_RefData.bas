@@ -1005,8 +1005,8 @@ next_row:
 End Function
 
 Function fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesManKey As String _
-                            , ByRef sSalesMan_1 As String, ByRef sSalesMan_2 As String, ByRef sSalesMan_3 As String _
-                            , ByRef dblComm_1 As Double, ByRef dblComm_2 As Double, ByRef dblComm_3 As Double _
+                            , ByRef sSalesMan_1 As String, ByRef sSalesMan_2 As String, ByRef sSalesMan_3 As String, ByRef sSalesMan_4 As String, ByRef sSalesMan_5 As String, ByRef sSalesMan_6 As String _
+                            , ByRef dblComm_1 As Double, ByRef dblComm_2 As Double, ByRef dblComm_3 As Double, ByRef dblComm_4 As Double, ByRef dblComm_5 As Double, ByRef dblComm_6 As Double _
                             , ByRef sSalesManager As String, ByRef dblSalesMgrComm As Double) As Boolean
     If dictSalesManCommFrom Is Nothing Then Call fReadSalesManCommissionConfig2Dictionary
     
@@ -1019,9 +1019,15 @@ Function fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesManKey As S
     sSalesMan_1 = ""
     sSalesMan_2 = ""
     sSalesMan_3 = ""
+    sSalesMan_4 = ""
+    sSalesMan_5 = ""
+    sSalesMan_6 = ""
     dblComm_1 = 0
     dblComm_2 = 0
     dblComm_3 = 0
+    dblComm_4 = 0
+    dblComm_5 = 0
+    dblComm_6 = 0
     
     bOut = dictSalesManCommFrom.Exists(sSalesManKey)
     If Not bOut Then GoTo exit_fun
@@ -1052,6 +1058,13 @@ Function fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesManKey As S
         dblComm_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission2"))
         sSalesMan_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan3"))
         dblComm_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission3"))
+        
+        sSalesMan_4 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan4"))
+        dblComm_4 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission4"))
+        sSalesMan_5 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan5"))
+        dblComm_5 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission5"))
+        sSalesMan_6 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan6"))
+        dblComm_6 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission6"))
         
         sSalesManager = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesManager"))
         dblSalesMgrComm = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesManagerCommission"))

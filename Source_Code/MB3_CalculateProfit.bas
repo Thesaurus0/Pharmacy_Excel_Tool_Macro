@@ -156,6 +156,8 @@ Private Function fProcessData()
     Dim dblCostPrice As Double
     Dim sSalesMan_1 As String, sSalesMan_2 As String, sSalesMan_3 As String, sSalesManager As String
     Dim dblComm_1 As Double, dblComm_2 As Double, dblComm_3 As Double, dblSalesMgrComm As Double
+    Dim sSalesMan_4 As String, sSalesMan_5 As String, sSalesMan_6 As String
+    Dim dblComm_4 As Double, dblComm_5 As Double, dblComm_6 As Double
     Dim dblGrossProfitAmt As Double
     Dim dblNewRSalesTaxRate As Double
     Dim dblNewRPurchaseTaxRate As Double
@@ -311,7 +313,7 @@ Private Function fProcessData()
         sSalesManKey = sSalesCompName & DELIMITER & sHospital & DELIMITER _
                     & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries & DELIMITER & dblSellPrice
         If Not fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesManKey _
-                                , sSalesMan_1, sSalesMan_2, sSalesMan_3, dblComm_1, dblComm_2, dblComm_3 _
+                                , sSalesMan_1, sSalesMan_2, sSalesMan_3, sSalesMan_4, sSalesMan_5, sSalesMan_6, dblComm_1, dblComm_2, dblComm_3, dblComm_4, dblComm_5, dblComm_6 _
                                 , sSalesManager, dblSalesMgrComm) Then
             If Not dictNoSalesManConf.Exists(sSalesManKey) Then
                 dictNoSalesManConf.Add sSalesManKey, "'" & lEachRow + 1
@@ -327,12 +329,21 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("SalesMan_1")) = sSalesMan_1
         arrOutput(lEachRow, dictRptColIndex("SalesMan_2")) = sSalesMan_2
         arrOutput(lEachRow, dictRptColIndex("SalesMan_3")) = sSalesMan_3
+        arrOutput(lEachRow, dictRptColIndex("SalesMan_4")) = sSalesMan_4
+        arrOutput(lEachRow, dictRptColIndex("SalesMan_5")) = sSalesMan_5
+        arrOutput(lEachRow, dictRptColIndex("SalesMan_6")) = sSalesMan_6
         arrOutput(lEachRow, dictRptColIndex("SalesManList")) = sSalesMan_1 _
                                                              & IIf(Len(sSalesMan_2) > 0, ", " & sSalesMan_2, "") _
-                                                             & IIf(Len(sSalesMan_3) > 0, ", " & sSalesMan_3, "")
+                                                             & IIf(Len(sSalesMan_3) > 0, ", " & sSalesMan_3, "") _
+                                                             & IIf(Len(sSalesMan_4) > 0, ", " & sSalesMan_4, "") _
+                                                             & IIf(Len(sSalesMan_5) > 0, ", " & sSalesMan_5, "") _
+                                                             & IIf(Len(sSalesMan_6) > 0, ", " & sSalesMan_6, "")
         arrOutput(lEachRow, dictRptColIndex("SalesCommission_1")) = dblComm_1
         arrOutput(lEachRow, dictRptColIndex("SalesCommission_2")) = dblComm_2
         arrOutput(lEachRow, dictRptColIndex("SalesCommission_3")) = dblComm_3
+        arrOutput(lEachRow, dictRptColIndex("SalesCommission_4")) = dblComm_4
+        arrOutput(lEachRow, dictRptColIndex("SalesCommission_5")) = dblComm_5
+        arrOutput(lEachRow, dictRptColIndex("SalesCommission_6")) = dblComm_6
         '-----------------------------------------------------------------------------------------------
         
         arrOutput(lEachRow, dictRptColIndex("NetProfitPerUnit")) = arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) _
@@ -349,9 +360,15 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_1")) = dblComm_1 * dblQuantity
         arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_2")) = dblComm_2 * dblQuantity
         arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_3")) = dblComm_3 * dblQuantity
+        arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_4")) = dblComm_4 * dblQuantity
+        arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_5")) = dblComm_5 * dblQuantity
+        arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_6")) = dblComm_6 * dblQuantity
         arrOutput(lEachRow, dictRptColIndex("SalesCommission_Total")) = arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_1")) _
                                                                         + arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_2")) _
-                                                                        + arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_3"))
+                                                                        + arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_3")) _
+                                                                        + arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_4")) _
+                                                                        + arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_5")) _
+                                                                        + arrOutput(lEachRow, dictRptColIndex("SalesCommissionAmt_6"))
         
         If arrOutput(lEachRow, dictRptColIndex("SellAmount")) > 0 Then _
         arrOutput(lEachRow, dictRptColIndex("NetProfitRate")) = arrOutput(lEachRow, dictRptColIndex("NetProfitAmount")) _
