@@ -1372,63 +1372,61 @@ Function fReadSheetPromotionProducts2Dictionary()
                 , dictColIndex("ProductName"), dictColIndex("ProductSeries"), dictColIndex("SalesPrice")) _
                 , False, shtPromotionProduct, 1, 1, "医院 + 药品生产厂家 + 药品名称 + 规格 + 中标价")
 
-    Set dictPromotionProducts = fReadArray2DictionaryWithMultipleKeyColsSingleItemCol(arrData _
-                                    , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName") _
-                                    , dictColIndex("ProductSeries"), dictColIndex("SalesPrice"), dictColIndex("Hospital")) _
-                                    , dictColIndex("Rebate"), DELIMITER)
+'    Set dictPromotionProducts = fReadArray2DictionaryWithMultipleKeyColsSingleItemCol(arrData _
+'                                    , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName") _
+'                                    , dictColIndex("ProductSeries"), dictColIndex("SalesPrice"), dictColIndex("Hospital")) _
+'                                    , dictColIndex("Rebate"), DELIMITER)
+    Set dictPromotionProducts = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
+                                    , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), dictColIndex("SalesPrice"), dictColIndex("Hospital"), dictColIndex("SalesCompany")) _
+                                    , Array(dictColIndex("Rebate"), dictColIndex("SalesTaxRate"), dictColIndex("PurchaseTaxRate"), dictColIndex("SecondLevelComm")) _
+                                    , DELIMITER, DELIMITER, True, True)
     Set dictColIndex = Nothing
 End Function
-Function fIsPromotionProduct(sHospital As String, sProductKey As String, dblSalesPrice As Double) As Boolean
+Function fIsPromotionProduct(sHospital As String, sProductKey As String, dblSalesPrice As Double, sSalesCompany As String _
+                          , ByRef dblPromPrdRebate As Double, ByRef dblSalesTaxRate As Double _
+                          , ByRef dblPurchaseTaxRate As Double, ByRef dblSecondLevelComm As Double) As Boolean
     Dim sKey As String
     Dim bOut As Boolean
     
     bOut = False
+    dblPromPrdRebate = 0
+    dblSalesTaxRate = 0
+    dblPurchaseTaxRate = 0
+    dblSecondLevelComm = 0
     
     If dictPromotionProducts Is Nothing Then fReadSheetPromotionProducts2Dictionary
     
-    sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & sHospital
-    If dictPromotionProducts.Exists(sKey) Then
-        bOut = True
-    Else
-        sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & ""
-        bOut = dictPromotionProducts.Exists(sKey)
-    End If
+    sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & sHospital & DELIMITER & sSalesCompany
+    If dictPromotionProducts.Exists(sKey) Then bOut = True: GoTo Got_n_Exit
+    sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & sHospital & DELIMITER & ""
+    If dictPromotionProducts.Exists(sKey) Then bOut = True: GoTo Got_n_Exit
+    sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & "" & DELIMITER & sSalesCompany
+    If dictPromotionProducts.Exists(sKey) Then bOut = True: GoTo Got_n_Exit
+    sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & "" & DELIMITER & ""
+    If dictPromotionProducts.Exists(sKey) Then bOut = True: GoTo Got_n_Exit
     
+    'round the price, to avoid too many decimal points when user input
     If Not bOut Then
         dblSalesPrice = WorksheetFunction.Round(dblSalesPrice, 2)
-        
-        sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & sHospital
-        If dictPromotionProducts.Exists(sKey) Then
-            bOut = True
-        Else
-            sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & ""
-            bOut = dictPromotionProducts.Exists(sKey)
-        End If
+
+        sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & sHospital & DELIMITER & sSalesCompany
+        If dictPromotionProducts.Exists(sKey) Then bOut = True: GoTo Got_n_Exit
+        sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & sHospital & DELIMITER & ""
+        If dictPromotionProducts.Exists(sKey) Then bOut = True: GoTo Got_n_Exit
+        sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & "" & DELIMITER & sSalesCompany
+        If dictPromotionProducts.Exists(sKey) Then bOut = True: GoTo Got_n_Exit
+        sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & "" & DELIMITER & ""
+        If dictPromotionProducts.Exists(sKey) Then bOut = True: GoTo Got_n_Exit
     End If
-    
+
+Got_n_Exit:
+    If bOut Then
+        dblPromPrdRebate = val(Split(dictPromotionProducts(sKey), DELIMITER)(0))
+        dblSalesTaxRate = val(Split(dictPromotionProducts(sKey), DELIMITER)(1))
+        dblPurchaseTaxRate = val(Split(dictPromotionProducts(sKey), DELIMITER)(2))
+        dblSecondLevelComm = val(Split(dictPromotionProducts(sKey), DELIMITER)(3))
+    End If
     fIsPromotionProduct = bOut
-End Function
-Function fGetPromotionProductRebate(sHospital As String, sProductKey As String, dblSalesPrice As Double) As Double
-    Dim sKey As String
-    
-    If dictPromotionProducts Is Nothing Then fReadSheetPromotionProducts2Dictionary
-    
-    sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & sHospital
-    If dictPromotionProducts.Exists(sKey) Then
-        GoTo rtn_fun
-    Else
-        sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & ""
-        If dictPromotionProducts.Exists(sKey) Then GoTo rtn_fun
-    End If
-    
-    fGetPromotionProductRebate = 0
-    Exit Function
-rtn_fun:
-    If IsNumeric(dictPromotionProducts(sKey)) Then
-        fGetPromotionProductRebate = CDbl(dictPromotionProducts(sKey))
-    Else
-        fGetPromotionProductRebate = 0
-    End If
 End Function
 '------------------------------------------------------------------------------
 

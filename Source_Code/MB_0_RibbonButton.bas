@@ -1190,9 +1190,9 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "医院", "药品厂家", "药品名称", "药品规格", "中标价", "基础版本 返点", "新版本中 返点", "", "", ""), 1)
             
             '========================================
-            Set dictBase = fReadArray2DictionaryWithMultipleKeyColsSingleItemCol(arrBase, Array(1, 2, 3, 4, 5), 6, DELIMITER, True, False)
-            Set dictThis = fReadArray2DictionaryWithMultipleKeyColsSingleItemCol(arrThis, Array(1, 2, 3, 4, 5), 6, DELIMITER, True, False)
-            Set dictDiff = fCompareDictionaryKeysAndSingleItem(dictBase, dictThis)
+            Set dictBase = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrBase, Array(1, 2, 3, 4, 5, 9), Array(6, 7, 8, 10), DELIMITER, True, False)
+            Set dictThis = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrThis, Array(1, 2, 3, 4, 5, 9), Array(6, 7, 8, 10), DELIMITER, True, False)
+            Set dictDiff = fCompareDictionaryKeysAndMultipleItems(dictBase, dictThis)
             arrDiff = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictDiff, , False)
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================

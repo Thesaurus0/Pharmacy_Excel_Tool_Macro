@@ -14,6 +14,10 @@ Enum PromoteProduct
     ProductSeries = 4
     SalesPrice = 5
     Rebate = 6
+    SalesTaxRate = 7
+    PurchaseTaxRate = 8
+    SalesCompany = 9
+    SecLevelComm = 10
 End Enum
 
 Private Sub btnValidate_Click()

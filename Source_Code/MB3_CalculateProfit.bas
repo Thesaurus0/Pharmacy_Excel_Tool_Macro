@@ -159,10 +159,14 @@ Private Function fProcessData()
     Dim sSalesMan_4 As String, sSalesMan_5 As String, sSalesMan_6 As String
     Dim dblComm_4 As Double, dblComm_5 As Double, dblComm_6 As Double
     Dim dblGrossProfitAmt As Double
-    Dim dblNewRSalesTaxRate As Double
-    Dim dblNewRPurchaseTaxRate As Double
+'    Dim dblNewRSalesTaxRate As Double
+'    Dim dblNewRPurchaseTaxRate As Double
+    Dim dblPromPrdRebate As Double
+    Dim dblSalesTaxRate As Double
+    Dim dblPurchaseTaxRate As Double
     Dim sAllCostPrice As String
     Dim sMsg As String
+    Dim bIsPromotionProduct As Boolean
     
     Dim dblSellPrice As Double
     
@@ -208,42 +212,44 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("SalesRecordKey")) = sSalesCompName & sProducer & sProductName & sProductSeries _
                         & sHospital & format(arrMaster(lEachRow, dictMstColIndex("SalesDate")), "yyyymmdd") & dblQuantity & arrMaster(lEachRow, dictMstColIndex("LotNum"))
         
-        '==== first level czl commission ==========================================
-        sFirstLevelCommKey = sSalesCompName & DELIMITER & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+        bIsPromotionProduct = fIsPromotionProduct(sHospital, sProductKey, dblSellPrice, sSalesCompName, dblPromPrdRebate, dblSalesTaxRate, dblPurchaseTaxRate, dblSecondLevelComm)
         
-        If Not fGetFirstLevelComm(sFirstLevelCommKey, dblFirstLevelComm) Then
-            dblFirstLevelComm = fGetConfigFirstLevelDefaultComm()
-            
-            sFirstLevelCommPasteKey = fComposeFirstLevelColumnsStryByConfig(sSalesCompName, sProducer, sProductName _
-                                                    , sProductSeries, dblFirstLevelComm)
-            If Not dictMissedFirstLComm.Exists(sFirstLevelCommPasteKey) Then
-                dictMissedFirstLComm.Add sFirstLevelCommPasteKey, "'" & (lEachRow + 1)
-            Else
-                dictMissedFirstLComm(sFirstLevelCommPasteKey) = dictMissedFirstLComm(sFirstLevelCommPasteKey) & "," & (lEachRow + 1)
-            End If
-        End If
-        '-----------------------------------------------------------------------------------------------
-        
-        '==== second level commission ==========================================
-        sSecondLevelCommKey = sSalesCompName & DELIMITER & sHospital & DELIMITER _
-                            & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
-    
-        If Not fGetSecondLevelComm(sSecondLevelCommKey, dblSecondLevelComm) Then
-            dblSecondLevelComm = fGetConfigSecondLevelDefaultComm(sSalesCompName)
-            
-            sSecondLevelCommPasteKey = fComposeSecondLevelColumnsStryByConfig(sSalesCompName, sHospital _
-                                                        , sProducer, sProductName, sProductSeries, dblSecondLevelComm)
-            If Not dictMissedSecondLComm.Exists(sSecondLevelCommPasteKey) Then
-                dictMissedSecondLComm.Add sSecondLevelCommPasteKey, "'" & (lEachRow + 1)
-            Else
-                dictMissedSecondLComm(sSecondLevelCommPasteKey) = dictMissedSecondLComm(sSecondLevelCommPasteKey) & "," & (lEachRow + 1)
-            End If
-        End If
-        '-----------------------------------------------------------------------------------------------
-        
-        If fIsPromotionProduct(sHospital, sProductKey, dblSellPrice) Then
-            dblGrossPrice2CZL = dblSellPrice * fGetPromotionProductRebate(sHospital, sProductKey, dblSellPrice)
+        If bIsPromotionProduct Then
+            dblGrossPrice2CZL = dblSellPrice * dblPromPrdRebate
         Else
+            '==== first level czl commission ==========================================
+            sFirstLevelCommKey = sSalesCompName & DELIMITER & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+            
+            If Not fGetFirstLevelComm(sFirstLevelCommKey, dblFirstLevelComm) Then
+                dblFirstLevelComm = fGetConfigFirstLevelDefaultComm()
+                
+                sFirstLevelCommPasteKey = fComposeFirstLevelColumnsStryByConfig(sSalesCompName, sProducer, sProductName _
+                                                        , sProductSeries, dblFirstLevelComm)
+                If Not dictMissedFirstLComm.Exists(sFirstLevelCommPasteKey) Then
+                    dictMissedFirstLComm.Add sFirstLevelCommPasteKey, "'" & (lEachRow + 1)
+                Else
+                    dictMissedFirstLComm(sFirstLevelCommPasteKey) = dictMissedFirstLComm(sFirstLevelCommPasteKey) & "," & (lEachRow + 1)
+                End If
+            End If
+            '-----------------------------------------------------------------------------------------------
+            
+            '==== second level commission ==========================================
+            sSecondLevelCommKey = sSalesCompName & DELIMITER & sHospital & DELIMITER _
+                                & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
+        
+            If Not fGetSecondLevelComm(sSecondLevelCommKey, dblSecondLevelComm) Then
+                dblSecondLevelComm = fGetConfigSecondLevelDefaultComm(sSalesCompName)
+                
+                sSecondLevelCommPasteKey = fComposeSecondLevelColumnsStryByConfig(sSalesCompName, sHospital _
+                                                            , sProducer, sProductName, sProductSeries, dblSecondLevelComm)
+                If Not dictMissedSecondLComm.Exists(sSecondLevelCommPasteKey) Then
+                    dictMissedSecondLComm.Add sSecondLevelCommPasteKey, "'" & (lEachRow + 1)
+                Else
+                    dictMissedSecondLComm(sSecondLevelCommPasteKey) = dictMissedSecondLComm(sSecondLevelCommPasteKey) & "," & (lEachRow + 1)
+                End If
+            End If
+            '-----------------------------------------------------------------------------------------------
+            
             dblGrossPrice2CZL = dblSellPrice * (1 - dblFirstLevelComm) * (1 - dblSecondLevelComm)
         End If
         
@@ -252,7 +258,7 @@ Private Function fProcessData()
         
         '==== cost price ==========================================
         sMsg = ""
-        If fIsPromotionProduct(sHospital, sProductKey, dblSellPrice) Then
+        If bIsPromotionProduct Then
             dblCostPrice = 0
             arrOutput(lEachRow, dictRptColIndex("CostPrice")) = dblCostPrice
         Else
@@ -283,22 +289,26 @@ Private Function fProcessData()
 
         arrOutput(lEachRow, dictRptColIndex("CostAmount")) = dblCostPrice * dblQuantity
 
-        If fIsPromotionProduct(sHospital, sProductKey, dblSellPrice) Then
-            arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = 0
-            arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit")) = 0
+        If bIsPromotionProduct Then
+            arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = (dblGrossPrice2CZL - dblCostPrice) * dblSalesTaxRate
+            arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit")) = (dblGrossPrice2CZL - dblCostPrice - arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit"))) _
+                                                    * dblPurchaseTaxRate
         ElseIf Not fIsNewRuleProduct(sProductKey) Then
             arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = dblGrossPrice2CZL * fGetTaxRate(sProductKey)
             arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit")) = 0
         Else
-            Call fGetNewRuleProductTaxRate(sProductKey, dblNewRSalesTaxRate, dblNewRPurchaseTaxRate)
+            Call fGetNewRuleProductTaxRate(sProductKey, dblSalesTaxRate, dblPurchaseTaxRate)
             
-            arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = (dblGrossPrice2CZL - dblCostPrice) * dblNewRSalesTaxRate
+            arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) = (dblGrossPrice2CZL - dblCostPrice) * dblSalesTaxRate
             arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit")) = (dblGrossPrice2CZL - dblCostPrice - arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit"))) _
-                                                    * dblNewRPurchaseTaxRate
+                                                    * dblPurchaseTaxRate
         End If
         
-        If fIsPromotionProduct(sHospital, sProductKey, dblSellPrice) Then
-            arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblSellPrice * fGetPromotionProductRebate(sHospital, sProductKey, dblSellPrice)
+        If bIsPromotionProduct Then
+            arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblGrossPrice2CZL - dblCostPrice _
+                                                            - arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) _
+                                                            - arrOutput(lEachRow, dictRptColIndex("PurchaeTaxPerUnit")) _
+                                                            - (dblSellPrice * dblSecondLevelComm)
         Else
             arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) = dblGrossPrice2CZL - dblCostPrice _
                                                             - arrOutput(lEachRow, dictRptColIndex("SalesTaxPerUnit")) _
@@ -349,7 +359,10 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("NetProfitPerUnit")) = arrOutput(lEachRow, dictRptColIndex("GrossProfitPerUnit")) _
                                             - arrOutput(lEachRow, dictRptColIndex("SalesCommission_1")) _
                                             - arrOutput(lEachRow, dictRptColIndex("SalesCommission_2")) _
-                                            - arrOutput(lEachRow, dictRptColIndex("SalesCommission_3"))
+                                            - arrOutput(lEachRow, dictRptColIndex("SalesCommission_3")) _
+                                            - arrOutput(lEachRow, dictRptColIndex("SalesCommission_4")) _
+                                            - arrOutput(lEachRow, dictRptColIndex("SalesCommission_5")) _
+                                            - arrOutput(lEachRow, dictRptColIndex("SalesCommission_6"))
         arrOutput(lEachRow, dictRptColIndex("NetProfitAmount")) = arrOutput(lEachRow, dictRptColIndex("NetProfitPerUnit")) _
                                                                 * dblQuantity
         

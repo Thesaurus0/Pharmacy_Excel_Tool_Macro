@@ -67,6 +67,7 @@ Function fSetValidationListForAllSheets()
     Call fSetValidationListForshtCompanyNameReplace_SalesCompany("=rngStaticSalesCompanyNames_Comm")
     Call fSetValidationListForshtSalesCompRolloverInv_SalesCompany("=rngStaticSalesCompanyNames_Comm")
     Call fSetValidationListForshtSalesCompInvCalcd_SalesCompany("=rngStaticSalesCompanyNames_Comm")
+    Call fSetValidationListForshtPromotionProduct_SalesCompany("=rngStaticSalesCompanyNames_Comm")
     '----------------------------------------------------------------------------------------
 
     '============== Hospital ========================================
@@ -371,6 +372,18 @@ Function fSetValidationListForshtSalesManCommConfig_SalesCompany(sValidationList
     lMaxRow = shtSalesManCommConfig.Columns(sTargetCol).End(xlDown).Row + 100000
     If lMaxRow > Rows.Count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSalesManCommConfig.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+                                    , sValidationListAddr)
+End Function
+
+Function fSetValidationListForshtPromotionProduct_SalesCompany(sValidationListAddr As String)
+    Dim sTargetCol As String
+    Dim lMaxRow As Long
+    
+    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - PROMOTION_PRODUCTS_CONFIG]" _
+                                            , "Column Index", "Column Tech Name=SalesCompany")
+    
+    lMaxRow = fGetValidMaxRow(shtPromotionProduct) + 100000
+    Call fSetValidationListForRange(shtPromotionProduct.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
 

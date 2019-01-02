@@ -464,7 +464,12 @@ Private Function fProcessData()
     Dim sProductKey As String
     Dim sCZLSalesKey As String
     Dim sMsg As String
-
+    
+    Dim dblPromPrdRebate As Double
+    Dim dblSalesTaxRate As Double
+    Dim dblPurchaseTaxRate As Double
+    Dim bIsPromotionProduct As Boolean
+    
     Dim dblQuantity As Double
     Dim dblSellPrice As Double
     Dim dblDueNetPrice As Double
@@ -524,7 +529,8 @@ Private Function fProcessData()
         sCZLSalesKey = sSalesCompName & DELIMITER & sProductKey
         
         sMsg = ""
-        If fIsPromotionProduct(sHospital, sProductKey, dblSellPrice) Then
+        bIsPromotionProduct = fIsPromotionProduct(sHospital, sProductKey, dblSellPrice, sSalesCompName, dblPromPrdRebate, dblSalesTaxRate, dblPurchaseTaxRate, dblSecondLevelComm)
+        If bIsPromotionProduct Then
             dblDueNetPrice = 0
             dblActualNetPrice = 0
             arrOutput(lEachRow, Refund.DueNetPrice) = "Õ∆π„∆∑"
