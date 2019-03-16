@@ -7,6 +7,9 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
+Option Explicit
+Option Base 1
+
 
 Private Sub btnImportCZLSales2Comp_Click()
     Call subMain_ImportCZL2CompanySalesFile

@@ -7,6 +7,9 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
+Option Explicit
+Option Base 1
+
 Enum UnitRatio
     Raio = 5
 End Enum
@@ -24,7 +27,10 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Const ProductSeriesCol = 3
     Const ProductUnitCol = 4
     
+    Dim sProductName As String
     Dim rgIntersect As Range
+    Dim sProductSeries As String
+    
     Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
     
     If Not rgIntersect Is Nothing Then
@@ -35,15 +41,16 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Dim sValidationListAddr As String
         
         sProducer = rgIntersect.Offset(0, ProducerCol - ProductNameCol).Value
+        Call fGetProductNameValidationListAndSetToCell(rgIntersect, sProducer)
         
-        If fNzero(sProducer) Then
-            Call fSetFilterForSheet(shtProductNameMaster, 1, sProducer)
-            Call fCopyFilteredDataToRange(shtProductNameMaster, 2)
-            
-            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
-            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
-            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
-        End If
+'        If fNzero(sProducer) Then
+'            Call fSetFilterForSheet(shtProductNameMaster, ProductNameMst.ProdProducer, sProducer)
+'            Call fCopyFilteredDataToRange(shtProductNameMaster, 2)
+'
+'            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
+'            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
+'            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
+'        End If
     Else
         'product SeriesCol
         Set rgIntersect = Intersect(Target, Me.Columns(ProductSeriesCol))
@@ -54,15 +61,16 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
             
             sProducer = rgIntersect.Offset(0, ProducerCol - ProductSeriesCol).Value
             sProductName = rgIntersect.Offset(0, ProductNameCol - ProductSeriesCol).Value
+            Call fGetProductSeriesValidationListAndSetToCell(rgIntersect, sProducer, sProductName)
             
-            If fNzero(sProducer) And fNzero(sProductName) Then
-                Call fSetFilterForSheet(shtProductMaster, Array(ProductMst.ProductProducer, ProductMst.ProductName), Array(sProducer, sProductName))
-                Call fCopyFilteredDataToRange(shtProductMaster, 3)
-                
-                sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
-                'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
-                Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
-            End If
+'            If fNzero(sProducer) And fNzero(sProductName) Then
+'                Call fSetFilterForSheet(shtProductMaster, Array(ProductMst.ProductProducer, ProductMst.ProductName), Array(sProducer, sProductName))
+'                Call fCopyFilteredDataToRange(shtProductMaster, 3)
+'
+'                sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
+'                'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
+'                Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
+'            End If
         Else
             
             'product UnitCol
@@ -127,7 +135,7 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     
     Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), lErrRowNo, lErrColNo)
 
-    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 保存成功", vbInformation: ThisWorkbook.Save
 exit_sub:
     fEnableExcelOptionsAll
     Set dictColIndex = Nothing

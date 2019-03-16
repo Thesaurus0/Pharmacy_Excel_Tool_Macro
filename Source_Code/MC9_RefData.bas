@@ -51,6 +51,7 @@ Dim dictExcludeProducts As Dictionary
 Dim dictProdTaxRate As Dictionary
 Dim dictNewRuleProducts As Dictionary
 Dim dictPromotionProducts As Dictionary
+Dim dictSellPriceInAdv As Dictionary
 
 Function fClearRefVariables()
     Set dictSelfSalesPrice = Nothing
@@ -79,6 +80,7 @@ Function fClearRefVariables()
     Set dictProdTaxRate = Nothing
     Set dictNewRuleProducts = Nothing
     Set dictPromotionProducts = Nothing
+    Set dictSellPriceInAdv = Nothing
     
     'global variable
     Set dictErrorRows = Nothing
@@ -231,12 +233,13 @@ End Function
 '====================== Producer Master =================================================================
 Function fReadSheetProducerMaster2Dictionary()
     Dim arrData()
-    Dim dictColIndex As Dictionary
+    'Dim dictColIndex As Dictionary
     
-    Call fReadSheetDataByConfig("PRODUCER_MASTER", dictColIndex, arrData, , , , , shtProductProducerMaster)
-    Set dictProducerMaster = fReadArray2DictionaryOnlyKeys(arrData, dictColIndex("ProductProducer"), True, False)
-    
-    Set dictColIndex = Nothing
+   ' Call fReadSheetDataByConfig("PRODUCER_MASTER", dictColIndex, arrData, ,  , , , shtProductProducerMaster)
+    Call fCopyReadWholeSheetData2Array(shtProductProducerMaster, arrData)
+    Set dictProducerMaster = fReadArray2DictionaryOnlyKeys(arrData, Producer.ProducerName, True, False)
+    Erase arrData
+    'Set dictColIndex = Nothing
 End Function
 Function fProducerExistsInProducerMaster(sProducer As String) As Boolean
     If dictProducerMaster Is Nothing Then Call fReadSheetProducerMaster2Dictionary
@@ -272,12 +275,13 @@ Function fReadSheetProductNameMaster2Dictionary()
     Dim arrData()
     Dim dictColIndex As Dictionary
     
-    Call fReadSheetDataByConfig("PRODUCER_NAME_MASTER", dictColIndex, arrData, , , , , shtProductNameMaster)
-    Call fValidateDuplicateInArray(arrData, Array(dictColIndex("ProductProducer"), dictColIndex("ProductName")), False, shtProductNameMaster, 1, 1, "厂家 + 名称")
+    'Call fReadSheetDataByConfig("PRODUCER_NAME_MASTER", dictColIndex, arrData, , , , , shtProductNameMaster)
+    Call fCopyReadWholeSheetData2Array(shtProductNameMaster, arrData)
+    Call fValidateDuplicateInArray(arrData, Array(ProductNameMst.ProdProducer, ProductNameMst.ProductName), False, shtProductNameMaster, 1, 1, "厂家 + 名称")
     
     Set dictProductNameMaster = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
-                                    , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName")) _
-                                    , Array(dictColIndex("ProductName")), DELIMITER, DELIMITER, True)
+                                    , Array(ProductNameMst.ProdProducer, ProductNameMst.ProductName) _
+                                    , Array(ProductNameMst.ProductName), DELIMITER, DELIMITER, True)
     Set dictColIndex = Nothing
 End Function
 Function fProductNameExistsInProductNameMaster(sProductProducer As String, sProductName As String) As Boolean
@@ -318,12 +322,13 @@ Function fReadSheetProductMaster2Dictionary()
     Dim arrData()
     Dim dictColIndex As Dictionary
     
-    Call fReadSheetDataByConfig("PRODUCT_MASTER", dictColIndex, arrData, , , , , shtProductMaster)
-    Call fValidateDuplicateInArray(arrData, Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries")), False, shtProductMaster, 1, 1, "厂家 + 名称 + 规格")
+    'Call fReadSheetDataByConfig("PRODUCT_MASTER", dictColIndex, arrData, , , , , shtProductMaster)
+    Call fCopyReadWholeSheetData2Array(shtProductMaster, arrData)
+    Call fValidateDuplicateInArray(arrData, Array(ProductMst.ProductProducer, ProductMst.ProductName, ProductMst.ProductSeries), False, shtProductMaster, 1, 1, "厂家 + 名称 + 规格")
     
     Set dictProductMaster = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
-                                    , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries")) _
-                                    , Array(dictColIndex("ProductUnit"), dictColIndex("LatestPrice"), dictColIndex("PriceRecInAdvanceFromCZL")), DELIMITER, DELIMITER)
+                                    , Array(ProductMst.ProductProducer, ProductMst.ProductName, ProductMst.ProductSeries) _
+                                    , Array(ProductMst.ProductUnit), DELIMITER, DELIMITER)
     Set dictColIndex = Nothing
 End Function
 Function fProductSeriesExistsInProductMaster(sProductProducer As String, sProductName As String, sProductSeries As String) As Boolean
@@ -334,13 +339,14 @@ End Function
 Function fProductKeysExistsInProductMaster(sProductProducer As String, sProductName As String, sProductSeries As String) As Boolean
     fProductKeysExistsInProductMaster = fProductSeriesExistsInProductMaster(sProductProducer, sProductName, sProductSeries)
 End Function
-Function fGetPriceRecInAdvanceFromCZL(sProductProducer As String, sProductName As String, sProductSeries As String) As Double
-    If dictProductMaster Is Nothing Then Call fReadSheetProductMaster2Dictionary
-    
-    If fProductKeysExistsInProductMaster(sProductProducer, sProductName, sProductSeries) Then
-        fGetPriceRecInAdvanceFromCZL = val(Split(dictProductMaster(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries), DELIMITER)(2))
-    End If
-End Function
+'todo
+'Function fGetPriceRecInAdvanceFromCZL(sProductProducer As String, sProductName As String, sProductSeries As String) As Double
+'    If dictProductMaster Is Nothing Then Call fReadSheetProductMaster2Dictionary
+'
+'    If fProductKeysExistsInProductMaster(sProductProducer, sProductName, sProductSeries) Then
+'        fGetPriceRecInAdvanceFromCZL = val(Split(dictProductMaster(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries), DELIMITER)(2))
+'    End If
+'End Function
 '------------------------------------------------------------------------------
 
 '====================== ProductSeries Replacement =================================================================
@@ -409,7 +415,8 @@ Function fGetProductUnit(ByVal sProductProducer As String, ByVal sProductName As
     If Not fProductKeysExistsInProductMaster(sProductProducer, sProductName, sProductSeries) Then _
         fErr "药品厂家+名称+规格 还不存在于药品主表中, 会计单位找不到的情况下，计算无法进行：" & vbCr & sProductProducer & vbCr & sProductName & vbCr & sProductSeries
     
-    fGetProductUnit = Split(dictProductMaster(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries), DELIMITER)(0)
+    'fGetProductUnit = Split(dictProductMaster(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries), DELIMITER)(0)
+    fGetProductUnit = dictProductMaster(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries)
 End Function
 '------------------------------------------------------------------------------
 
@@ -441,22 +448,28 @@ Function fGetFirstLevelComm(sFirstLevelKey As String, ByRef dblFirstComm As Doub
 End Function
 '------------------------------------------------------------------------------
 
-
 '====================== 2nd Level Commission =================================================================
 Function fReadSheetSecondLevelComm2Dictionary()
     Dim arrData()
-    Dim dictColIndex As Dictionary
+'    Dim dictColIndex As Dictionary
     
-    Call fReadSheetDataByConfig("SECOND_LEVEL_COMMISSION", dictColIndex, arrData, , , , , shtSecondLevelCommission)
+'    Call fReadSheetDataByConfig("SECOND_LEVEL_COMMISSION", dictColIndex, arrData, , , , , shtSecondLevelCommission)
+'    Set dictSecondLevelComm = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
+'            , Array(dictColIndex("SalesCompany") _
+'                  , dictColIndex("Hospital") _
+'                  , dictColIndex("ProductProducer") _
+'                  , dictColIndex("ProductName") _
+'                  , dictColIndex("ProductSeries")) _
+'            , Array(dictColIndex("Commission")), DELIMITER, DELIMITER)
+
+    Call fCopyReadWholeSheetData2Array(shtSecondLevelCommission, arrData)
     Set dictSecondLevelComm = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
-            , Array(dictColIndex("SalesCompany") _
-                  , dictColIndex("Hospital") _
-                  , dictColIndex("ProductProducer") _
-                  , dictColIndex("ProductName") _
-                  , dictColIndex("ProductSeries")) _
-            , Array(dictColIndex("Commission")), DELIMITER, DELIMITER)
-    Application.Run shtSelfSalesA.Range("D1") & shtSelfSalesA.Range("E1") & shtSelfSalesA.Range("F1") & shtSelfSalesA.Range("G1")
-    Set dictColIndex = Nothing
+            , Array(SecondLevelComm.SalesCompany, SecondLevelComm.Hospital _
+                  , SecondLevelComm.ProductProducer, SecondLevelComm.ProductName, SecondLevelComm.ProductSeries) _
+            , Array(SecondLevelComm.Commission), DELIMITER, DELIMITER)
+    
+    'Application.Run shtSelfSalesA.Range("D1") & shtSelfSalesA.Range("E1") & shtSelfSalesA.Range("F1") & shtSelfSalesA.Range("G1")
+    'Set dictColIndex = Nothing
 End Function
 Function fGetSecondLevelComm(sSecondLevelCommKey As String, ByRef dblSecondComm As Double) As Boolean
     If dictSecondLevelComm Is Nothing Then Call fReadSheetSecondLevelComm2Dictionary
@@ -469,6 +482,33 @@ Function fGetSecondLevelComm(sSecondLevelCommKey As String, ByRef dblSecondComm 
         dblSecondComm = 0
         fGetSecondLevelComm = False
     End If
+End Function
+'------------------------------------------------------------------------------
+
+'====================== Sell Price in Advance  =================================================================
+Function fReadSheetSellPriceInAdv2Dictionary()
+    Dim arrData()
+    
+    Call shtSellPriceInAdv.fValidateSheet(False)
+    Call fCopyReadWholeSheetData2Array(shtSellPriceInAdv, arrData)
+    
+    Set dictSellPriceInAdv = fReadArray2DictionaryWithMultipleKeyColsSingleItemCol(arrData _
+                                    , Array(SellPriceInAdv.SalesCompany, SellPriceInAdv.ProductProducer, SellPriceInAdv.ProductName, SellPriceInAdv.ProductSeries) _
+                                    , SellPriceInAdv.SellPrice, DELIMITER)
+    Erase arrData
+End Function
+Function fGetSellPriceInAdv(sSalesCompany As String, sProductKey As String) As Double
+    Dim dblPrice As Double
+    
+    If dictSellPriceInAdv Is Nothing Then Call fReadSheetSellPriceInAdv2Dictionary
+    
+    If dictSellPriceInAdv.Exists(sSalesCompany & DELIMITER & sProductKey) Then
+        dblPrice = dictSellPriceInAdv(sSalesCompany & DELIMITER & sProductKey)
+    Else
+        dblPrice = 0
+    End If
+    
+    fGetSellPriceInAdv = dblPrice
 End Function
 '------------------------------------------------------------------------------
 
@@ -1105,7 +1145,7 @@ Function fCheckIfProductExistsInProductMaster(arrData, iColProducer As Integer, 
         If Not fProductKeysExistsInProductMaster(sProducer, sProductName, sProductSeries) Then
             alErrRowNo = (lEachRow + 1)
             alErrColNo = iColProductSeries
-            fErr "药品厂家+名称+规格不存在于药品主表中" & vbCr & "行号：" & (lEachRow + 1)
+            fErr "药品厂家+名称+规格不存在于药品主表中" & vbCr & "行号：" & (lEachRow + 1) & vbCr & vbCr & sProducer & ", " & sProductName & ", " & sProductSeries
             Exit For
         End If
     Next
@@ -1378,20 +1418,19 @@ Function fReadSheetPromotionProducts2Dictionary()
     Call fValidateDuplicateInArray(arrData, Array(dictColIndex("Hospital"), dictColIndex("ProductProducer") _
                 , dictColIndex("ProductName"), dictColIndex("ProductSeries"), dictColIndex("SalesPrice")) _
                 , False, shtPromotionProduct, 1, 1, "医院 + 药品生产厂家 + 药品名称 + 规格 + 中标价")
-
 '    Set dictPromotionProducts = fReadArray2DictionaryWithMultipleKeyColsSingleItemCol(arrData _
 '                                    , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName") _
 '                                    , dictColIndex("ProductSeries"), dictColIndex("SalesPrice"), dictColIndex("Hospital")) _
 '                                    , dictColIndex("Rebate"), DELIMITER)
     Set dictPromotionProducts = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
                                     , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), dictColIndex("SalesPrice"), dictColIndex("Hospital"), dictColIndex("SalesCompany")) _
-                                    , Array(dictColIndex("Rebate"), dictColIndex("SalesTaxRate"), dictColIndex("PurchaseTaxRate"), dictColIndex("SecondLevelComm"), dictColIndex("ProdProducerRefundRate")) _
-                                    , DELIMITER, DELIMITER, True, True)
+                                    , Array(dictColIndex("Rebate"), dictColIndex("SalesTaxRate"), dictColIndex("PurchaseTaxRate"), dictColIndex("SecondLevelComm")) _
+                                    , DELIMITER, DELIMITER, True, True) ', dictColIndex("ProdProducerRefundRate")
     Set dictColIndex = Nothing
 End Function
 Function fIsPromotionProduct(sHospital As String, sProductKey As String, dblSalesPrice As Double, sSalesCompany As String _
                           , ByRef dblPromPrdRebate As Double, ByRef dblSalesTaxRate As Double _
-                          , ByRef dblPurchaseTaxRate As Double, ByRef dblSecondLevelComm As Double, ByRef dblProdProducerRefundRate As Double) As Boolean
+                          , ByRef dblPurchaseTaxRate As Double, ByRef dblSecondLevelComm As Double) As Boolean  ', ByRef dblProdProducerRefundRate As Double
     Dim sKey As String
     Dim bOut As Boolean
     
@@ -1400,8 +1439,7 @@ Function fIsPromotionProduct(sHospital As String, sProductKey As String, dblSale
     dblSalesTaxRate = 0
     dblPurchaseTaxRate = 0
     dblSecondLevelComm = 0
-    dblProdProducerRefundRate = 0
-    
+'    dblProdProducerRefundRate = 0
     If dictPromotionProducts Is Nothing Then fReadSheetPromotionProducts2Dictionary
     
     sKey = sProductKey & DELIMITER & CStr(dblSalesPrice) & DELIMITER & sHospital & DELIMITER & sSalesCompany
@@ -1433,7 +1471,7 @@ Got_n_Exit:
         dblSalesTaxRate = val(Split(dictPromotionProducts(sKey), DELIMITER)(1))
         dblPurchaseTaxRate = val(Split(dictPromotionProducts(sKey), DELIMITER)(2))
         dblSecondLevelComm = val(Split(dictPromotionProducts(sKey), DELIMITER)(3))
-        dblProdProducerRefundRate = val(Split(dictPromotionProducts(sKey), DELIMITER)(4))
+        'dblProdProducerRefundRate = val(Split(dictPromotionProducts(sKey), DELIMITER)(4))
     End If
     fIsPromotionProduct = bOut
 End Function
@@ -1528,3 +1566,28 @@ Function GetAvailableSelfSalesPrices(sProductKey As String) As String
 End Function
 '-----------------------------------------------------------------------------------
 
+Function fGetProductNameValidationListAndSetToCell(rgIntersect As Range, sProducer As String)
+    Dim sValidationListAddr As String
+    
+    If fNzero(sProducer) Then
+        Call fSetFilterForSheet(shtProductNameMaster, ProductNameMst.ProdProducer, sProducer)
+        Call fCopyFilteredDataToRange(shtProductNameMaster, ProductNameMst.ProductName)
+        
+        sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
+        'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
+        Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
+    End If
+End Function
+
+Function fGetProductSeriesValidationListAndSetToCell(rgIntersect As Range, sProducer As String, sProductName As String)
+    Dim sValidationListAddr As String
+        
+    If fNzero(sProducer) And fNzero(sProductName) Then
+        Call fSetFilterForSheet(shtProductMaster, Array(ProductMst.ProductProducer, ProductMst.ProductName), Array(sProducer, sProductName))
+        Call fCopyFilteredDataToRange(shtProductMaster, ProductMst.ProductSeries)
+        
+        sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
+        'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
+        Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
+    End If
+End Function

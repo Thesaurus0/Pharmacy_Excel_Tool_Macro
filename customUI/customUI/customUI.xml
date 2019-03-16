@@ -41,7 +41,10 @@
 						<button id="tgSearchBy" getLabel="Button_getLabel" getImage="Button_getImage" onAction="Button_onAction" />
 
 						<menu id="mnSearchTables"  label="检索表"  imageMso="FilterByResource">
+							<button id="btnFirstLevelComm" getLabel="Button_getLabel" getImage="Button_getImage" onAction="Button_onAction" />	 
 							<button id="btnSecondLevelComm" getLabel="Button_getLabel" getImage="Button_getImage" onAction="Button_onAction" />	<!-- 商业公司配送费 -->
+							<menuSeparator id="MnSepSearch_btnSalePriceInAdv_01" />
+							<button id="btnSalePriceInAdv" getLabel="Button_getLabel" getImage="Button_getImage" onAction="Button_onAction" />	 
 							<menuSeparator id="MnSepSearch_btnSecondLevelComm_01" />
 							<button id="btnSalesInfo" getLabel="Button_getLabel" getImage="Button_getImage" onAction="Button_onAction" />	<!-- 销售流向 -->
 							<button id="btnProfit" label="利润表"  imageMso="ControlSubFormReport"  onAction="btnProfit_Click" />
@@ -75,7 +78,8 @@
 							<button id="btnSelfSales" label="(本公司)销售" imageMso="PageSetupSheetDialog"  onAction="btnSelfSales_Click" />
 							<button id="btnSelfPurchase" label="(本公司)采购" imageMso="PageSetupSheetDialog"  onAction="btnSelfPurchase_Click" />
 							<menuSeparator id="MnSepSearch_02" />
-							<button id="btnProductMaster" label="药品主表"  imageMso="ControlSubFormReport"  onAction="btnProductMaster_Click" />
+							<button id="btnProductMaster" label="药品主表"  imageMso="ControlSubFormReport"  onAction="btnProductMaster_Click" /> 
+							<button id="btnPromotionProduct" getLabel="Button_getLabel" getImage="Button_getImage" onAction="Button_onAction" />	 
 						</menu>
 					</splitButton>
 

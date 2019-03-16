@@ -8,6 +8,7 @@ Function fSetValidationForNumberAndDateColumnsForAllSheets()
     Call fSetValidationForNumberForSheetColumns(shtSalesManCommConfig, Array(SalesManComm.Commission1, SalesManComm.Commission2, SalesManComm.Commission3, SalesManComm.Commission4, SalesManComm.Commission5, SalesManComm.Commission6), 0, 999999)
     Call fSetValidationForNumberForSheetColumns(shtSalesManCommConfig, SalesManComm.ManagerCommRatio, 0, 1)
     Call fSetValidationForNumberForSheetColumns(shtProductUnitRatio, UnitRatio.Raio, 0, 999999)
+    Call fSetValidationForNumberForSheetColumns(shtSellPriceInAdv, SellPriceInAdv.SellPrice, 0, 999999)
     
     Call fSetValidationForNumberForSheetColumns(shtSelfPurchaseOrder, Array(SelfPurchase.PurchasePrice, SelfPurchase.PurchaseQty), 0, 999999)
     Call fSetValidationForNumberForSheetColumns(shtSelfSalesOrder, Array(SelfSales.SellPrice, SelfSales.SellQty, SelfSales.HospitalDeducted), 0, 999999)
@@ -62,12 +63,14 @@ Function fSetValidationListForAllSheets()
     gProBar.ChangeProcessBarValue 0.4, "fSetValidationListForAllSheets: start"
     '============== SalesCompany ========================================
     Call fSetValidationListForshtFirstLevelCommission_SalesCompany("=rngStaticSalesCompanyNames_Comm")
-    Call fSetValidationListForshtSecondLevelCommission_SalesCompany("=rngStaticSalesCompanyNames_Comm")
+    'Call fSetValidationListForshtSecondLevelCommission_SalesCompany("=rngStaticSalesCompanyNames_Comm")
+    Call fSetValidationList(shtSecondLevelCommission, SecondLevelComm.SalesCompany, "=rngStaticSalesCompanyNames_Comm")
     Call fSetValidationListForshtSalesManCommConfig_SalesCompany("=rngStaticSalesCompanyNames_Comm")
     Call fSetValidationListForshtCompanyNameReplace_SalesCompany("=rngStaticSalesCompanyNames_Comm")
     Call fSetValidationListForshtSalesCompRolloverInv_SalesCompany("=rngStaticSalesCompanyNames_Comm")
     Call fSetValidationListForshtSalesCompInvCalcd_SalesCompany("=rngStaticSalesCompanyNames_Comm")
     Call fSetValidationListForshtPromotionProduct_SalesCompany("=rngStaticSalesCompanyNames_Comm")
+    Call fSetValidationList(shtSellPriceInAdv, SellPriceInAdv.SalesCompany, "=rngStaticSalesCompanyNames_Comm")
     '----------------------------------------------------------------------------------------
 
     '============== Hospital ========================================
@@ -76,7 +79,8 @@ Function fSetValidationListForAllSheets()
 
     Call fSetValidationListForshtHospitalReplace_Hospital(sHospitalAddr)
     Call fSetValidationListForshtSalesManCommConfig_Hospital(sHospitalAddr)
-    Call fSetValidationListForshtSecondLevelCommission_Hospital(sHospitalAddr)
+    'Call fSetValidationListForshtSecondLevelCommission_Hospital(sHospitalAddr)
+    Call fSetValidationList(shtSecondLevelCommission, SecondLevelComm.Hospital, sHospitalAddr)
     Call fSetValidationListForshtPromotionProduct_Hospital(sHospitalAddr)
     '----------------------------------------------------------------------------------------
 
@@ -88,7 +92,8 @@ Function fSetValidationListForAllSheets()
     Call fSetValidationListForshtProductNameMaster_Producer(sProducerAddr)
     Call fSetValidationListForshtSalesManCommConfig_Producer(sProducerAddr)
     Call fSetValidationListForshtFirstLevelCommission_Producer(sProducerAddr)
-    Call fSetValidationListForshtSecondLevelCommission_Producer(sProducerAddr)
+    'Call fSetValidationListForshtSecondLevelCommission_Producer(sProducerAddr)
+    Call fSetValidationList(shtSecondLevelCommission, SecondLevelComm.ProductProducer, sProducerAddr)
     Call fSetValidationListForshtProductProducerReplace_Producer(sProducerAddr)
     Call fSetValidationListForshtProductNameReplace_Producer(sProducerAddr)
     Call fSetValidationListForshtProductSeriesReplace_Producer(sProducerAddr)
@@ -98,6 +103,7 @@ Function fSetValidationListForAllSheets()
     Call fSetValidationListForshtSelfInventory_Producer(sProducerAddr)
     Call fSetValidationListForshtSalesCompRolloverInv_Producer(sProducerAddr)
     Call fSetValidationListForshtSalesCompInvCalcd_Producer(sProducerAddr)
+    Call fSetValidationList(shtSellPriceInAdv, SellPriceInAdv.ProductProducer, sProducerAddr)
     '----------------------------------------------------------------------------------------
 
     '============== productName ========================================
@@ -107,11 +113,13 @@ Function fSetValidationListForAllSheets()
     Call fSetValidationListForshtProductMaster_ProductName(sProductNameAddr)
     Call fSetValidationListForshtSalesManCommConfig_ProductName(sProductNameAddr)
     Call fSetValidationListForshtFirstLevelCommission_ProductName(sProductNameAddr)
-    Call fSetValidationListForshtSecondLevelCommission_ProductName(sProductNameAddr)
+    'Call fSetValidationListForshtSecondLevelCommission_ProductName(sProductNameAddr)
+    Call fSetValidationList(shtSecondLevelCommission, SecondLevelComm.ProductName, sProductNameAddr)
     Call fSetValidationListForshtProductNameReplace_ProductName(sProductNameAddr)
     Call fSetValidationListForshtProductSeriesReplace_ProductName(sProductNameAddr)
     Call fSetValidationListForshtProductUnitRatio_ProductName(sProductNameAddr)
     Call fSetValidationListForshtSelfSalesOrder_ProductName(sProductNameAddr)
+    Call fSetValidationList(shtSellPriceInAdv, SellPriceInAdv.ProductName, sProductNameAddr)
     '----------------------------------------------------------------------------------------
 
     '============== ProductSeries ========================================
@@ -120,10 +128,12 @@ Function fSetValidationListForAllSheets()
 
     Call fSetValidationListForshtSalesManCommConfig_ProductSeries(sProductSeriesAddr)
     Call fSetValidationListForshtFirstLevelCommission_ProductSeries(sProductSeriesAddr)
-    Call fSetValidationListForshtSecondLevelCommission_ProductSeries(sProductSeriesAddr)
+    'Call fSetValidationListForshtSecondLevelCommission_ProductSeries(sProductSeriesAddr)
+    Call fSetValidationList(shtSecondLevelCommission, SecondLevelComm.ProductSeries, sProductSeriesAddr)
     Call fSetValidationListForshtProductSeriesReplace_ProductSeries(sProductSeriesAddr)
     Call fSetValidationListForshtProductUnitRatio_ProductSeries(sProductSeriesAddr)
     Call fSetValidationListForshtSelfSalesOrder_ProductSeries(sProductSeriesAddr)
+    Call fSetValidationList(shtSellPriceInAdv, SellPriceInAdv.ProductSeries, sProductSeriesAddr)
     '----------------------------------------------------------------------------------------
 
     '============== ProductUnit ========================================
@@ -139,21 +149,16 @@ Function fSetValidationListForAllSheets()
     sSalesManAddr = fGetSalesManMasterColumnAddress_SalesMan
     Call fSetValidationListForshtSalesManCommConfig_SalesMan(sSalesManAddr)
     '----------------------------------------------------------------------------------------
-    
 End Function
 
 '============== producer ========================================
 Function fGetProducerMasterColumnAddress_Producer() As String
-    Dim sProducerCol As String
-    Dim lProducerColMaxRow As Long
+    Dim iSourceCol As Long
     Dim sSourceAddr As String
     
-    lProducerColMaxRow = Rows.Count
-    
-    sProducerCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - PRODUCT_PRODUCER_MASTER]" _
-                                        , "Column Index", "Column Tech Name=ProductProducer")
+    iSourceCol = Producer.ProducerName
+    sSourceAddr = "=" & fGetRangeByStartEndPos(shtProductProducerMaster, 2, iSourceCol, , iSourceCol).Address(external:=True)
 
-    sSourceAddr = "=" & shtProductProducerMaster.Range(sProducerCol & 2 & ":" & sProducerCol & lProducerColMaxRow).Address(external:=True)
     fGetProducerMasterColumnAddress_Producer = sSourceAddr
 End Function
 
@@ -210,19 +215,18 @@ Function fSetValidationListForshtFirstLevelCommission_Producer(sValidationListAd
     Call fSetValidationListForRange(shtFirstLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
-Function fSetValidationListForshtSecondLevelCommission_Producer(sValidationListAddr As String)
-    Dim sTargetCol As String
-    Dim lMaxRow As Long
-    
-    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
-                                            , "Column Index", "Column Tech Name=ProductProducer")
-    
-    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
-    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-                                    , sValidationListAddr)
-End Function
-
+'Function fSetValidationListForshtSecondLevelCommission_Producer(sValidationListAddr As String)
+'    Dim sTargetCol As String
+'    Dim lMaxRow As Long
+'
+'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
+'                                            , "Column Index", "Column Tech Name=ProductProducer")
+'
+'    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
+'    If lMaxRow > Rows.Count Then lMaxRow = 100000
+'    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+'                                    , sValidationListAddr)
+'End Function
 
 Function fSetValidationListForshtProductProducerReplace_Producer(sValidationListAddr As String)
     Dim sProducerCol As String
@@ -272,6 +276,14 @@ Function fSetValidationListForshtProductUnitRatio_Producer(sValidationListAddr A
     Call fSetValidationListForRange(shtProductUnitRatio.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
+Function fSetValidationList(shtTarget As Worksheet, iTargetCol As Long, sValidationListAddr As String, Optional alDataFromRow As Long = 2)
+    Dim lMaxRow As Long
+    lMaxRow = fGetValidMaxRow(shtTarget) + 10000
+    
+    Call fSetValidationListForRange(fGetRangeByStartEndPos(shtSellPriceInAdv, alDataFromRow, iTargetCol, lMaxRow, iTargetCol) _
+                                    , sValidationListAddr)
+End Function
+
 Function fSetValidationListForshtSelfSalesOrder_Producer(sValidationListAddr As String)
     Dim sTargetCol As String
     Dim lMaxRow As Long
@@ -349,18 +361,18 @@ Function fSetValidationListForshtFirstLevelCommission_SalesCompany(sValidationLi
                                     , sValidationListAddr)
 End Function
 
-Function fSetValidationListForshtSecondLevelCommission_SalesCompany(sValidationListAddr As String)
-    Dim sTargetCol As String
-    Dim lMaxRow As Long
-    
-    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
-                                            , "Column Index", "Column Tech Name=SalesCompany")
-    
-    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
-    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-                                    , sValidationListAddr)
-End Function
+'Function fSetValidationListForshtSecondLevelCommission_SalesCompany(sValidationListAddr As String)
+'    Dim sTargetCol As String
+'    Dim lMaxRow As Long
+'
+'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
+'                                            , "Column Index", "Column Tech Name=SalesCompany")
+'
+'    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
+'    If lMaxRow > Rows.Count Then lMaxRow = 100000
+'    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+'                                    , sValidationListAddr)
+'End Function
 
 Function fSetValidationListForshtSalesManCommConfig_SalesCompany(sValidationListAddr As String)
     Dim sTargetCol As String
@@ -430,15 +442,12 @@ End Function
 
 '============== SalesCompany ========================================
 Function fGetHospitalMasterColumnAddress_Hospital() As String
-    Dim sSourceCol As String
-    Dim lMaxRow As Long
+    Dim iSourceCol As Long
     Dim sSourceAddr As String
     
-    lMaxRow = Rows.Count
-    sSourceCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - HOSPITAL_MASTER]" _
-                                        , "Column Index", "Column Tech Name=Hospital")
+    iSourceCol = enHospital.HospitalName
+    sSourceAddr = "=" & fGetRangeByStartEndPos(shtProductProducerMaster, 2, iSourceCol, , iSourceCol).Address(external:=True)
 
-    sSourceAddr = "=" & shtHospital.Range(sSourceCol & 2 & ":" & sSourceCol & lMaxRow).Address(external:=True)
     fGetHospitalMasterColumnAddress_Hospital = sSourceAddr
 End Function
 
@@ -479,18 +488,18 @@ End Function
 '    Call fSetValidationListForRange(shtFirstLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
 '                                    , sValidationListAddr)
 'End Function
-Function fSetValidationListForshtSecondLevelCommission_Hospital(sValidationListAddr As String)
-    Dim sTargetCol As String
-    Dim lMaxRow As Long
-    
-    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
-                                            , "Column Index", "Column Tech Name=Hospital")
-    
-    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
-    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-                                    , sValidationListAddr)
-End Function
+'Function fSetValidationListForshtSecondLevelCommission_Hospital(sValidationListAddr As String)
+'    Dim sTargetCol As String
+'    Dim lMaxRow As Long
+'
+'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
+'                                            , "Column Index", "Column Tech Name=Hospital")
+'
+'    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
+'    If lMaxRow > Rows.Count Then lMaxRow = 100000
+'    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+'                                    , sValidationListAddr)
+'End Function
 Function fSetValidationListForshtPromotionProduct_Hospital(sValidationListAddr As String)
     Dim sTargetCol As String
     Dim lMaxRow As Long
@@ -510,15 +519,12 @@ End Function
 
 '============== productName ========================================
 Function fGetProductNameMasterColumnAddress_ProductName() As String
-    Dim sSourceCol As String
-    Dim lColMaxRow As Long
+    Dim iSourceCol As Long
     Dim sSourceAddr As String
     
-    lColMaxRow = Rows.Count
-    sSourceCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - PRODUCT_NAME_MASTER]" _
-                                        , "Column Index", "Column Tech Name=ProductName")
+    iSourceCol = ProductNameMst.ProductName
+    sSourceAddr = "=" & fGetRangeByStartEndPos(shtProductNameMaster, 2, iSourceCol, , iSourceCol).Address(external:=True)
 
-    sSourceAddr = "=" & shtProductNameMaster.Range(sSourceCol & 2 & ":" & sSourceCol & lColMaxRow).Address(external:=True)
     fGetProductNameMasterColumnAddress_ProductName = sSourceAddr
 End Function
 
@@ -563,18 +569,18 @@ Function fSetValidationListForshtFirstLevelCommission_ProductName(sValidationLis
     Call fSetValidationListForRange(shtFirstLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
-Function fSetValidationListForshtSecondLevelCommission_ProductName(sValidationListAddr As String)
-    Dim sTargetCol As String
-    Dim lMaxRow As Long
-    
-    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
-                                            , "Column Index", "Column Tech Name=ProductName")
-    
-    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
-    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-                                    , sValidationListAddr)
-End Function
+'Function fSetValidationListForshtSecondLevelCommission_ProductName(sValidationListAddr As String)
+'    Dim sTargetCol As String
+'    Dim lMaxRow As Long
+'
+'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
+'                                            , "Column Index", "Column Tech Name=ProductName")
+'
+'    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
+'    If lMaxRow > Rows.Count Then lMaxRow = 100000
+'    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+'                                    , sValidationListAddr)
+'End Function
 
 Function fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr As String, Optional iCol As Integer = 0)
     Dim sTargetCol As String
@@ -633,15 +639,12 @@ End Function
 
 '============== ProductSeries ========================================
 Function fGetProductSeriesMasterColumnAddress_ProductSeries() As String
-    Dim sSourceCol As String
-    Dim lColMaxRow As Long
+    Dim iSourceCol As Long
     Dim sSourceAddr As String
     
-    lColMaxRow = Rows.Count
-    sSourceCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - PRODUCT_MASTER]" _
-                                        , "Column Index", "Column Tech Name=ProductSeries")
+    iSourceCol = ProductMst.ProductSeries
+    sSourceAddr = "=" & fGetRangeByStartEndPos(shtProductMaster, 2, iSourceCol, , iSourceCol).Address(external:=True)
 
-    sSourceAddr = "=" & shtProductMaster.Range(sSourceCol & 2 & ":" & sSourceCol & lColMaxRow).Address(external:=True)
     fGetProductSeriesMasterColumnAddress_ProductSeries = sSourceAddr
 End Function
 
@@ -670,18 +673,18 @@ Function fSetValidationListForshtFirstLevelCommission_ProductSeries(sValidationL
     Call fSetValidationListForRange(shtFirstLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
-Function fSetValidationListForshtSecondLevelCommission_ProductSeries(sValidationListAddr As String)
-    Dim sTargetCol As String
-    Dim lMaxRow As Long
-    
-    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
-                                            , "Column Index", "Column Tech Name=ProductSeries")
-    
-    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
-    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-                                    , sValidationListAddr)
-End Function
+'Function fSetValidationListForshtSecondLevelCommission_ProductSeries(sValidationListAddr As String)
+'    Dim sTargetCol As String
+'    Dim lMaxRow As Long
+'
+'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
+'                                            , "Column Index", "Column Tech Name=ProductSeries")
+'
+'    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
+'    If lMaxRow > Rows.Count Then lMaxRow = 100000
+'    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+'                                    , sValidationListAddr)
+'End Function
 
 Function fSetValidationListForshtProductSeriesReplace_ProductSeries(sValidationListAddr As String)
     Dim sTargetCol As String

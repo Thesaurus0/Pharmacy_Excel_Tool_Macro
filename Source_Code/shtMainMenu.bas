@@ -236,7 +236,7 @@ Private Sub btnReplaceSalesInfo_Click()
 End Sub
 
 Private Sub btnSalesCompCommConf_Click()
-subMain_SecondLevelCommission
+    subMain_SecondLevelCommission
 End Sub
 
 Private Sub btnSalesCompInvCal_Click()
@@ -309,6 +309,10 @@ End Sub
 
 Private Sub btnSelfSalesOrderPrededuct_Click()
     fActiveVisibleSwitchSheet shtSelfSalesPreDeduct, , False
+End Sub
+
+Private Sub btnSellPriceInAdv_Click()
+    fActiveVisibleSwitchSheet shtSellPriceInAdv, , False
 End Sub
 
 Private Sub btnTrialCalProfit_Click()

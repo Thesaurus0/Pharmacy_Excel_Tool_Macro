@@ -1,21 +1,15 @@
 Attribute VB_Name = "MB3_CalculateProfit"
 Option Explicit
 Option Base 1
-
-'Public shtSelfSalesCal As Worksheet
-
-'Dim arrMissed1stLevelComm()
-'Dim arrMissed2ndLevelComm()
+ 
 Dim dictFirstCommColIndex As Dictionary
 Dim dictSecondCommColIndex As Dictionary
 
 Public dictErrorRows As Dictionary
 Public dictWarningRows As Dictionary
-'Dim arrExceptionRows()
-'Dim mlExcepCnt As Long
 
 Sub subMain_CalculateProfit()
-    If Not fIsDev Then On Error GoTo error_handling
+    'If Not fIsDev Then On Error GoTo error_handling
     fCheckIfErrCountNotZero_SCompSalesInfo
     
     shtSalesInfos.Visible = xlSheetVisible
@@ -55,12 +49,8 @@ Sub subMain_CalculateProfit()
     'If Not shtException.Visible = xlSheetVisible Then shtException.Visible = xlSheetVeryHidden
     
     If dictErrorRows.Count > 0 Then shtException.Visible = xlSheetVisible
-    
-    'If shtException.Visible = xlSheetVisible Then
-        Call fAppendArray2Sheet(shtProfit, arrOutput)
-    
-        'Call fFormatOutputSheet(shtProfit)
-        
+     
+    Call fAppendArray2Sheet(shtProfit, arrOutput)
     
     Call fBasicCosmeticFormatSheet(shtProfit)
     If dictErrorRows.Count <= 0 And dictErrorRows.Count <= 0 Then Call fSetConditionFormatForOddEvenLine(shtProfit)
@@ -161,8 +151,8 @@ Private Function fProcessData()
     Dim sSalesMan_4 As String, sSalesMan_5 As String, sSalesMan_6 As String
     Dim dblComm_4 As Double, dblComm_5 As Double, dblComm_6 As Double
     Dim dblGrossProfitAmt As Double
-    Dim dblPriceRecInAdvanceFromCZL As Double
-    Dim dblProdProducerRefundRate As Double
+    Dim dblPriceRecInAdv As Double
+    'Dim dblProdProducerRefundRate As Double
 '    Dim dblNewRSalesTaxRate As Double
 '    Dim dblNewRPurchaseTaxRate As Double
     Dim dblPromPrdRebate As Double
@@ -217,22 +207,24 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("SalesRecordKey")) = sSalesCompName & sProducer & sProductName & sProductSeries _
                         & sHospital & format(arrMaster(lEachRow, dictMstColIndex("SalesDate")), "yyyymmdd") & dblQuantity & arrMaster(lEachRow, dictMstColIndex("LotNum"))
         
-        bIsPromotionProduct = fIsPromotionProduct(sHospital, sProductKey, dblSellPrice, sSalesCompName, dblPromPrdRebate, dblSalesTaxRate, dblPurchaseTaxRate, dblSecondLevelComm, dblProdProducerRefundRate)
+        bIsPromotionProduct = fIsPromotionProduct(sHospital, sProductKey, dblSellPrice, sSalesCompName, dblPromPrdRebate, dblSalesTaxRate, dblPurchaseTaxRate, dblSecondLevelComm) ', dblProdProducerRefundRate)
         
-        dblPriceRecInAdvanceFromCZL = fGetPriceRecInAdvanceFromCZL(sProducer, sProductName, sProductSeries)
+'        dblPriceRecInAdvance = fGetPriceRecInAdvance(sProducer, sProductName, sProductSeries)
+        dblPriceRecInAdv = fGetSellPriceInAdv(sSalesCompName, sProductKey)
         
-        If dblPriceRecInAdvanceFromCZL <= 0 Then
-            If Not dictNoPriceRecInAdv.Exists(sProductKey) Then
-                dictNoPriceRecInAdv.Add sProductKey, "'" & lEachRow + 1
+        If dblPriceRecInAdv <= 0 Then
+            If Not dictNoPriceRecInAdv.Exists(sSalesCompName & DELIMITER & sProductKey) Then
+                dictNoPriceRecInAdv.Add sSalesCompName & DELIMITER & sProductKey, "'" & lEachRow + 1
             Else
-                dictNoPriceRecInAdv(sProductKey) = dictNoPriceRecInAdv(sProductKey) & "," & (lEachRow + 1)
+                dictNoPriceRecInAdv(sProductKey) = dictNoPriceRecInAdv(sSalesCompName & DELIMITER & sProductKey) & "," & (lEachRow + 1)
             End If
-            Call fAddErrorColumnTodictErrorRows(lEachRow + 1, dictRptColIndex("PriceRecInAdvanceFromCZL"))
+            Call fAddErrorColumnTodictErrorRows(lEachRow + 1, dictRptColIndex("PriceRecInAdvance"))
         End If
         
         If bIsPromotionProduct Then
             dblGrossPrice2CZL = dblSellPrice * dblPromPrdRebate
-            dblPriceForRefund = (dblSellPrice - dblSellPrice * dblSecondLevelComm) / (1 - dblProdProducerRefundRate) * dblPromPrdRebate '(中标价 - 中标价 * 配送费点数) / 0.92 * 0.53
+           'dblPriceForRefund = (dblSellPrice - dblSellPrice * dblSecondLevelComm) / (1 - dblProdProducerRefundRate) * dblPromPrdRebate '(中标价 - 中标价 * 配送费点数) / 0.92 * 0.53
+            dblPriceForRefund = (dblSellPrice - dblSellPrice * dblSecondLevelComm)
         Else
             '==== first level czl commission ==========================================
             sFirstLevelCommKey = sSalesCompName & DELIMITER & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
@@ -268,7 +260,8 @@ Private Function fProcessData()
             '-----------------------------------------------------------------------------------------------
             
             dblGrossPrice2CZL = dblSellPrice * (1 - dblFirstLevelComm) * (1 - dblSecondLevelComm)
-            dblPriceForRefund = dblGrossPrice2CZL
+            'dblPriceForRefund = dblGrossPrice2CZL
+            dblPriceForRefund = (dblSellPrice - dblSellPrice * dblSecondLevelComm)
         End If
         
         arrOutput(lEachRow, dictRptColIndex("GrossPrice2CZL")) = dblGrossPrice2CZL
@@ -409,8 +402,8 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("NetProfitRate")) = arrOutput(lEachRow, dictRptColIndex("NetProfitAmount")) _
                                                                 / arrOutput(lEachRow, dictRptColIndex("SellAmount"))
                                                                 
-        arrOutput(lEachRow, dictRptColIndex("PriceRecInAdvanceFromCZL")) = dblPriceRecInAdvanceFromCZL
-        arrOutput(lEachRow, dictRptColIndex("RefundPerUnit")) = dblPriceForRefund - dblPriceRecInAdvanceFromCZL
+        arrOutput(lEachRow, dictRptColIndex("PriceRecInAdvance")) = dblPriceRecInAdv
+        arrOutput(lEachRow, dictRptColIndex("RefundPerUnit")) = dblPriceForRefund - dblPriceRecInAdv
         arrOutput(lEachRow, dictRptColIndex("RefundAmount")) = arrOutput(lEachRow, dictRptColIndex("RefundPerUnit")) * dblQuantity
 next_sales:
     Next
@@ -483,8 +476,9 @@ Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary
 
         gsBusinessErrorMsg = gsBusinessErrorMsg & lUniqRecCnt & "个药品" & lRecCount & "条销售流向在本公司出货记录中无出库可扣除(若为退货，则是找不到医院销售抵扣)，您可能要：" & vbCr _
             & "(1). 在【本公司出货】中添加一条替换记录" & vbCr _
-            & "(2). 在【药品主表】中修改其最新价格" & vbCr & vbCr _
             & "计算这些销售流向进行到一半，没有可以扣的出货记录，所以把它们的成本价格标注0，"
+            
+            '& "(2). 在【药品主表】中修改其最新价格" & vbCr & vbCr
     End If
 End Function
 

@@ -71,12 +71,24 @@ exit_function:
     Set rngFound = Nothing
 End Function
 
-Function fGetRangeByStartEndPos(shtParam As Worksheet, alStartRow As Long, alStartCol As Long, alEndRow As Long, alEndCol As Long) As Range
-    If alStartRow > alEndRow Then fErr "alStartRow > alEndRow in function fGetRangeByStartEndPos, please change your program to add the check logic before calling fGetRangeByStartEndPos"
+'Function fGetRangeByStartEndPos(shtParam As Worksheet, alStartRow As Long, alStartCol As Long, alEndRow As Long, alEndCol As Long) As Range
+'    If alStartRow > alEndRow Then fErr "alStartRow > alEndRow in function fGetRangeByStartEndPos, please change your program to add the check logic before calling fGetRangeByStartEndPos"
+'    With shtParam
+'        Set fGetRangeByStartEndPos = .Range(.Cells(alStartRow, alStartCol), .Cells(alEndRow, alEndCol))
+'    End With
+'End Function
+Function fGetRangeByStartEndPos(shtParam As Worksheet, alStartRow As Long, Optional alStartCol As Long = 1, Optional alEndRow As Long = 0, Optional alEndCol As Long = 0) As Range
+    If alEndRow <= 0 Then alEndRow = fGetValidMaxRow(shtParam)
+    If alEndCol <= 0 Then alEndCol = fGetValidMaxCol(shtParam)
+
+    If alEndRow < alStartRow Then Set fGetRangeByStartEndPos = Nothing: Exit Function
+    If alEndCol < alStartCol Then Set fGetRangeByStartEndPos = Nothing: Exit Function
+
     With shtParam
         Set fGetRangeByStartEndPos = .Range(.Cells(alStartRow, alStartCol), .Cells(alEndRow, alEndCol))
     End With
 End Function
+
 
 Function fReadRangeDatatoArrayByStartEndPos(shtParam As Worksheet, alStartRow As Long, alStartCol As Long, alEndRow As Long, alEndCol As Long) As Variant
     If alStartRow > alEndRow Then

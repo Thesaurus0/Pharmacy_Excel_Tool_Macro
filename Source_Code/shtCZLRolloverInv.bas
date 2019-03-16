@@ -7,6 +7,9 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
+Option Explicit
+Option Base 1
+
 Enum CZLRollover
     ProductProducer = 1
     ProductName = 2
@@ -222,7 +225,7 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
 
     'Call fCheckIfCompanyNameExistsInrngStaticSalesCompanyNames(arrData, CZLRollover.SalesCompany, "[商业公司]", lErrRowNo, lErrColNo)
     
-    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 保存成功", vbInformation: ThisWorkbook.Save
 exit_sub:
     fEnableExcelOptionsAll
     Set dictColIndex = Nothing

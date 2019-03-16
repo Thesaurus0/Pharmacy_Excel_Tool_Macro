@@ -7,7 +7,10 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
-Enum Hospital
+Option Explicit
+Option Base 1
+
+Enum enHospital
     HospitalName = 1
     Address = 2
 End Enum
@@ -38,7 +41,7 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     
     Call fSortDataInSheetSortSheetData(Me, dictColIndex("Hospital"))
     
-    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]主表 没有发现错误", vbInformation
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]主表 保存成功", vbInformation: ThisWorkbook.Save
     'If bErrMsgBox Then fMsgBox "[医院]主表 没有发现错误", vbInformation
 exit_sub:
     fEnableExcelOptionsAll

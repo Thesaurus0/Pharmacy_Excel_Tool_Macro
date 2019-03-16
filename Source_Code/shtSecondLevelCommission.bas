@@ -7,6 +7,9 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
+Option Explicit
+Option Base 1
+
 Enum SecondLevelComm
     SalesCompany = 1
     Hospital = 2
@@ -31,6 +34,7 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Const ProductSeriesCol = 5
     'Const ProductUnitCol = 5
     
+    Dim sProductName As String
     Dim rgIntersect As Range
     Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
     
@@ -41,16 +45,17 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Dim sProducer As String
         Dim sValidationListAddr As String
         
-        sProducer = rgIntersect.Offset(0, ProducerCol - ProductNameCol).Value
+        sProducer = Me.Cells(rgIntersect.Row, SecondLevelComm.ProductProducer).Value
+        Call fGetProductNameValidationListAndSetToCell(rgIntersect, sProducer)
         
-        If fNzero(sProducer) Then
-            Call fSetFilterForSheet(shtProductNameMaster, 1, sProducer)
-            Call fCopyFilteredDataToRange(shtProductNameMaster, 2)
-            
-            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
-            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
-            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
-        End If
+'        If fNzero(sProducer) Then
+'            Call fSetFilterForSheet(shtProductNameMaster, ProductNameMst.ProdProducer, sProducer)
+'            Call fCopyFilteredDataToRange(shtProductNameMaster, 2)
+'
+'            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
+'            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
+'            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
+'        End If
     Else
         'product SeriesCol
         Set rgIntersect = Intersect(Target, Me.Columns(ProductSeriesCol))
@@ -59,17 +64,18 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
             If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
             If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
             
-            sProducer = rgIntersect.Offset(0, ProducerCol - ProductSeriesCol).Value
-            sProductName = rgIntersect.Offset(0, ProductNameCol - ProductSeriesCol).Value
+            sProducer = Me.Cells(rgIntersect.Row, SecondLevelComm.ProductProducer).Value
+            sProductName = Me.Cells(rgIntersect.Row, SecondLevelComm.ProductName).Value
+            Call fGetProductSeriesValidationListAndSetToCell(rgIntersect, sProducer, sProductName)
             
-            If fNzero(sProducer) And fNzero(sProductName) Then
-                Call fSetFilterForSheet(shtProductMaster, Array(1, 2), Array(sProducer, sProductName))
-                Call fCopyFilteredDataToRange(shtProductMaster, 3)
-                
-                sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
-                'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
-                Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
-            End If
+'            If fNzero(sProducer) And fNzero(sProductName) Then
+'                Call fSetFilterForSheet(shtProductMaster, Array(1, 2), Array(sProducer, sProductName))
+'                Call fCopyFilteredDataToRange(shtProductMaster, 3)
+'
+'                sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
+'                'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
+'                Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
+'            End If
         Else
 '            'product SeriesCol
 '            Set rgIntersect = Intersect(Target, Me.Columns(ProductUnitCol))
@@ -109,36 +115,40 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     Dim lErrRowNo As Long, lErrColNo As Long
     
     Dim arrData()
-    Dim dictColIndex As Dictionary
+    'Dim dictColIndex As Dictionary
     
     fInitialization
     gsRptID = "CALCULATE_PROFIT"
     Call fReadSysConfig_InputTxtSheetFile
     
     Call fRemoveFilterForSheet(Me)
-    Call fReadSheetDataByConfig("SECOND_LEVEL_COMMISSION", dictColIndex, arrData, , , , , Me)
-    
-    Call fValidateDuplicateInArray(arrData, Array(dictColIndex("SalesCompany") _
-                                                , dictColIndex("Hospital") _
-                                                , dictColIndex("ProductProducer") _
-                                                , dictColIndex("ProductName") _
-                                                , dictColIndex("ProductSeries")) _
-                , False, Me, 1, 1, "商业公司+医院+厂家+名称+规格")
+    'Call fReadSheetDataByConfig("SECOND_LEVEL_COMMISSION", dictColIndex, arrData, , , , , Me)
+'    Call fValidateDuplicateInArray(arrData, Array(dictColIndex("SalesCompany") _
+'                                                , SecondLevelComm.Hospital _
+'                                                , SecondLevelComm.ProductProducer _
+'                                                , SecondLevelComm.ProductName _
+'                                                , SecondLevelComm.ProductSeries) _
+'                , False, Me, 1, 1, "商业公司+医院+厂家+名称+规格")
                 
-    Call fValidateBlankInArray(arrData, dictColIndex("SalesCompany"), Me, 1, 1, "商业公司")
-    Call fValidateBlankInArray(arrData, dictColIndex("Hospital"), Me, 1, 1, "医院")
-    Call fValidateBlankInArray(arrData, dictColIndex("ProductProducer"), Me, 1, 1, "药品厂家")
-    Call fValidateBlankInArray(arrData, dictColIndex("ProductName"), Me, 1, 1, "药品名称")
-    Call fValidateBlankInArray(arrData, dictColIndex("ProductSeries"), Me, 1, 1, "药品规格")
+    Call fCopyReadWholeSheetData2Array(Me, arrData)
+    Call fValidateDuplicateInArray(arrData, Array(SecondLevelComm.SalesCompany, SecondLevelComm.Hospital _
+                  , SecondLevelComm.ProductProducer, SecondLevelComm.ProductName, SecondLevelComm.ProductSeries) _
+                , False, Me, 1, 1, "商业公司+医院+厂家+名称+规格")
+            
+    Call fValidateBlankInArray(arrData, SecondLevelComm.SalesCompany, Me, 1, 1, "商业公司")
+    Call fValidateBlankInArray(arrData, SecondLevelComm.Hospital, Me, 1, 1, "医院")
+    Call fValidateBlankInArray(arrData, SecondLevelComm.ProductProducer, Me, 1, 1, "药品厂家")
+    Call fValidateBlankInArray(arrData, SecondLevelComm.ProductName, Me, 1, 1, "药品名称")
+    Call fValidateBlankInArray(arrData, SecondLevelComm.ProductSeries, Me, 1, 1, "药品规格")
     
-    Call fCheckIfHospitalExistsInHospitalMaster(arrData, dictColIndex("Hospital"))
-    Call fCheckIfProducerExistsInProducerMaster(arrData, dictColIndex("ProductProducer"), , lErrRowNo, lErrColNo)
-    Call fCheckIfProductNameExistsInProductNameMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), "", lErrRowNo, lErrColNo)
-    Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), lErrRowNo, lErrColNo)
+    Call fCheckIfHospitalExistsInHospitalMaster(arrData, SecondLevelComm.Hospital)
+    Call fCheckIfProducerExistsInProducerMaster(arrData, SecondLevelComm.ProductProducer, , lErrRowNo, lErrColNo)
+    Call fCheckIfProductNameExistsInProductNameMaster(arrData, SecondLevelComm.ProductProducer, SecondLevelComm.ProductName, "", lErrRowNo, lErrColNo)
+    Call fCheckIfProductExistsInProductMaster(arrData, SecondLevelComm.ProductProducer, SecondLevelComm.ProductName, SecondLevelComm.ProductSeries, lErrRowNo, lErrColNo)
     
-    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 保存成功", vbInformation: ThisWorkbook.Save
 exit_sub:
-    Set dictColIndex = Nothing
+    'Set dictColIndex = Nothing
     fEnableExcelOptionsAll
     Erase arrData
     

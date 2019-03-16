@@ -529,7 +529,7 @@ Private Function fProcessData()
         sCZLSalesKey = sSalesCompName & DELIMITER & sProductKey
         
         sMsg = ""
-        bIsPromotionProduct = fIsPromotionProduct(sHospital, sProductKey, dblSellPrice, sSalesCompName, dblPromPrdRebate, dblSalesTaxRate, dblPurchaseTaxRate, dblSecondLevelComm)
+        bIsPromotionProduct = fIsPromotionProduct(sHospital, sProductKey, dblSellPrice, sSalesCompName, dblPromPrdRebate, dblSalesTaxRate, dblPurchaseTaxRate, dblSecondLevelComm, 0)
         If bIsPromotionProduct Then
             dblDueNetPrice = 0
             dblActualNetPrice = 0

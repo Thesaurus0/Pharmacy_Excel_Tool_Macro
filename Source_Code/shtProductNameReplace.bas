@@ -25,11 +25,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     On Error GoTo exit_sub
     Application.ScreenUpdating = False
     
-    Const ProducerCol = 1
-    Const ProductNameCol = 3
-    
     Dim rgIntersect As Range
-    Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
+    Set rgIntersect = Intersect(Target, Me.Columns(ProdNameReplace.ProductName))
     
     If Not rgIntersect Is Nothing Then
         If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
@@ -38,16 +35,17 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Dim sProducer As String
         Dim sValidationListAddr As String
         
-        sProducer = rgIntersect.Offset(0, -2).Value
+        sProducer = Me.Cells(rgIntersect.Row, ProdNameReplace.ProductProducer).Value
+        Call fGetProductNameValidationListAndSetToCell(rgIntersect, sProducer)
         
-        If fNzero(sProducer) Then
-            Call fSetFilterForSheet(shtProductNameMaster, 1, sProducer)
-            Call fCopyFilteredDataToRange(shtProductNameMaster, 2)
-            
-            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
-            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
-            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
-        End If
+'        If fNzero(sProducer) Then
+'            Call fSetFilterForSheet(shtProductNameMaster, ProductNameMst.ProdProducer, sProducer)
+'            Call fCopyFilteredDataToRange(shtProductNameMaster, 2)
+'
+'            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
+'            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
+'            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
+'        End If
     End If
     
 exit_sub:
@@ -83,7 +81,7 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     
     Call fCheckIfProductNameExistsInProductNameMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ToProductName"), "替换为", lErrRowNo, lErrColNo)
     
-    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 保存成功", vbInformation: ThisWorkbook.Save
 exit_sub:
     Set dictColIndex = Nothing
     fEnableExcelOptionsAll

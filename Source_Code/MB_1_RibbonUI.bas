@@ -290,6 +290,30 @@ Private Sub btnSCompInvImported_Click()
     
     fShowActivateSheet shtSalesCompInvUnified
 End Sub
+Private Sub btnPromotionProduct_Click()
+    Call fRefreshEditBoxFromShtDataStage
+    If Len(ebProductProducer_val) > 0 Then
+        Call fSetFilterForSheet(shtPromotionProduct, Array(PromoteProduct.SalesCompany, SecondLevelComm.Hospital, PromoteProduct.ProductProducer, PromoteProduct.ProductName, PromoteProduct.ProductSeries) _
+                , Array(ebSalesCompany_val, ebHospital_val, ebProductProducer_val, ebProductName_val, ebProductSeries_val))
+        Call fGotoCell(shtPromotionProduct.Range("A2"), True)
+    Else
+        fRemoveFilterForSheet shtPromotionProduct
+    End If
+    
+    fShowActivateSheet shtPromotionProduct
+End Sub
+Private Sub btnFirstLevelComm_Click()
+    Call fRefreshEditBoxFromShtDataStage
+    If Len(ebProductProducer_val) > 0 Then
+        Call fSetFilterForSheet(shtFirstLevelCommission, Array(FirstLevelComm.SalesCompany, FirstLevelComm.ProductProducer, FirstLevelComm.ProductName, FirstLevelComm.ProductSeries) _
+                , Array(ebSalesCompany_val, ebProductProducer_val, ebProductName_val, ebProductSeries_val))
+        Call fGotoCell(shtFirstLevelCommission.Range("A2"), True)
+    Else
+        fRemoveFilterForSheet shtFirstLevelCommission
+    End If
+    
+    fShowActivateSheet shtFirstLevelCommission
+End Sub
 Private Sub btnSecondLevelComm_Click()
     Call fRefreshEditBoxFromShtDataStage
     If Len(ebProductProducer_val) > 0 Then
@@ -303,6 +327,21 @@ Private Sub btnSecondLevelComm_Click()
     
     fShowActivateSheet shtSecondLevelCommission
 End Sub
+Private Sub btnSalePriceInAdv_Click()
+    'todo
+    Call fRefreshEditBoxFromShtDataStage
+    If Len(ebProductProducer_val) > 0 Then
+        Call fSetFilterForSheet(shtSellPriceInAdv, Array(SellPriceInAdv.SalesCompany, SellPriceInAdv.ProductProducer, SellPriceInAdv.ProductName, SellPriceInAdv.ProductSeries) _
+                , Array(ebSalesCompany_val, ebProductProducer_val, ebProductName_val, ebProductSeries_val))
+    
+        Call fGotoCell(shtSellPriceInAdv.Range("A2"), True)
+    Else
+        fRemoveFilterForSheet shtSellPriceInAdv
+    End If
+    
+    fShowActivateSheet shtSellPriceInAdv
+End Sub
+
 Private Sub btnSalesInfo_Click()
     Call fRefreshEditBoxFromShtDataStage
     If Len(ebProductProducer_val) > 0 Then
@@ -672,6 +711,8 @@ Function fGetSalesCompanyColIndex(shtParam As Worksheet, ByRef iColIndex As Inte
             iColIndex = Sales2Hospital.SalesCompany
         Case "shtSalesCompInvUnified"
             iColIndex = SCompUnifiedInv.SalesCompany
+        Case "shtPromotionProduct"
+            iColIndex = PromoteProduct.SalesCompany
 '        Case "shtCZLInvDiff"
 '            iColIndex = CZLInvDiff.SalesCompany
         Case "shtSalesCompInvDiff"
@@ -684,6 +725,8 @@ Function fGetSalesCompanyColIndex(shtParam As Worksheet, ByRef iColIndex As Inte
             iColIndex = Refund.SalesCompany
         Case "shtSecondLevelCommission"
             iColIndex = SecondLevelComm.SalesCompany
+        Case "shtSellPriceInAdv"
+            iColIndex = SellPriceInAdv.SalesCompany
         Case "shtCZLSales2Companies"
             iColIndex = CZLSales2Comp.SalesCompany
         Case "shtCZLSales2SCompAll"
@@ -698,6 +741,8 @@ Function fGetProductProcuderColIndex(shtParam As Worksheet, ByRef iColIndex As I
     Select Case shtParam.CodeName
         Case "shtSalesInfos"
             iColIndex = Sales2Hospital.ProductProducer
+        Case "shtPromotionProduct"
+            iColIndex = PromoteProduct.ProductProducer
         Case "shtSalesCompInvUnified"
             iColIndex = SCompUnifiedInv.ProductProducer
         Case "shtCZLInvDiff"
@@ -726,6 +771,8 @@ Function fGetProductProcuderColIndex(shtParam As Worksheet, ByRef iColIndex As I
             iColIndex = Refund.ProductProducer
         Case "shtSecondLevelCommission"
             iColIndex = SecondLevelComm.ProductProducer
+        Case "shtSellPriceInAdv"
+            iColIndex = SellPriceInAdv.ProductProducer
         Case "shtCZLSales2Companies"
             iColIndex = CZLSales2Comp.ProductProducer
         Case "shtCZLSales2SCompAll"
@@ -741,6 +788,8 @@ Function fGetProductProductNameColIndex(shtParam As Worksheet, ByRef iColIndex A
     Select Case shtParam.CodeName
         Case "shtSalesInfos"
             iColIndex = Sales2Hospital.ProductName
+        Case "shtPromotionProduct"
+            iColIndex = PromoteProduct.ProductName
         Case "shtSalesCompInvUnified"
             iColIndex = SCompUnifiedInv.ProductName
         Case "shtCZLInvDiff"
@@ -769,6 +818,8 @@ Function fGetProductProductNameColIndex(shtParam As Worksheet, ByRef iColIndex A
             iColIndex = Refund.ProductName
         Case "shtSecondLevelCommission"
             iColIndex = SecondLevelComm.ProductName
+        Case "shtSellPriceInAdv"
+            iColIndex = SellPriceInAdv.ProductName
         Case "shtCZLSales2Companies"
             iColIndex = CZLSales2Comp.ProductName
         Case "shtCZLSales2SCompAll"
@@ -784,6 +835,8 @@ Function fGetProductSeriesColIndex(shtParam As Worksheet, ByRef iColIndex As Int
     Select Case shtParam.CodeName
         Case "shtSalesInfos"
             iColIndex = Sales2Hospital.ProductSeries
+        Case "shtPromotionProduct"
+            iColIndex = PromoteProduct.ProductSeries
         Case "shtSalesCompInvUnified"
             iColIndex = SCompUnifiedInv.ProductSeries
         Case "shtCZLInvDiff"
@@ -810,6 +863,8 @@ Function fGetProductSeriesColIndex(shtParam As Worksheet, ByRef iColIndex As Int
             iColIndex = Refund.ProductSeries
         Case "shtSecondLevelCommission"
             iColIndex = SecondLevelComm.ProductSeries
+        Case "shtSellPriceInAdv"
+            iColIndex = SellPriceInAdv.ProductSeries
         Case "shtCZLSales2Companies"
             iColIndex = CZLSales2Comp.ProductSeries
         Case "shtCZLSales2SCompAll"
@@ -857,6 +912,10 @@ Function fGetHospitalColIndex(shtParam As Worksheet, ByRef iColIndex As Integer)
     Select Case shtParam.CodeName
         Case "shtSalesInfos"
             iColIndex = Sales2Hospital.Hospital
+        Case "shtPromotionProduct"
+            iColIndex = PromoteProduct.Hospital
+        Case "shtProfit"
+            iColIndex = Profit.Hospital
         Case "shtRefund"
             iColIndex = Refund.Hospital
         Case "shtSecondLevelCommission"
@@ -921,12 +980,33 @@ Function fGetControlAttributes(control As IRibbonControl, sType As String, Optio
                 Case "SIZE":    val = "false"
                 Case "ACTION":  Call btnSCompInvImported_Click
             End Select
+        Case "btnPromotionProduct"
+            Select Case sType
+                Case "LABEL":   val = "推广品"
+                Case "IMAGE":   val = "PageSetupSheetDialog"
+                Case "SIZE":    val = "false"
+                Case "ACTION":  Call btnPromotionProduct_Click
+            End Select
+        Case "btnFirstLevelComm"
+            Select Case sType
+                Case "LABEL":   val = "采芝林配送费"
+                Case "IMAGE":   val = "PageSetupSheetDialog"
+                Case "SIZE":    val = "false"
+                Case "ACTION":  Call btnFirstLevelComm_Click
+            End Select
         Case "btnSecondLevelComm"
             Select Case sType
                 Case "LABEL":   val = "商业公司配送费"
                 Case "IMAGE":   val = "PageSetupSheetDialog"
                 Case "SIZE":    val = "false"
                 Case "ACTION":  Call btnSecondLevelComm_Click
+            End Select
+        Case "btnSalePriceInAdv"
+            Select Case sType
+                Case "LABEL":   val = "药品预收供货价"
+                Case "IMAGE":   val = "PageSetupSheetDialog"
+                Case "SIZE":    val = "false"
+                Case "ACTION":  Call btnSalePriceInAdv_Click
             End Select
         Case "btnSalesInfo"
             Select Case sType

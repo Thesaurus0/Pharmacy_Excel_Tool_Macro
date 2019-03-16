@@ -140,11 +140,11 @@ Sub subMain_InvisibleHideAllBusinessSheets()
     fVeryHideSheet shtException
     fVeryHideSheet shtProfit
     
-    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: shtProfit"
+    If Not gProBar Is Nothing Then gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: shtProfit"
     
     fVeryHideSheet shtSelfSalesOrder
     
-    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 1"
+    If Not gProBar Is Nothing Then gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 1"
     
     fVeryHideSheet shtSelfSalesPreDeduct
     gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 2"
@@ -202,9 +202,11 @@ Sub subMain_InvisibleHideAllBusinessSheets()
     'fVeryHideSheet shtMenuRefund
     fVeryHideSheet shtCZLSales2SCompAll
     gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 28"
+    fVeryHideSheet shtSellPriceInAdv
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 30"
     
     fShowSheet shtMainMenu
-    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 29"
+    gProBar.ChangeProcessBarValue 0.8, "隐藏所有业务工作表: 31"
     shtMainMenu.Activate
     
     gProBar.ChangeProcessBarValue 0.28, "隐藏所有业务工作表: done"
@@ -232,12 +234,13 @@ Sub subMain_ShowAllBusinessSheets()
     fShowSheet shtSalesManMaster
     fShowSheet shtFirstLevelCommission
     fShowSheet shtSecondLevelCommission
+    fShowSheet shtSellPriceInAdv
     fShowSheet shtSalesManCommConfig
     fShowSheet shtSelfInventory
     fShowSheet shtMenuCompInvt
     fShowSheet shtMenu
     fShowSheet shtInventoryRawDataRpt
-    fShowSheet shtSalesCompInventory
+    'fShowSheet shtSalesCompInventory
     fShowSheet shtImportCZL2SalesCompSales
     fShowSheet shtCZLSales2CompRawData
     fShowSheet shtCZLSales2Companies
@@ -245,7 +248,7 @@ Sub subMain_ShowAllBusinessSheets()
     fShowSheet shtCZLInvDiff
     'fShowSheet shtCZLInformedInvInput
     fShowSheet shtCZLRolloverInv
-    fShowSheet shtSalesCompInv
+    'fShowSheet shtSalesCompInv
     fShowSheet shtSalesCompRolloverInv
     fShowSheet shtProductTaxRate
     
@@ -387,6 +390,7 @@ Sub subMain_ValidateAllSheetsData()
     If Not shtSelfSalesOrder.fValidateSheet(False) Then GoTo exit_sub
     If Not shtPromotionProduct.fValidateSheet(False) Then GoTo exit_sub
     If Not shtProductTaxRate.fValidateSheet(False) Then GoTo exit_sub
+    If Not shtSellPriceInAdv.fValidateSheet(False) Then GoTo exit_sub
     
     gProBar.DestroyBar
     fMsgBox "没有发现错误！", vbInformation
@@ -746,6 +750,7 @@ Function fAutoFileterAllSheets()
     fResetAutoFilter shtSalesManMaster
     fResetAutoFilter shtFirstLevelCommission
     fResetAutoFilter shtSecondLevelCommission
+    fResetAutoFilter shtSellPriceInAdv
     fResetAutoFilter shtSalesManCommConfig
     fResetAutoFilter shtSelfInventory
     fResetAutoFilter shtInventoryRawDataRpt

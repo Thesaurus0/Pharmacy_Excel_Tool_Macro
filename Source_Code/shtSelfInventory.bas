@@ -7,6 +7,9 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
+Option Explicit
+Option Base 1
+
 Enum SelfInv
     ProductProducer = 1
     ProductName = 2
@@ -89,7 +92,7 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
 '        sProducer = rgIntersect.Offset(0, ProducerCol - ProductNameCol).Value
 '
 '        If fNzero(sProducer) Then
-'            Call fSetFilterForSheet(shtProductNameMaster, 1, sProducer)
+'            Call fSetFilterForSheet(shtProductNameMaster, ProductNameMst.ProdProducer, sProducer)
 '            Call fCopyFilteredDataToRange(shtProductNameMaster, 2)
 '
 '            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)

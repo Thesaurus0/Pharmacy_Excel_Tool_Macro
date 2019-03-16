@@ -15,9 +15,8 @@ Enum ProductMst
     ProductName = 2
     ProductSeries = 3
     ProductUnit = 4
-    PriceRecInAdvanceFromCZL = 5
+    'PriceRecInAdvanceFromCZL = 5
 End Enum
-
 
 Private Sub btnValidateProductMaster_Click()
     Call fValidateSheet
@@ -55,33 +54,30 @@ End Sub
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     On Error GoTo exit_sub
     Application.ScreenUpdating = False
-    
-    Const ProducerCol = 1
-    Const ProductNameCol = 2
-    Const ProductSeriesCol = 4
-    
+
     Dim rgIntersect As Range
     Dim sProducer As String
     Dim sProductName As String
     Dim sValidationListAddr As String
         
     'product name
-    Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
+    Set rgIntersect = Intersect(Target, Me.Columns(ProductMst.ProductName))
     
     If Not rgIntersect Is Nothing Then
         If rgIntersect.Areas.Count > 1 Then GoTo exit_sub   'fErr "不能选多个"
         If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
 
-        sProducer = rgIntersect.Offset(0, ProducerCol - ProductNameCol).Value
-        
-        If fNzero(sProducer) Then
-            Call fSetFilterForSheet(shtProductNameMaster, 1, sProducer)
-            Call fCopyFilteredDataToRange(shtProductNameMaster, 2)
-            
-            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
-            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
-            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
-        End If
+        sProducer = Me.Cells(rgIntersect.Row, ProductMst.ProductProducer).Value
+        Call fGetProductNameValidationListAndSetToCell(rgIntersect, sProducer)
+'
+'        If fNzero(sProducer) Then
+'            Call fSetFilterForSheet(shtProductNameMaster, ProductNameMst.ProdProducer, sProducer)
+'            Call fCopyFilteredDataToRange(shtProductNameMaster, 2)
+'
+'            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
+'            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
+'            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
+'        End If
     Else
     End If
     
@@ -126,7 +122,7 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
         End If
     Next
     
-    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 保存成功", vbInformation: ThisWorkbook.Save
 exit_sub:
     Set dictColIndex = Nothing
     fEnableExcelOptionsAll

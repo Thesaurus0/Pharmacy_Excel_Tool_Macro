@@ -97,6 +97,7 @@ Function fSetConditionFormatForFundamentalSheets()
     Call fClearConditionFormatAndAdd(shtSalesManMaster, Array(1), True)
     Call fClearConditionFormatAndAdd(shtFirstLevelCommission, Array(1, 2, 3, 4), True)
     Call fClearConditionFormatAndAdd(shtSecondLevelCommission, Array(1, 2, 3, 4), True)
+    Call fClearConditionFormatAndAdd(shtSellPriceInAdv, Array(1, 2, 3), True)
     Call fClearConditionFormatAndAdd(shtSelfSalesOrder, Array(1, 2, 3), True)         'to-do
     Call fClearConditionFormatAndAdd(shtSelfSalesPreDeduct, Array(1, 2, 3, 4), True)       'to-do
     Call fClearConditionFormatAndAdd(shtSalesManCommConfig, Array(1, 2, 3, 4, 5, 6), True)

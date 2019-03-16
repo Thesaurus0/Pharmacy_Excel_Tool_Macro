@@ -8,6 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Option Explicit
+Option Base 1
 
 Enum CZLInv
     ProductProducer = 1
@@ -136,15 +137,16 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
 
         sProducer = rgIntersect.Offset(0, ProducerCol - ProductNameCol).Value
+        Call fGetProductNameValidationListAndSetToCell(rgIntersect, sProducer)
         
-        If fNzero(sProducer) Then
-            Call fSetFilterForSheet(shtProductNameMaster, 1, sProducer)
-            Call fCopyFilteredDataToRange(shtProductNameMaster, 2)
-            
-            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
-            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
-            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
-        End If
+'        If fNzero(sProducer) Then
+'            Call fSetFilterForSheet(shtProductNameMaster, ProductNameMst.ProdProducer, sProducer)
+'            Call fCopyFilteredDataToRange(shtProductNameMaster, 2)
+'
+'            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
+'            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
+'            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
+'        End If
     Else
         'product SeriesCol
         Set rgIntersect = Intersect(Target, Me.Columns(ProductSeriesCol))
@@ -155,15 +157,16 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
             
             sProducer = rgIntersect.Offset(0, ProducerCol - ProductSeriesCol).Value
             sProductName = rgIntersect.Offset(0, ProductNameCol - ProductSeriesCol).Value
+            Call fGetProductSeriesValidationListAndSetToCell(rgIntersect, sProducer, sProductName)
             
-            If fNzero(sProducer) And fNzero(sProductName) Then
-                Call fSetFilterForSheet(shtProductMaster, Array(1, 2), Array(sProducer, sProductName))
-                Call fCopyFilteredDataToRange(shtProductMaster, 3)
-                
-                sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
-                'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
-                Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
-            End If
+'            If fNzero(sProducer) And fNzero(sProductName) Then
+'                Call fSetFilterForSheet(shtProductMaster, Array(1, 2), Array(sProducer, sProductName))
+'                Call fCopyFilteredDataToRange(shtProductMaster, 3)
+'
+'                sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
+'                'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
+'                Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
+'            End If
         Else
             'product Unit
             Set rgIntersect = Intersect(Target, Me.Columns(ProductUnitCol))

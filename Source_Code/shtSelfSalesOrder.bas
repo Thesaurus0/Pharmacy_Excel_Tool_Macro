@@ -7,6 +7,9 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
+Option Explicit
+Option Base 1
+
 Enum SelfSales
     ProductProducer = 1
     ProductName = 2
@@ -62,7 +65,7 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     'for smooth process
  '   Call fCheckIfSelfSellAmountIsGreaterThanPurchaseByLotNumber(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), dictColIndex("LotNum"), lErrRowNo, lErrColNo)
 
-    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 保存成功", vbInformation: ThisWorkbook.Save
 exit_sub:
     fEnableExcelOptionsAll
     Set dictColIndex = Nothing
@@ -106,7 +109,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Const LotNumCol = 8
     
     Dim sLotNum As String
-    
+    Dim sProductName As String
+    Dim sProductSeries As String
     Dim rgIntersect As Range
     Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
     
@@ -118,15 +122,16 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Dim sValidationListAddr As String
         
         sProducer = rgIntersect.Offset(0, ProducerCol - ProductNameCol).Value
-        
-        If fNzero(sProducer) Then
-            Call fSetFilterForSheet(shtProductNameMaster, 1, sProducer)
-            Call fCopyFilteredDataToRange(shtProductNameMaster, 2)
-            
-            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
-            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
-            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
-        End If
+        Call fGetProductNameValidationListAndSetToCell(rgIntersect, sProducer)
+'
+'        If fNzero(sProducer) Then
+'            Call fSetFilterForSheet(shtProductNameMaster, ProductNameMst.ProdProducer, sProducer)
+'            Call fCopyFilteredDataToRange(shtProductNameMaster, 2)
+'
+'            sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
+'            'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
+'            Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
+'        End If
     Else
         'product SeriesCol
         Set rgIntersect = Intersect(Target, Me.Columns(ProductSeriesCol))
@@ -137,15 +142,16 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
             
             sProducer = rgIntersect.Offset(0, ProducerCol - ProductSeriesCol).Value
             sProductName = rgIntersect.Offset(0, ProductNameCol - ProductSeriesCol).Value
+            Call fGetProductSeriesValidationListAndSetToCell(rgIntersect, sProducer, sProductName)
             
-            If fNzero(sProducer) And fNzero(sProductName) Then
-                Call fSetFilterForSheet(shtProductMaster, Array(1, 2), Array(sProducer, sProductName))
-                Call fCopyFilteredDataToRange(shtProductMaster, 3)
-                
-                sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
-                'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
-                Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
-            End If
+'            If fNzero(sProducer) And fNzero(sProductName) Then
+'                Call fSetFilterForSheet(shtProductMaster, Array(1, 2), Array(sProducer, sProductName))
+'                Call fCopyFilteredDataToRange(shtProductMaster, 3)
+'
+'                sValidationListAddr = "=" & shtDataStage.Columns("A").Address(external:=True)
+'                'Call fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr, 3)
+'                Call fSetValidationListForRange(rgIntersect, sValidationListAddr)
+'            End If
         Else
             'product Unit
             Set rgIntersect = Intersect(Target, Me.Columns(ProductUnitCol))

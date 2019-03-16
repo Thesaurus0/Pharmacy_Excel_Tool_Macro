@@ -7,6 +7,9 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
+Option Explicit
+Option Base 1
+
 
 Private Sub btnValidate_Click()
     Call fValidateSheet
@@ -40,7 +43,7 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     
     Call fSortDataInSheetSortSheetData(Me, dictColIndex("SalesManName"))
                                                 
-    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 没有发现错误", vbInformation
+    If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 保存成功", vbInformation: ThisWorkbook.Save
 exit_sub:
     Set dictColIndex = Nothing
     fEnableExcelOptionsAll
