@@ -448,7 +448,11 @@ Sub sub_GenAlpabetList()
     
     If Not fPromptToOverWrite() Then Exit Sub
     
-    maxNum = InputBox("How many letters to you want to generate? (either number or letter is ok, e.g., 20 or AF)", "Max Number letter")
+    If Selection.Rows.Count > 1 Then
+        maxNum = Selection.Rows.Count
+    Else
+        maxNum = InputBox("How many letters to you want to generate? (either number or letter is ok, e.g., 20 or AF)", "Max Number letter")
+    End If
     
     If fZero(maxNum) Then Exit Sub
     
@@ -464,8 +468,8 @@ Sub sub_GenAlpabetList()
         lMax = fLetter2Num(sMaxcol)
     End If
     
-    If lMax <= 0 Or lMax > Columns.Count Then
-        fMsgBox "the number you input is too small or too large, which should be with 1 - " & Columns.CountLarge
+    If lMax <= 0 Then
+        fMsgBox "the number you input must be greater than 0 "
         Exit Sub
     End If
     
@@ -475,7 +479,11 @@ Sub sub_GenAlpabetList()
         arrList(i, 1) = fNum2Letter(i)
     Next
     
-    ActiveCell.Resize(UBound(arrList, 1), 1).Value = arrList
+    If Selection.Rows.Count > 1 Then
+        Selection.Value = arrList
+    Else
+        ActiveCell.Resize(UBound(arrList, 1), 1).Value = arrList
+    End If
     Erase arrList
 End Sub
 
@@ -487,7 +495,12 @@ Sub sub_GenNumberList()
     
     If Not fPromptToOverWrite() Then Exit Sub
     
-    maxNum = InputBox("How many letters to you want to generate? ( e.g., 20 , 100)", "Max Number")
+    If Selection.Rows.Count > 1 Then
+        maxNum = Selection.Rows.Count
+    Else
+        maxNum = InputBox("How many letters to you want to generate? ( e.g., 20 , 100)", "Max Number")
+    End If
+    
     If fZero(maxNum) Then Exit Sub
     
     maxNum = Trim(maxNum)
@@ -507,9 +520,13 @@ Sub sub_GenNumberList()
         arrList(i, 1) = i
     Next
     
-    ActiveCell.Resize(UBound(arrList, 1), 1).Value = arrList
+    If Selection.Rows.Count > 1 Then
+        Selection.Value = arrList
+    Else
+        ActiveCell.Resize(UBound(arrList, 1), 1).Value = arrList
+    End If
+    
     Erase arrList
-
 End Sub
 
 Function fPromptToOverWrite() As Boolean

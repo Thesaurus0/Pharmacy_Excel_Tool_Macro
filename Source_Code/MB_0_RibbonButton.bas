@@ -515,6 +515,8 @@ End Function
 Sub Sub_DataMigration()
     On Error GoTo error_handling
     
+    If Not fPromptToConfirmToContinue("你确定要从其他文件迁移数据进来吗?") Then fErr
+    
     fInitialization
 
     Dim arrSource()
@@ -580,8 +582,11 @@ Sub Sub_DataMigration()
     Next
     
     Call fCloseWorkBookWithoutSave(wbSource)
+    MsgBox "done"
 error_handling:
-    If Err.Number <> 0 Then MsgBox Err.Description
+    If Err.Number <> gErrNum Then
+        If Err.Number <> 0 Then MsgBox Err.Description
+    End If
     
     Erase arrSource
     If Not wbSource Is Nothing Then Call fCloseWorkBookWithoutSave(wbSource)
@@ -590,9 +595,6 @@ error_handling:
     
     If fCheckIfGotBusinessError Then Err.Clear
     If fCheckIfUnCapturedExceptionAbnormalError Then End
-    
-    
-    MsgBox "done"
 End Sub
 
 

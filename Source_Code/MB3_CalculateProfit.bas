@@ -133,6 +133,7 @@ Private Function fProcessData()
     Dim dictMissedSecondLComm As Dictionary
     Dim dictNoValidSelfSales As Dictionary
     Dim dictNoSalesManConf As Dictionary
+    Dim dictNoPriceRecInAdv As Dictionary
     
     Dim sHospital As String
     Dim sSalesCompName As String
@@ -153,12 +154,15 @@ Private Function fProcessData()
     Dim dblFirstLevelComm As Double
     Dim dblSecondLevelComm As Double
     Dim dblGrossPrice2CZL As Double
+    Dim dblPriceForRefund As Double
     Dim dblCostPrice As Double
     Dim sSalesMan_1 As String, sSalesMan_2 As String, sSalesMan_3 As String, sSalesManager As String
     Dim dblComm_1 As Double, dblComm_2 As Double, dblComm_3 As Double, dblSalesMgrComm As Double
     Dim sSalesMan_4 As String, sSalesMan_5 As String, sSalesMan_6 As String
     Dim dblComm_4 As Double, dblComm_5 As Double, dblComm_6 As Double
     Dim dblGrossProfitAmt As Double
+    Dim dblPriceRecInAdvanceFromCZL As Double
+    Dim dblProdProducerRefundRate As Double
 '    Dim dblNewRSalesTaxRate As Double
 '    Dim dblNewRPurchaseTaxRate As Double
     Dim dblPromPrdRebate As Double
@@ -176,6 +180,7 @@ Private Function fProcessData()
     Set dictMissedSecondLComm = New Dictionary
     Set dictNoValidSelfSales = New Dictionary
     Set dictNoSalesManConf = New Dictionary
+    Set dictNoPriceRecInAdv = New Dictionary
     
     For lEachRow = LBound(arrMaster, 1) To UBound(arrMaster, 1)
         If dictMstColIndex.Exists("OrigSalesInfoID") Then
@@ -212,10 +217,22 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("SalesRecordKey")) = sSalesCompName & sProducer & sProductName & sProductSeries _
                         & sHospital & format(arrMaster(lEachRow, dictMstColIndex("SalesDate")), "yyyymmdd") & dblQuantity & arrMaster(lEachRow, dictMstColIndex("LotNum"))
         
-        bIsPromotionProduct = fIsPromotionProduct(sHospital, sProductKey, dblSellPrice, sSalesCompName, dblPromPrdRebate, dblSalesTaxRate, dblPurchaseTaxRate, dblSecondLevelComm)
+        bIsPromotionProduct = fIsPromotionProduct(sHospital, sProductKey, dblSellPrice, sSalesCompName, dblPromPrdRebate, dblSalesTaxRate, dblPurchaseTaxRate, dblSecondLevelComm, dblProdProducerRefundRate)
+        
+        dblPriceRecInAdvanceFromCZL = fGetPriceRecInAdvanceFromCZL(sProducer, sProductName, sProductSeries)
+        
+        If dblPriceRecInAdvanceFromCZL <= 0 Then
+            If Not dictNoPriceRecInAdv.Exists(sProductKey) Then
+                dictNoPriceRecInAdv.Add sProductKey, "'" & lEachRow + 1
+            Else
+                dictNoPriceRecInAdv(sProductKey) = dictNoPriceRecInAdv(sProductKey) & "," & (lEachRow + 1)
+            End If
+            Call fAddErrorColumnTodictErrorRows(lEachRow + 1, dictRptColIndex("PriceRecInAdvanceFromCZL"))
+        End If
         
         If bIsPromotionProduct Then
             dblGrossPrice2CZL = dblSellPrice * dblPromPrdRebate
+            dblPriceForRefund = (dblSellPrice - dblSellPrice * dblSecondLevelComm) / (1 - dblProdProducerRefundRate) * dblPromPrdRebate '(中标价 - 中标价 * 配送费点数) / 0.92 * 0.53
         Else
             '==== first level czl commission ==========================================
             sFirstLevelCommKey = sSalesCompName & DELIMITER & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
@@ -251,10 +268,15 @@ Private Function fProcessData()
             '-----------------------------------------------------------------------------------------------
             
             dblGrossPrice2CZL = dblSellPrice * (1 - dblFirstLevelComm) * (1 - dblSecondLevelComm)
+            dblPriceForRefund = dblGrossPrice2CZL
         End If
         
         arrOutput(lEachRow, dictRptColIndex("GrossPrice2CZL")) = dblGrossPrice2CZL
         arrOutput(lEachRow, dictRptColIndex("GrossAmount2CZL")) = dblGrossPrice2CZL * dblQuantity
+        
+        'If bIsPromotionProduct Then
+            arrOutput(lEachRow, dictRptColIndex("PriceForRefund")) = dblPriceForRefund
+        'End If
         
         '==== cost price ==========================================
         sMsg = ""
@@ -386,6 +408,10 @@ Private Function fProcessData()
         If arrOutput(lEachRow, dictRptColIndex("SellAmount")) > 0 Then _
         arrOutput(lEachRow, dictRptColIndex("NetProfitRate")) = arrOutput(lEachRow, dictRptColIndex("NetProfitAmount")) _
                                                                 / arrOutput(lEachRow, dictRptColIndex("SellAmount"))
+                                                                
+        arrOutput(lEachRow, dictRptColIndex("PriceRecInAdvanceFromCZL")) = dblPriceRecInAdvanceFromCZL
+        arrOutput(lEachRow, dictRptColIndex("RefundPerUnit")) = dblPriceForRefund - dblPriceRecInAdvanceFromCZL
+        arrOutput(lEachRow, dictRptColIndex("RefundAmount")) = arrOutput(lEachRow, dictRptColIndex("RefundPerUnit")) * dblQuantity
 next_sales:
     Next
     
@@ -395,8 +421,6 @@ next_sales:
     
     lRecCount = fGetDictionayDelimiteredItemsCount(dictMissedFirstLComm)
     If lRecCount > 0 Then
-        lStartRow = fGetValidMaxRow(shtFirstLevelCommission) + 1
-        
         arrTmp = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictMissedFirstLComm)
         Call fAppendArray2Sheet(shtFirstLevelCommission, arrTmp)
         
@@ -406,18 +430,21 @@ next_sales:
     
     lRecCount = fGetDictionayDelimiteredItemsCount(dictMissedSecondLComm)
     If lRecCount > 0 Then
-        lStartRow = fGetValidMaxRow(shtSecondLevelCommission) + 1
-        
         arrTmp = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictMissedSecondLComm)
         Call fAppendArray2Sheet(shtSecondLevelCommission, arrTmp)
         
         fMsgBox lRecCount & "条销售流向记录的商业公司的配送费没有设置，系统已经自动把它们添加到了【" & shtSecondLevelCommission.Name & "】" _
             & vbCr & "您可以查看该表中最后面的数据"
     End If
+     
     
     Call fSetBackToshtSelfSalesCalWithDeductedData
     Call fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales)
     Call fAddNoSalesManConfToSheetException(dictNoSalesManConf)
+    Call fAddNoPriceRecInAdvToSheetException(dictNoPriceRecInAdv)
+    Set dictNoPriceRecInAdv = Nothing
+    Set dictNoSalesManConf = Nothing
+    Set dictNoValidSelfSales = Nothing
 End Function
 
 Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary)
@@ -458,6 +485,38 @@ Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary
             & "(1). 在【本公司出货】中添加一条替换记录" & vbCr _
             & "(2). 在【药品主表】中修改其最新价格" & vbCr & vbCr _
             & "计算这些销售流向进行到一半，没有可以扣的出货记录，所以把它们的成本价格标注0，"
+    End If
+End Function
+
+Function fAddNoPriceRecInAdvToSheetException(dictNoPriceRecInAdv As Dictionary)
+    Dim arrData()
+    Dim lUniqRecCnt As Long
+    'Dim lRecCount As Long
+    Dim i As Integer
+    Dim j As Integer
+    Dim lStartRow As Long
+            
+    lUniqRecCnt = dictNoPriceRecInAdv.Count
+    If lUniqRecCnt > 0 Then
+        lStartRow = fGetshtExceptionNewRow
+        
+        shtException.Cells(lStartRow - 1, 1).Value = "没有设置供货价的药品！"
+        shtException.Cells(lStartRow - 1, 1).WrapText = False
+        Call fPrepareHeaderToSheet(shtException, Array("药品厂家", "药品名称", "规格", "", "行号"), lStartRow)
+        shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Color = RGB(255, 0, 0)
+        shtException.Rows(lStartRow - 1 & ":" & lStartRow).Font.Bold = True
+        
+        arrData = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNoPriceRecInAdv, , False)
+        Call fAppendArray2Sheet(shtException, arrData)
+        
+        shtException.Cells(lStartRow + 1, 5).Resize(lUniqRecCnt, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNoPriceRecInAdv)
+
+        If lStartRow = 2 Then Call fFreezeSheet(shtException, , 2)
+        
+        If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
+        
+        gsBusinessErrorMsg = gsBusinessErrorMsg & lUniqRecCnt & "个药品没有设置供货价，您需要：" & vbCr _
+            & "(1). 在【药品主表】中设置其供货价."
     End If
 End Function
 

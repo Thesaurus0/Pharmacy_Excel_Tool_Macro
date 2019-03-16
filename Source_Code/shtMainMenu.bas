@@ -323,3 +323,6 @@ Private Sub btnValidateAllSheet_Click()
     subMain_ValidateAllSheetsData
 End Sub
 
+Private Sub CommandButton1_Click()
+    Sub_DataMigration
+End Sub

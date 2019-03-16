@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="ERP_UI_Onload">
-	<commands>
-		<command idMso="FileSaveAs" enabled="false" />
-	</commands>
 	<ribbon startFromScratch="false">
 		<tabs>
 			<tab id="ERP_2010" label="公司ERP系统">
@@ -167,41 +164,4 @@
 			</tab>
 		</tabs>
 	</ribbon>
-
-	<backstage>
-		<button id="MyCustomButton1" label="My Macro" imageMso="HappyFace" isDefinitive="true" onAction="Macro1"/>
-
-		<button idMso="FileSave" visible="true"/>
-		<button idMso="FileSaveAs" visible="true"/>
-		<button idMso="FileOpen" visible="true"/>
-		<button idMso="FileClose" visible="true"/>
-		<button idMso="ApplicationOptionsDialog" visible="true" enabled="false"/>
-		<button idMso="FileExit" visible="true"/>
-		<button idMso="HistoryTab" visible="true" enabled="false"/>
-		<button idMso="OfficeFeedback" visible="true" enabled="false"/>
-		<tab idMso="TabRecent"  enabled="false"/>
-		<tab idMso="TabNew"  enabled="false"/>
-		<tab idMso="TabPrint" visible="true"/>
-		<tab idMso="TabShare"   enabled="false"/>
-		<tab idMso="TabHelp"  enabled="false"/>
-		<tab idMso="TabPublish"   enabled="false"/>
-		<tab idMso="TabSave" visible="true"/>
-		<tab idMso="TabOfficeStart"   enabled="false"/>
-		<tab idMso="Publish2Tab"  visible="false"/>
-		<tab idMso="TabOfficeFeedback"   enabled="false"/>
-		<tab idMso="TabInfo" enabled="false"/>
-<!--
-		<tab id="dynamicFormatTab" label="Dynamic Control Format" insertAfterMso="TabInfo">
-			<firstColumn>
-				<group id="workStatusGroup" label="Work Status" getHelperText="GetWorkStatusHelperText" getStyle="GetWorkStatusStyle" >
-					<primaryItem>
-						<button id="sendStatusMailButton" label="Send Status E-Mail" imageMso="ReplyAll" />
-					</primaryItem>
-				</group>
-			</firstColumn>
-		</tab>
-		<button id="saveAndCloseButton" label="Save &amp;&amp; Close" insertAfterMso="FileSaveAs" imageMso="SourceControlCheckIn" onAction="SaveAndClose" isDefinitive="true" />
--->
-	</backstage>
-
 </customUI>

@@ -13,6 +13,6 @@ Enum Profit
     ProductName = 4
     ProductSeries = 5
     Hospital = 7
-    LotNum = 43
+    LotNum = 47
 End Enum
 

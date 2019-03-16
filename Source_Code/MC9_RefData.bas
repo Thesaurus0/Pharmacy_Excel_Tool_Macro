@@ -323,7 +323,7 @@ Function fReadSheetProductMaster2Dictionary()
     
     Set dictProductMaster = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
                                     , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries")) _
-                                    , Array(dictColIndex("ProductUnit"), dictColIndex("LatestPrice")), DELIMITER, DELIMITER)
+                                    , Array(dictColIndex("ProductUnit"), dictColIndex("LatestPrice"), dictColIndex("PriceRecInAdvanceFromCZL")), DELIMITER, DELIMITER)
     Set dictColIndex = Nothing
 End Function
 Function fProductSeriesExistsInProductMaster(sProductProducer As String, sProductName As String, sProductSeries As String) As Boolean
@@ -333,6 +333,13 @@ Function fProductSeriesExistsInProductMaster(sProductProducer As String, sProduc
 End Function
 Function fProductKeysExistsInProductMaster(sProductProducer As String, sProductName As String, sProductSeries As String) As Boolean
     fProductKeysExistsInProductMaster = fProductSeriesExistsInProductMaster(sProductProducer, sProductName, sProductSeries)
+End Function
+Function fGetPriceRecInAdvanceFromCZL(sProductProducer As String, sProductName As String, sProductSeries As String) As Double
+    If dictProductMaster Is Nothing Then Call fReadSheetProductMaster2Dictionary
+    
+    If fProductKeysExistsInProductMaster(sProductProducer, sProductName, sProductSeries) Then
+        fGetPriceRecInAdvanceFromCZL = val(Split(dictProductMaster(sProductProducer & DELIMITER & sProductName & DELIMITER & sProductSeries), DELIMITER)(2))
+    End If
 End Function
 '------------------------------------------------------------------------------
 
@@ -1378,13 +1385,13 @@ Function fReadSheetPromotionProducts2Dictionary()
 '                                    , dictColIndex("Rebate"), DELIMITER)
     Set dictPromotionProducts = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
                                     , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), dictColIndex("SalesPrice"), dictColIndex("Hospital"), dictColIndex("SalesCompany")) _
-                                    , Array(dictColIndex("Rebate"), dictColIndex("SalesTaxRate"), dictColIndex("PurchaseTaxRate"), dictColIndex("SecondLevelComm")) _
+                                    , Array(dictColIndex("Rebate"), dictColIndex("SalesTaxRate"), dictColIndex("PurchaseTaxRate"), dictColIndex("SecondLevelComm"), dictColIndex("ProdProducerRefundRate")) _
                                     , DELIMITER, DELIMITER, True, True)
     Set dictColIndex = Nothing
 End Function
 Function fIsPromotionProduct(sHospital As String, sProductKey As String, dblSalesPrice As Double, sSalesCompany As String _
                           , ByRef dblPromPrdRebate As Double, ByRef dblSalesTaxRate As Double _
-                          , ByRef dblPurchaseTaxRate As Double, ByRef dblSecondLevelComm As Double) As Boolean
+                          , ByRef dblPurchaseTaxRate As Double, ByRef dblSecondLevelComm As Double, ByRef dblProdProducerRefundRate As Double) As Boolean
     Dim sKey As String
     Dim bOut As Boolean
     
@@ -1393,6 +1400,7 @@ Function fIsPromotionProduct(sHospital As String, sProductKey As String, dblSale
     dblSalesTaxRate = 0
     dblPurchaseTaxRate = 0
     dblSecondLevelComm = 0
+    dblProdProducerRefundRate = 0
     
     If dictPromotionProducts Is Nothing Then fReadSheetPromotionProducts2Dictionary
     
@@ -1425,6 +1433,7 @@ Got_n_Exit:
         dblSalesTaxRate = val(Split(dictPromotionProducts(sKey), DELIMITER)(1))
         dblPurchaseTaxRate = val(Split(dictPromotionProducts(sKey), DELIMITER)(2))
         dblSecondLevelComm = val(Split(dictPromotionProducts(sKey), DELIMITER)(3))
+        dblProdProducerRefundRate = val(Split(dictPromotionProducts(sKey), DELIMITER)(4))
     End If
     fIsPromotionProduct = bOut
 End Function

@@ -15,6 +15,7 @@ Enum ProductMst
     ProductName = 2
     ProductSeries = 3
     ProductUnit = 4
+    PriceRecInAdvanceFromCZL = 5
 End Enum
 
 
