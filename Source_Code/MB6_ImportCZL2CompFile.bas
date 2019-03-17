@@ -145,8 +145,8 @@ Private Function fProcessDataAll()
     For lEachOutputRow = LBound(arrQualifiedRows) To UBound(arrQualifiedRows)
         lEachSourceRow = arrQualifiedRows(lEachOutputRow)
         
-        arrOutput(lEachOutputRow, dictRptColIndex("OrigSalesInfoID")) = "'" & format(arrMaster(lEachSourceRow, dictMstColIndex("SalesDate")), "YYYYMMDD") _
-                                                                & format(lEachSourceRow, "0000000")
+        arrOutput(lEachOutputRow, dictRptColIndex("OrigSalesInfoID")) = "'" & Format(arrMaster(lEachSourceRow, dictMstColIndex("SalesDate")), "YYYYMMDD") _
+                                                                & Format(lEachSourceRow, "0000000")
         
         arrOutput(lEachOutputRow, dictRptColIndex("SalesDate")) = arrMaster(lEachSourceRow, dictMstColIndex("SalesDate"))
         arrOutput(lEachOutputRow, dictRptColIndex("ProductProducer")) = Trim(arrMaster(lEachSourceRow, dictMstColIndex("ProductProducer")))

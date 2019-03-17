@@ -4,7 +4,7 @@ Option Base 1
 
 #If VBA7 And Win64 Then
     Private Declare PtrSafe Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" _
-    (ByVal hwnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String _
+    (ByVal hWnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String _
     , ByVal lpDirectory As String, ByVal nShowCmd As Long) As LongPtr
 #Else
     Private Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" _
@@ -41,7 +41,7 @@ Function fOpenFile(asFileFullPath As String)
     Const SE_ERR_NOASSOC = 31&
     Const ERROR_BAD_FORMAT = 11&
 
-    lReturnVal = ShellExecute(Application.hwnd, "Open", asFileFullPath, "", "C:\", SW_SHOWNORMAL)
+    lReturnVal = ShellExecute(Application.hWnd, "Open", asFileFullPath, "", "C:\", SW_SHOWNORMAL)
     
     If lReturnVal <= 32 Then
         Select Case lReturnVal
@@ -617,16 +617,16 @@ End Function
 '    fNum2Letter = Replace(Split(Columns(alNum).Address, ":")(1), "$", "")
 'End Function
 Function fNum2LetterV1(ByVal alNum As Long) As String
-    Dim n As Long
+    Dim N As Long
     Dim c As Byte
     Dim s As String
     
-    n = alNum
+    N = alNum
     Do
-        c = (n - 1) Mod 26
+        c = (N - 1) Mod 26
         s = Chr(c + 65) & s
-        n = (n - c) \ 26
-    Loop While n > 0
+        N = (N - c) \ 26
+    Loop While N > 0
     
     fNum2LetterV1 = s
 End Function
@@ -696,7 +696,7 @@ Function fArrayRowIsBlankHasNoData(arr, alRow As Long) As Boolean
 End Function
 
 Function fGenRandomUniqueString() As String
-    fGenRandomUniqueString = format(Now(), "yyyymmddhhMMSS") & Rnd()
+    fGenRandomUniqueString = Format(Now(), "yyyymmddhhMMSS") & Rnd()
 End Function
 
 Function fSplit(asOrig As String, Optional asSeparators As String = "") As Variant
@@ -1906,7 +1906,7 @@ Function fReplaceConvertR1C1ToA1(sR1C1Address As String) As String
         sAddrNew = sAddrNew & Mid(sR1C1Address, lNextStart, match.FirstIndex - lNextStart + 1)
         sAddrNew = sAddrNew & sReplaced
         
-        lNextStart = match.FirstIndex + match.length + 1
+        lNextStart = match.FirstIndex + match.Length + 1
     Next
     
     If lNextStart <= Len(sR1C1Address) Then
@@ -2129,7 +2129,7 @@ exit_fun:
     fFileterTwoDimensionArray = arrOut
     Erase arrOut
     
-    Debug.Print "fFileterOutTwoDimensionArray: " & format(Timer - start, "00:00")
+    Debug.Print "fFileterOutTwoDimensionArray: " & Format(Timer - start, "00:00")
 End Function
 
 Function fFileterOutTwoDimensionArray(arrSource(), lCol As Long, sValue) As Variant
@@ -2174,7 +2174,7 @@ exit_fun:
     fFileterOutTwoDimensionArray = arrOut
     Erase arrOut
     
-    Debug.Print "fFileterOutTwoDimensionArray: " & Timer - start & vbCr & format(Timer - start, "00:00")
+    Debug.Print "fFileterOutTwoDimensionArray: " & Timer - start & vbCr & Format(Timer - start, "00:00")
 End Function
 Function fTranspose1DimenArrayTo2DimenArrayVertically(arrParam) As Variant
     Dim i As Long
@@ -2511,10 +2511,10 @@ Function fReplaceDatePattern(ByRef sToReplace As String, aDate As Date) As Strin
         sDatePattern = oMatch.Value
         
         lStartPos = oMatch.FirstIndex + 1
-        lEndPos = oMatch.FirstIndex + oMatch.length
-        lLen = oMatch.length
+        lEndPos = oMatch.FirstIndex + oMatch.Length
+        lLen = oMatch.Length
         
-        sDate = format(aDate, sDatePattern)
+        sDate = Format(aDate, sDatePattern)
         
         If Len(sNewStr) <= 0 Then
             sNewStr = Left(sToReplace, lStartPos - 1) & sDate

@@ -266,7 +266,7 @@ Private Function fProcessDataAll()
         arrOutput(lEachOutputRow, dictRptColIndex("SalesCompanyName")) = sCompanyName
          
         arrOutput(lEachOutputRow, dictRptColIndex("OrigInventoryID")) = Left(gsCompanyID & String(15, "_"), 12) _
-                                                                & format(lEachSourceRow, "00000")
+                                                                & Format(lEachSourceRow, "00000")
         arrOutput(lEachOutputRow, dictRptColIndex("SeqNo")) = lEachOutputRow
         
         sProducer = Trim(arrMaster(lEachSourceRow, InvFileCol.ProductProducer))

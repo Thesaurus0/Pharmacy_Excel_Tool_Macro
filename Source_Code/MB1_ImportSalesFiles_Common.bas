@@ -278,8 +278,8 @@ Private Function fProcessDataAll()
         arrOutput(lEachOutputRow, dictRptColIndex("SalesCompanyID")) = gsCompanyID
         arrOutput(lEachOutputRow, dictRptColIndex("SalesCompanyName")) = sCompanyName
         arrOutput(lEachOutputRow, dictRptColIndex("OrigSalesInfoID")) = Left(gsCompanyID & String(10, "_"), 12) _
-                                                                & format(dtSalesDate, "YYYYMMDD") _
-                                                                & format(lEachSourceRow, "00000")
+                                                                & Format(dtSalesDate, "YYYYMMDD") _
+                                                                & Format(lEachSourceRow, "00000")
         arrOutput(lEachOutputRow, dictRptColIndex("SeqNo")) = lEachOutputRow
         
         arrOutput(lEachOutputRow, dictRptColIndex("SalesDate")) = dtSalesDate

@@ -247,7 +247,7 @@ Function fReadSheetSelfSalesOrderByYearMonth(adYearMonth As String) As Dictionar
        ' sLotNum = Trim(arrData(lEachRow, dictColIndex("LotNum")))
         dtSalesDate = arrData(lEachRow, dictColIndex("SalesDate"))
         
-        If format(dtSalesDate, "YYYYMM") = adYearMonth Then
+        If Format(dtSalesDate, "YYYYMM") = adYearMonth Then
             'sKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries & DELIMITER & sLotNum
             sKey = sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
             

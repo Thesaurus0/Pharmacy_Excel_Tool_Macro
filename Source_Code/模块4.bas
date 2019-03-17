@@ -85,15 +85,16 @@ Attribute VB_Name = "Ä£¿é4"
 'End Function
 '
 Sub testaxxac()
-    On Error GoTo err_hnd
-    
+    ClipBoard_SetData "a123dd456789"
     Dim a
-    a = 1 / 0
+    'a = GetClipboard
     
-err_hnd:
-    If True Then Resume clearEx
-    MsgBox "err_hnd"
-clearEx:
-    MsgBox "clearEx"
-    
+    'a = GetClipboard
+    a = ClipBoard_GetData
+    'SetClipboard "asdfasdfdddddddd"
+    'a = GetClipboard
+    'ClipBoard_SetData ""
+   ' ClearClipboard
+'    Dim a, b() As Byte
+'     Call GetData(a, b)
 End Sub

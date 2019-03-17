@@ -7,7 +7,7 @@ Enum InputFile
     ReportID = 1
     FileTag = 2
     FilePath = 3
-    source = 4
+    Source = 4
     ReLoadOrNot = 5
     FileSpecTag = 6
     Env = 7
@@ -324,7 +324,7 @@ Function fReadConfigInputFiles(Optional asReportID As String = "")
     arrColsName(InputFile.ReportID) = "Report ID"
     arrColsName(InputFile.FileTag) = "File Tag"
     arrColsName(InputFile.FilePath) = "File Full Path"
-    arrColsName(InputFile.source) = "Source"
+    arrColsName(InputFile.Source) = "Source"
     arrColsName(InputFile.ReLoadOrNot) = "When Data Already Loaded To Sheet"
     arrColsName(InputFile.FileSpecTag) = "File Spec Tag"
     arrColsName(InputFile.Env) = "DEV/UAT/PROD"
@@ -344,7 +344,7 @@ Function fReadConfigInputFiles(Optional asReportID As String = "")
         , shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Report ID + File Tag")
     Call fValidateBlankInArray(arrConfigData, InputFile.ReportID, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Report ID")
     Call fValidateBlankInArray(arrConfigData, InputFile.FileTag, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "File Tag")
-    Call fValidateBlankInArray(arrConfigData, InputFile.source, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Source")
+    Call fValidateBlankInArray(arrConfigData, InputFile.Source, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "Source")
     Call fValidateBlankInArray(arrConfigData, InputFile.Env, shtSysConf, lConfigHeaderAtRow, lConfigStartCol, "DEV/UAT/PROD")
     
     Dim lEachRow As Long
@@ -374,7 +374,7 @@ Function fReadConfigInputFiles(Optional asReportID As String = "")
         
         lActualRow = lConfigHeaderAtRow + lEachRow
         
-        sSource = Trim(arrConfigData(lEachRow, InputFile.source))
+        sSource = Trim(arrConfigData(lEachRow, InputFile.Source))
         'sShtToImport = arrConfigData(lEachRow, InputFile.DefaultSheet)
         sFileName = Trim(arrConfigData(lEachRow, InputFile.FilePath))
         
@@ -992,7 +992,7 @@ Function fGetInputFileFileName(asFileTag As String) As String
     fGetInputFileFileName = Split(gDictInputFiles(asFileTag), DELIMITER)(InputFile.FilePath - InputFile.ReportID - 2)
 End Function
 Function fGetInputFileSourceType(asFileTag As String) As String
-    fGetInputFileSourceType = Split(gDictInputFiles(asFileTag), DELIMITER)(InputFile.source - InputFile.ReportID - 2)
+    fGetInputFileSourceType = Split(gDictInputFiles(asFileTag), DELIMITER)(InputFile.Source - InputFile.ReportID - 2)
 End Function
 Function fGetInputFileFileSpecTag(asFileTag As String) As String
     If Not gDictInputFiles.Exists(asFileTag) Then fErr asFileTag & " does not exist in " & Join(gDictInputFiles.Keys, vbCr)

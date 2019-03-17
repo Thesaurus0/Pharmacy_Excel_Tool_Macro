@@ -1,48 +1,77 @@
 Attribute VB_Name = "친욥2"
-Sub 브2()
-Attribute 브2.VB_ProcData.VB_Invoke_Func = " \n14"
-'
-' 브2 브
-'
+Option Explicit
+Private Declare PtrSafe Function OpenClipboard Lib "user32.dll" (ByVal hWnd As Long) As Long
+Private Declare PtrSafe Function EmptyClipboard Lib "user32.dll" () As Long
+Private Declare PtrSafe Function CloseClipboard Lib "user32.dll" () As Long
+Private Declare PtrSafe Function IsClipboardFormatAvailable Lib "user32.dll" (ByVal wFormat As Long) As Long
+Private Declare PtrSafe Function GetClipboardData Lib "user32.dll" (ByVal wFormat As Long) As Long
+Private Declare PtrSafe Function SetClipboardData Lib "user32.dll" (ByVal wFormat As Long, ByVal hMem As Long) As Long
+Private Declare PtrSafe Function GlobalAlloc Lib "kernel32.dll" (ByVal wFlags As Long, ByVal dwBytes As Long) As Long
+Private Declare PtrSafe Function GlobalLock Lib "kernel32.dll" (ByVal hMem As LongPtr) As LongPtr
+Private Declare PtrSafe Function GlobalUnlock Lib "kernel32.dll" (ByVal hMem As Long) As Long
+Private Declare PtrSafe Function GlobalSize Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
+Private Declare PtrSafe Function lstrcpy Lib "kernel32.dll" Alias "lstrcpyW" (ByVal lpString1 As Any, ByVal lpString2 As Any) As Long
 
-'
-    Columns("F:F").Select
-    With Selection.Validation
-        .Delete
-        .Add Type:=xlValidateDecimal, AlertStyle:=xlValidAlertStop, Operator _
-        :=xlBetween, Formula1:="0", Formula2:="1"
-        .IgnoreBlank = True
-        .InCellDropdown = True
-        .InputTitle = ""
-        .ErrorTitle = ""
-        .InputMessage = ""
-        .ErrorMessage = ""
-        .IMEMode = xlIMEModeNoControl
-        .ShowInput = True
-        .ShowError = True
-    End With
+Public Sub SetClipboard(sUniText As String)
+    Dim iStrPtr As Long
+    Dim iLen As Long
+    Dim iLock As Long
+    Const GMEM_MOVEABLE As Long = &H2
+    Const GMEM_ZEROINIT As Long = &H40
+    Const CF_UNICODETEXT As Long = &HD
+    OpenClipboard 0&
+    EmptyClipboard
+    iLen = LenB(sUniText) + 2&
+    iStrPtr = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, iLen)
+    iLock = GlobalLock(iStrPtr)
+    lstrcpy iLock, StrPtr(sUniText)
+    GlobalUnlock iStrPtr
+    SetClipboardData CF_UNICODETEXT, iStrPtr
+    CloseClipboard
 End Sub
-Sub 브3()
-Attribute 브3.VB_ProcData.VB_Invoke_Func = " \n14"
-'
-' 브3 브
-'
 
-'
-    Columns("E:E").Select
-    With Selection.Validation
-        .Delete
-        .Add Type:=xlValidateDate, AlertStyle:=xlValidAlertStop, Operator:= _
-        xlBetween, Formula1:="1/1/2001", Formula2:="12/31/2099"
-        .IgnoreBlank = True
-        .InCellDropdown = True
-        .InputTitle = ""
-        .ErrorTitle = ""
-        .InputMessage = ""
-        .ErrorMessage = ""
-        .IMEMode = xlIMEModeNoControl
-        .ShowInput = True
-        .ShowError = True
-    End With
-    Range("E6").Select
+'Public Function GetClipboard() As String
+'    Dim iStrPtr As LongPtr
+'    Dim iLen As LongPtr
+'    Dim iLock As LongPtr
+'    Dim sUniText As String
+'    Const CF_UNICODETEXT As Long = 13&
+'    OpenClipboard 0&
+'    If IsClipboardFormatAvailable(CF_UNICODETEXT) Then
+'        iStrPtr = GetClipboardData(CF_UNICODETEXT)
+'        If iStrPtr Then
+'            iLock = GlobalLock(iStrPtr)
+'            iLen = GlobalSize(iStrPtr)
+'            sUniText = String$(iLen \ 2& - 1&, vbNullChar)
+'            'lstrcpy StrPtr(sUniText), iLock
+'            GlobalUnlock iStrPtr
+'        End If
+'        GetClipboard = sUniText
+'    End If
+'    CloseClipboard
+'End Function
+Sub testaxxccac()
+    ClipBoard_SetData "a殮sdfxxxafxxx"
+    Dim a
+    'a = GetClipboard
+    
+    a = GetClipboard
+    SetClipboard "asdfasdfdddddddd"
+    a = GetClipboard
+    'ClipBoard_SetData ""
+   ' ClearClipboard
+'    Dim a, b() As Byte
+'     Call GetData(a, b)
+End Sub
+Sub asdfasdfddd()
+    Dim a As String
+    a = "abc"
+    
+    Dim c$
+    Dim d&
+    Dim e As LongPtr
+    
+    Dim b
+    b = StrPtr(a)
+    
 End Sub

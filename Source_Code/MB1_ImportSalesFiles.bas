@@ -183,8 +183,8 @@ Private Function fProcessDataAll()
         arrOutput(lEachOutputRow, dictRptColIndex("SalesCompanyID")) = sCompanyLongID
         arrOutput(lEachOutputRow, dictRptColIndex("SalesCompanyName")) = sCompanyName
         arrOutput(lEachOutputRow, dictRptColIndex("OrigSalesInfoID")) = Left(sCompanyLongID & String(15, "_"), 12) _
-                                                                & format(arrMaster(lEachSourceRow, dictMstColIndex("SalesDate")), "YYYYMMDD") _
-                                                                & format(lEachSourceRow, "00000")
+                                                                & Format(arrMaster(lEachSourceRow, dictMstColIndex("SalesDate")), "YYYYMMDD") _
+                                                                & Format(lEachSourceRow, "00000")
         arrOutput(lEachOutputRow, dictRptColIndex("SeqNo")) = lEachOutputRow
         
         arrOutput(lEachOutputRow, dictRptColIndex("SalesDate")) = arrMaster(lEachSourceRow, dictMstColIndex("SalesDate"))
@@ -265,7 +265,7 @@ Function fReSequenceSeqNo()
     
     lMaxRow = lMaxRow - 1
     For eachRow = LBound(arr, 1) To UBound(arr, 1)
-        arr(eachRow, 1) = lMaxRow & "_" & format(arr(eachRow, 1), "0000")
+        arr(eachRow, 1) = lMaxRow & "_" & Format(arr(eachRow, 1), "0000")
     Next
     
     shtSalesRawDataRpt.Cells(2, lCol).Resize(UBound(arr, 1), 1).Value = arr

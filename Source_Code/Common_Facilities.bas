@@ -11,7 +11,7 @@ Function fStartTimer()
     dblStartTime = Timer
 End Function
 Function fHowLong(Optional ByVal asPrefix As String = "")
-    Debug.Print IIf(Len(asPrefix) > 0, asPrefix & vbTab, "") & format(Timer - dblStartTime, "0000.00000000")
+    Debug.Print IIf(Len(asPrefix) > 0, asPrefix & vbTab, "") & Format(Timer - dblStartTime, "0000.00000000")
 End Function
 
 Function fKeepCopyContent()
@@ -269,12 +269,12 @@ Function fSetDEVUATPRODNotificationInSheetMenu()
     End If
     
     shtMenu.Range("A1").Value = sNotifi
-    shtMenu.Range("A1").Font.size = iFontSize
+    shtMenu.Range("A1").Font.Size = iFontSize
     shtMenu.Range("A1").Font.Color = iColor
     shtMenu.Range("A1").Font.Bold = bBold
     
     shtMenuCompInvt.Range("A1").Value = sNotifi
-    shtMenuCompInvt.Range("A1").Font.size = iFontSize
+    shtMenuCompInvt.Range("A1").Font.Size = iFontSize
     shtMenuCompInvt.Range("A1").Font.Color = iColor
     shtMenuCompInvt.Range("A1").Font.Bold = bBold
 End Function

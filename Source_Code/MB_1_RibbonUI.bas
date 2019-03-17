@@ -2,7 +2,7 @@ Attribute VB_Name = "MB_1_RibbonUI"
 Option Explicit
 
 #If VBA7 And Win64 Then  'Win64
-    Declare PtrSafe Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (ByRef destination As Any, ByRef source As Any, ByVal length As Long)
+    Declare PtrSafe Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (ByRef Destination As Any, ByRef Source As Any, ByVal Length As Long)
 #Else
     Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (ByRef destination As Any, ByRef source As Any, ByVal length As Long)
 #End If
@@ -52,8 +52,8 @@ End Sub
 Sub Button_getLabel(control As IRibbonControl, ByRef label)
     Call fGetControlAttributes(control, "LABEL", label)
 End Sub
-Sub Button_getSize(control As IRibbonControl, ByRef size)
-    Call fGetControlAttributes(control, "SIZE", size)
+Sub Button_getSize(control As IRibbonControl, ByRef Size)
+    Call fGetControlAttributes(control, "SIZE", Size)
 End Sub
 
 '================== toggle button common function===========================================

@@ -19,9 +19,9 @@ Private Const WS_CAPTION As Long = &HC00000
 Private BarLength As Long  '= 300                 '进度条长度
 
 #If Win64 Then
-    Private Declare PtrSafe Function DrawMenuBar Lib "user32" (ByVal hwnd As Long) As Long
-    Private Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
-    Private Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+    Private Declare PtrSafe Function DrawMenuBar Lib "user32" (ByVal hWnd As Long) As Long
+    Private Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+    Private Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
     Private Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
     Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 #Else
@@ -59,7 +59,7 @@ End Sub
 Public Sub ChangeProcessBarValue(Value As Double, Optional Message As String = "")
     On Error Resume Next
     lbl1.Width = Int(Value * BarLength)                   '显示进度条
-    lbl2.Caption = IIf(Message = "", format(Value, "已经完成 0.00%"), Message)
+    lbl2.Caption = IIf(Message = "", Format(Value, "已经完成 0.00%"), Message)
     DoEvents                                              '转让控制权给操作系统
 End Sub
 
@@ -123,7 +123,7 @@ Private Sub CreateProgressBar()
             .Width = BarLength
             .Caption = ""
             .TextAlign = fmTextAlignLeft
-            .Font.size = 10
+            .Font.Size = 10
             .Font.Bold = False
             .Font.Italic = False
             .Font.Name = "宋体"
@@ -137,22 +137,22 @@ Private Sub CreateProgressBar()
     End With
 End Sub
 
-Private Sub RemoveModule(n As String)                 '移除具有指定名称的模块
+Private Sub RemoveModule(N As String)                 '移除具有指定名称的模块
     On Error Resume Next
-    objApp.VBProject.VBComponents.Remove objApp.VBProject.VBComponents(n)
+    objApp.VBProject.VBComponents.Remove objApp.VBProject.VBComponents(N)
     objApp.Save
 End Sub
 
 Private Sub RemoveFormCaption(form As Object)
     If val(Application.Version) < 9 Then
-        hwnd = FindWindow("ThunderXFrame", form.Caption)
+        hWnd = FindWindow("ThunderXFrame", form.Caption)
     Else
-        hwnd = FindWindow("ThunderDFrame", form.Caption)
+        hWnd = FindWindow("ThunderDFrame", form.Caption)
     End If
-    IStyle = GetWindowLong(hwnd, GWL_STYLE)
+    IStyle = GetWindowLong(hWnd, GWL_STYLE)
     IStyle = IStyle And Not WS_CAPTION
-    SetWindowLong hwnd, GWL_STYLE, IStyle
-    DrawMenuBar hwnd
+    SetWindowLong hWnd, GWL_STYLE, IStyle
+    DrawMenuBar hWnd
 End Sub
 
 Private Sub Class_Terminate()

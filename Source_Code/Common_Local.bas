@@ -232,7 +232,7 @@ Function fImportTxtFile(sFileFullPath, arrColFormat, asDelmiter As String _
     shtTo.Cells.ClearContents
     
     With shtTo.QueryTables.Add(Connection:="TEXT;" & sFileFullPath _
-        , destination:=shtTo.Range("$A$1"))
+        , Destination:=shtTo.Range("$A$1"))
         '.CommandType = 0
         .Name = shtTo.Name
         .FieldNames = True
@@ -1362,7 +1362,7 @@ Function fSetBackNumberFormat2TextForCols(ByRef shtOutput As Worksheet _
                 arrData = fReadRangeDatatoArrayByStartEndPos(shtOutput, lRowFrom, lEachCol, lRowTo, lRowTo)
                 
                 For lEachRow = LBound(arrData, 1) To UBound(arrData, 1)
-                    arrData(lEachRow, 1) = format(arrData(lEachRow, 1), sFormat)
+                    arrData(lEachRow, 1) = Format(arrData(lEachRow, 1), sFormat)
                 Next
                 
                 shtOutput.Cells(lRowFrom, lEachCol).Resize(UBound(arrData, 1), 1).Value = arrData
