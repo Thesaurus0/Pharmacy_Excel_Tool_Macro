@@ -110,7 +110,7 @@ error_handling:
      
     fMsgBox "成功整合在工作表：[" & shtSalesRawDataRpt.Name & "] 中，请检查！", vbInformation
     
-    Application.Goto shtSalesRawDataRpt.Range("A" & fGetValidMaxRow(shtSalesRawDataRpt)), True
+    Application.GoTo shtSalesRawDataRpt.Range("A" & fGetValidMaxRow(shtSalesRawDataRpt)), True
 reset_excel_options:
     Err.Clear
     fClearRefVariables

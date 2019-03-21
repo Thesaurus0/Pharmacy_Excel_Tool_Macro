@@ -143,6 +143,7 @@ Private Function fProcessData()
     Dim dblQuantity As Double
     Dim dblFirstLevelComm As Double
     Dim dblSecondLevelComm As Double
+    'Dim dblCommForRefund As Double
     Dim dblGrossPrice2CZL As Double
     Dim dblPriceForRefund As Double
     Dim dblCostPrice As Double
@@ -152,6 +153,7 @@ Private Function fProcessData()
     Dim dblComm_4 As Double, dblComm_5 As Double, dblComm_6 As Double
     Dim dblGrossProfitAmt As Double
     Dim dblPriceRecInAdv As Double
+    Dim dblCommForRefund As Double
     'Dim dblProdProducerRefundRate As Double
 '    Dim dblNewRSalesTaxRate As Double
 '    Dim dblNewRPurchaseTaxRate As Double
@@ -207,7 +209,7 @@ Private Function fProcessData()
         arrOutput(lEachRow, dictRptColIndex("SalesRecordKey")) = sSalesCompName & sProducer & sProductName & sProductSeries _
                         & sHospital & Format(arrMaster(lEachRow, dictMstColIndex("SalesDate")), "yyyymmdd") & dblQuantity & arrMaster(lEachRow, dictMstColIndex("LotNum"))
         
-        bIsPromotionProduct = fIsPromotionProduct(sHospital, sProductKey, dblSellPrice, sSalesCompName, dblPromPrdRebate, dblSalesTaxRate, dblPurchaseTaxRate, dblSecondLevelComm) ', dblProdProducerRefundRate)
+        bIsPromotionProduct = fIsPromotionProduct(sHospital, sProductKey, dblSellPrice, sSalesCompName, dblPromPrdRebate, dblSalesTaxRate, dblPurchaseTaxRate, dblSecondLevelComm, dblCommForRefund) ', dblProdProducerRefundRate)
         
 '        dblPriceRecInAdvance = fGetPriceRecInAdvance(sProducer, sProductName, sProductSeries)
         dblPriceRecInAdv = fGetSellPriceInAdv(sSalesCompName, sProductKey)
@@ -224,7 +226,8 @@ Private Function fProcessData()
         If bIsPromotionProduct Then
             dblGrossPrice2CZL = dblSellPrice * dblPromPrdRebate
            'dblPriceForRefund = (dblSellPrice - dblSellPrice * dblSecondLevelComm) / (1 - dblProdProducerRefundRate) * dblPromPrdRebate '(中标价 - 中标价 * 配送费点数) / 0.92 * 0.53
-            dblPriceForRefund = (dblSellPrice - dblSellPrice * dblSecondLevelComm)
+            'dblPriceForRefund = (dblSellPrice - dblSellPrice * dblSecondLevelComm)
+            dblPriceForRefund = (dblSellPrice - dblSellPrice * dblCommForRefund)
         Else
             '==== first level czl commission ==========================================
             sFirstLevelCommKey = sSalesCompName & DELIMITER & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
@@ -246,7 +249,7 @@ Private Function fProcessData()
             sSecondLevelCommKey = sSalesCompName & DELIMITER & sHospital & DELIMITER _
                                 & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries
         
-            If Not fGetSecondLevelComm(sSecondLevelCommKey, dblSecondLevelComm) Then
+            If Not fGetSecondLevelComm(sSecondLevelCommKey, dblSecondLevelComm, dblCommForRefund) Then
                 dblSecondLevelComm = fGetConfigSecondLevelDefaultComm(sSalesCompName)
                 
                 sSecondLevelCommPasteKey = fComposeSecondLevelColumnsStryByConfig(sSalesCompName, sHospital _
@@ -261,7 +264,7 @@ Private Function fProcessData()
             
             dblGrossPrice2CZL = dblSellPrice * (1 - dblFirstLevelComm) * (1 - dblSecondLevelComm)
             'dblPriceForRefund = dblGrossPrice2CZL
-            dblPriceForRefund = (dblSellPrice - dblSellPrice * dblSecondLevelComm)
+            dblPriceForRefund = (dblSellPrice - dblSellPrice * dblCommForRefund)
         End If
         
         arrOutput(lEachRow, dictRptColIndex("GrossPrice2CZL")) = dblGrossPrice2CZL
@@ -641,26 +644,7 @@ Function fComposeFirstLevelColumnsStryByConfig(sSalesCompName As String, sProduc
     fComposeFirstLevelColumnsStryByConfig = Join(arr, DELIMITER)
     Erase arr
 End Function
-
-'Function fComposeSecondLevelColumnsStryByConfig(sSalesCompName As String, sHospital As String, sProducer As String _
-'                    , sProductName As String, sProductSeries As String, dblComm As Double) As String
-'    If dictSecondCommColIndex Is Nothing Then Set dictSecondCommColIndex = fReadInputFileSpecConfigItem("SECOND_LEVEL_COMMISSION", "LETTER_INDEX", shtSecondLevelCommission)
-'
-'    Dim i As Integer
-'    Dim arr() As String
-'
-'    ReDim arr(1 To dictSecondCommColIndex.Count)
-'    arr(dictSecondCommColIndex("SalesCompany")) = sSalesCompName
-'    arr(dictSecondCommColIndex("Hospital")) = sHospital
-'    arr(dictSecondCommColIndex("ProductProducer")) = sProducer
-'    arr(dictSecondCommColIndex("ProductName")) = sProductName
-'    arr(dictSecondCommColIndex("ProductSeries")) = sProductSeries
-'    arr(dictSecondCommColIndex("Commission")) = dblComm
-'
-'    fComposeSecondLevelColumnsStryByConfig = Join(arr, DELIMITER)
-'    Erase arr
-'End Function
-
+ 
 Function fComposeSecondLevelColumnsStryByConfig(sSalesCompName As String, sHospital As String, sProducer As String _
                     , sProductName As String, sProductSeries As String, dblComm As Double) As String
     

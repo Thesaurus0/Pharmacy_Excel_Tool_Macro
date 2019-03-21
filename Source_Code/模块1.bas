@@ -2,13 +2,13 @@ Attribute VB_Name = "Ä£¿é1"
 Option Explicit
 #If VBA7 Then
     Private Declare PtrSafe Function _
-    CloseClipboard& Lib "user32" ()
+    CloseClipboard& Lib "User32" ()
     Private Declare PtrSafe Function _
-    OpenClipboard& Lib "user32" (ByVal hWnd&)
+    OpenClipboard& Lib "User32" (ByVal hwnd&)
     Private Declare PtrSafe Function _
-    EmptyClipboard& Lib "user32" ()
+    EmptyClipboard& Lib "User32" ()
     Private Declare PtrSafe Function _
-    GetClipboardData& Lib "user32" (ByVal wFormat&)
+    GetClipboardData& Lib "User32" (ByVal wFormat&)
     Private Declare PtrSafe Function _
     GlobalSize& Lib "kernel32" (ByVal hMem&)
     Private Declare PtrSafe Function _
@@ -19,13 +19,13 @@ Option Explicit
     "RtlMoveMemory" (Destination As Any, Source As Any, ByVal Length&)
 #Else
     Private Declare Function _
-    CloseClipboard& Lib "user32" ()
+    CloseClipboard& Lib "User32" ()
     Private Declare Function _
-    OpenClipboard& Lib "user32" (ByVal hWnd&)
+    OpenClipboard& Lib "User32" (ByVal hwnd&)
     Private Declare Function _
-    EmptyClipboard& Lib "user32" ()
+    EmptyClipboard& Lib "User32" ()
     Private Declare Function _
-    GetClipboardData& Lib "user32" (ByVal wFormat&)
+    GetClipboardData& Lib "User32" (ByVal wFormat&)
     Private Declare Function _
     GlobalSize& Lib "kernel32" (ByVal hMem&)
     Private Declare Function _
@@ -37,14 +37,14 @@ Option Explicit
 #End If
 
 Function GetData(ByVal Format&, abData() As Byte) As Boolean
-    Dim hWnd&, Size&, Ptr&
+    Dim hwnd&, Size&, Ptr&
     If OpenClipboard(0&) Then
         ' Get memory handle to the data
-        hWnd = GetClipboardData(Format)
+        hwnd = GetClipboardData(Format)
         ' Get size of this memory block
-        If hWnd Then Size = GlobalSize(hWnd)
+        If hwnd Then Size = GlobalSize(hwnd)
             ' Get pointer to the locked memory
-        If Size Then Ptr = GlobalLock(hWnd)
+        If Size Then Ptr = GlobalLock(hwnd)
         
         If Ptr Then
             ' Resize the byte array to hold the data
@@ -52,7 +52,7 @@ Function GetData(ByVal Format&, abData() As Byte) As Boolean
             ' Copy from the pointer into the array
             CopyMem abData(0), ByVal Ptr, Size
             ' Unlock the memory
-            Call GlobalUnlock(hWnd)
+            Call GlobalUnlock(hwnd)
             GetData = True
         End If
         EmptyClipboard

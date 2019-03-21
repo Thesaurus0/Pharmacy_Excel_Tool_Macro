@@ -4,7 +4,7 @@ Option Base 1
 
 #If VBA7 And Win64 Then
     Private Declare PtrSafe Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" _
-    (ByVal hWnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String _
+    (ByVal hwnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String _
     , ByVal lpDirectory As String, ByVal nShowCmd As Long) As LongPtr
 #Else
     Private Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" _
@@ -41,7 +41,7 @@ Function fOpenFile(asFileFullPath As String)
     Const SE_ERR_NOASSOC = 31&
     Const ERROR_BAD_FORMAT = 11&
 
-    lReturnVal = ShellExecute(Application.hWnd, "Open", asFileFullPath, "", "C:\", SW_SHOWNORMAL)
+    lReturnVal = ShellExecute(Application.hwnd, "Open", asFileFullPath, "", "C:\", SW_SHOWNORMAL)
     
     If lReturnVal <= 32 Then
         Select Case lReturnVal
@@ -572,7 +572,15 @@ Function fArrayIsEmptyOrNoData(ByRef arrParam) As Boolean
 exit_function:
     fArrayIsEmptyOrNoData = bOut
 End Function
+Function ArrLen(arrParam, Optional iDimension As Integer = 1) As Long
+    If iDimension > 2 Then fErr "wrong param in arrlen"
 
+    If fArrayIsEmpty(arrParam) Then ArrLen = 0: Exit Function
+
+    If iDimension <= 0 Then iDimension = 1
+
+    ArrLen = UBound(arrParam, iDimension) - LBound(arrParam, iDimension) + 1
+End Function
 Function fArrayIsEmpty(ByRef arrParam) As Boolean
     Dim i As Long
     
@@ -1181,7 +1189,7 @@ Function fValidateDuplicateInArrayForCombineCols(arrParam, arrKeyCols _
         If dict.Exists(sKeyStr) Then
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
             fShowSheet shtAt
-            Application.Goto shtAt.Cells(lActualRow, arrKeyCols(UBound(arrKeyCols)))
+            Application.GoTo shtAt.Cells(lActualRow, arrKeyCols(UBound(arrKeyCols)))
             fErr "Duplicate key was found:" & vbCr & sKeyStr & vbCr & sPos
         Else
             dict.Add sKeyStr, 0
@@ -1315,7 +1323,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
                 'sPos = sPos & lActualRow & " / " & sColLetter
                 sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
                 fShowSheet shtAt
-                Application.Goto shtAt.Cells(lActualRow, lKeyCol)
+                Application.GoTo shtAt.Cells(lActualRow, lKeyCol)
                 fErr "Keys [" & sColLetter & "] is blank!" & sPos
             End If
             
@@ -1326,7 +1334,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
             'sPos = sPos & lActualRow & " / " & sColLetter
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
             fShowSheet shtAt
-            Application.Goto shtAt.Cells(lActualRow, lKeyCol)
+            Application.GoTo shtAt.Cells(lActualRow, lKeyCol)
             fErr "Duplicate key [" & sKeyStr & "] was found " & sPos
         Else
             dict.Add sKeyStr, 0
@@ -1713,7 +1721,7 @@ next_row:
     Next
 End Function
 Function fEnlargeAray(ByRef arr, Optional aPreserve As Boolean = True, Optional lIncrementNum As Integer = 1) As Long
-    fRedim arr, arrlen(arr) + 1, aPreserve
+    fRedim arr, ArrLen(arr) + 1, aPreserve
 End Function
 
 

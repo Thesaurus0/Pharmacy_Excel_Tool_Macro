@@ -5,6 +5,7 @@ Option Base 1
 Function fSetValidationForNumberAndDateColumnsForAllSheets()
     Call fSetValidationForNumberForSheetColumns(shtFirstLevelCommission, FirstLevelComm.Commission, 0, 1)
     Call fSetValidationForNumberForSheetColumns(shtSecondLevelCommission, SecondLevelComm.Commission, 0, 1)
+    Call fSetValidationForNumberForSheetColumns(shtSecondLevelCommission, SecondLevelComm.CommForRefund, 0, 1)
     Call fSetValidationForNumberForSheetColumns(shtSalesManCommConfig, Array(SalesManComm.Commission1, SalesManComm.Commission2, SalesManComm.Commission3, SalesManComm.Commission4, SalesManComm.Commission5, SalesManComm.Commission6), 0, 999999)
     Call fSetValidationForNumberForSheetColumns(shtSalesManCommConfig, SalesManComm.ManagerCommRatio, 0, 1)
     Call fSetValidationForNumberForSheetColumns(shtProductUnitRatio, UnitRatio.Raio, 0, 999999)
@@ -60,17 +61,24 @@ Function fSetValidationForNumberForSheetColumns(sht As Worksheet, arrCols, aNumM
 End Function
 
 Function fSetValidationListForAllSheets()
+    Dim sSalesCompanyNameAddr As String
+    
     gProBar.ChangeProcessBarValue 0.4, "fSetValidationListForAllSheets: start"
+    
+    sSalesCompanyNameAddr = "=rngStaticSalesCompanyNames_Comm"
     '============== SalesCompany ========================================
-    Call fSetValidationListForshtFirstLevelCommission_SalesCompany("=rngStaticSalesCompanyNames_Comm")
-    'Call fSetValidationListForshtSecondLevelCommission_SalesCompany("=rngStaticSalesCompanyNames_Comm")
-    Call fSetValidationList(shtSecondLevelCommission, SecondLevelComm.SalesCompany, "=rngStaticSalesCompanyNames_Comm")
-    Call fSetValidationListForshtSalesManCommConfig_SalesCompany("=rngStaticSalesCompanyNames_Comm")
-    Call fSetValidationListForshtCompanyNameReplace_SalesCompany("=rngStaticSalesCompanyNames_Comm")
-    Call fSetValidationListForshtSalesCompRolloverInv_SalesCompany("=rngStaticSalesCompanyNames_Comm")
-    Call fSetValidationListForshtSalesCompInvCalcd_SalesCompany("=rngStaticSalesCompanyNames_Comm")
-    Call fSetValidationListForshtPromotionProduct_SalesCompany("=rngStaticSalesCompanyNames_Comm")
-    Call fSetValidationList(shtSellPriceInAdv, SellPriceInAdv.SalesCompany, "=rngStaticSalesCompanyNames_Comm")
+    Call fSetValidationListForshtFirstLevelCommission_SalesCompany(sSalesCompanyNameAddr)
+    'Call fSetValidationListForshtSecondLevelCommission_SalesCompany(sSalesCompanyNameAddr)
+    Call fSetValidationList(shtSecondLevelCommission, SecondLevelComm.SalesCompany, sSalesCompanyNameAddr)
+'    Call fSetValidationListForshtSalesManCommConfig_SalesCompany(sSalesCompanyNameAddr)
+    Call fSetValidationList(shtSalesManCommConfig, SalesManComm.SalesCompany, sSalesCompanyNameAddr)
+    Call fSetValidationListForshtCompanyNameReplace_SalesCompany(sSalesCompanyNameAddr)
+    Call fSetValidationListForshtSalesCompRolloverInv_SalesCompany(sSalesCompanyNameAddr)
+    Call fSetValidationListForshtSalesCompInvCalcd_SalesCompany(sSalesCompanyNameAddr)
+    'Call fSetValidationListForshtPromotionProduct_SalesCompany(sSalesCompanyNameAddr)
+    
+    Call fSetValidationList(shtPromotionProduct, PromoteProduct.SalesCompany, sSalesCompanyNameAddr)
+    Call fSetValidationList(shtSellPriceInAdv, SellPriceInAdv.SalesCompany, sSalesCompanyNameAddr)
     '----------------------------------------------------------------------------------------
 
     '============== Hospital ========================================
@@ -78,10 +86,12 @@ Function fSetValidationListForAllSheets()
     sHospitalAddr = fGetHospitalMasterColumnAddress_Hospital
 
     Call fSetValidationListForshtHospitalReplace_Hospital(sHospitalAddr)
-    Call fSetValidationListForshtSalesManCommConfig_Hospital(sHospitalAddr)
+'    Call fSetValidationListForshtSalesManCommConfig_Hospital(sHospitalAddr)
+    Call fSetValidationList(shtSalesManCommConfig, SalesManComm.Hospital, sHospitalAddr)
     'Call fSetValidationListForshtSecondLevelCommission_Hospital(sHospitalAddr)
     Call fSetValidationList(shtSecondLevelCommission, SecondLevelComm.Hospital, sHospitalAddr)
-    Call fSetValidationListForshtPromotionProduct_Hospital(sHospitalAddr)
+    Call fSetValidationList(shtPromotionProduct, PromoteProduct.Hospital, sHospitalAddr)
+'    Call fSetValidationListForshtPromotionProduct_Hospital(sHospitalAddr)
     '----------------------------------------------------------------------------------------
 
     '============== producer ========================================
@@ -90,7 +100,8 @@ Function fSetValidationListForAllSheets()
 
     Call fSetValidationListForshtProductMaster_Producer(sProducerAddr)
     Call fSetValidationListForshtProductNameMaster_Producer(sProducerAddr)
-    Call fSetValidationListForshtSalesManCommConfig_Producer(sProducerAddr)
+    'Call fSetValidationListForshtSalesManCommConfig_Producer(sProducerAddr)
+    Call fSetValidationList(shtSalesManCommConfig, SalesManComm.ProductProducer, sProducerAddr)
     Call fSetValidationListForshtFirstLevelCommission_Producer(sProducerAddr)
     'Call fSetValidationListForshtSecondLevelCommission_Producer(sProducerAddr)
     Call fSetValidationList(shtSecondLevelCommission, SecondLevelComm.ProductProducer, sProducerAddr)
@@ -111,7 +122,8 @@ Function fSetValidationListForAllSheets()
     sProductNameAddr = fGetProductNameMasterColumnAddress_ProductName
 
     Call fSetValidationListForshtProductMaster_ProductName(sProductNameAddr)
-    Call fSetValidationListForshtSalesManCommConfig_ProductName(sProductNameAddr)
+    'Call fSetValidationListForshtSalesManCommConfig_ProductName(sProductNameAddr)
+    Call fSetValidationList(shtSalesManCommConfig, SalesManComm.ProductName, sProductNameAddr)
     Call fSetValidationListForshtFirstLevelCommission_ProductName(sProductNameAddr)
     'Call fSetValidationListForshtSecondLevelCommission_ProductName(sProductNameAddr)
     Call fSetValidationList(shtSecondLevelCommission, SecondLevelComm.ProductName, sProductNameAddr)
@@ -126,7 +138,8 @@ Function fSetValidationListForAllSheets()
     Dim sProductSeriesAddr As String
     sProductSeriesAddr = fGetProductSeriesMasterColumnAddress_ProductSeries
 
-    Call fSetValidationListForshtSalesManCommConfig_ProductSeries(sProductSeriesAddr)
+    'Call fSetValidationListForshtSalesManCommConfig_ProductSeries(sProductSeriesAddr)
+    Call fSetValidationList(shtSalesManCommConfig, SalesManComm.ProductSeries, sProductSeriesAddr)
     Call fSetValidationListForshtFirstLevelCommission_ProductSeries(sProductSeriesAddr)
     'Call fSetValidationListForshtSecondLevelCommission_ProductSeries(sProductSeriesAddr)
     Call fSetValidationList(shtSecondLevelCommission, SecondLevelComm.ProductSeries, sProductSeriesAddr)
@@ -189,19 +202,19 @@ Function fSetValidationListForshtProductMaster_Producer(sValidationListAddr As S
                                     , sValidationListAddr)
 End Function
 
-
-Function fSetValidationListForshtSalesManCommConfig_Producer(sValidationListAddr As String)
-    Dim sTargetCol As String
-    Dim lMaxRow As Long
-    
-    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
-                                            , "Column Index", "Column Tech Name=ProductProducer")
-    
-    lMaxRow = shtSalesManCommConfig.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
-    Call fSetValidationListForRange(shtSalesManCommConfig.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-                                    , sValidationListAddr)
-End Function
+'Function fSetValidationListForshtSalesManCommConfig_Producer(sValidationListAddr As String)
+'    Dim sTargetCol As String
+'    Dim lMaxRow As Long
+''
+''    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
+''                                            , "Column Index", "Column Tech Name=ProductProducer")
+'    sTargetCol = fNum2Letter(SalesManComm.ProductProducer)
+'
+'    lMaxRow = shtSalesManCommConfig.Columns(sTargetCol).End(xlDown).Row + 100000
+'    If lMaxRow > Rows.Count Then lMaxRow = 100000
+'    Call fSetValidationListForRange(shtSalesManCommConfig.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+'                                    , sValidationListAddr)
+'End Function
 
 Function fSetValidationListForshtFirstLevelCommission_Producer(sValidationListAddr As String)
     Dim sTargetCol As String
@@ -215,19 +228,7 @@ Function fSetValidationListForshtFirstLevelCommission_Producer(sValidationListAd
     Call fSetValidationListForRange(shtFirstLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
-'Function fSetValidationListForshtSecondLevelCommission_Producer(sValidationListAddr As String)
-'    Dim sTargetCol As String
-'    Dim lMaxRow As Long
-'
-'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
-'                                            , "Column Index", "Column Tech Name=ProductProducer")
-'
-'    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
-'    If lMaxRow > Rows.Count Then lMaxRow = 100000
-'    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-'                                    , sValidationListAddr)
-'End Function
-
+ 
 Function fSetValidationListForshtProductProducerReplace_Producer(sValidationListAddr As String)
     Dim sProducerCol As String
     Dim lMaxRow As Long
@@ -360,44 +361,31 @@ Function fSetValidationListForshtFirstLevelCommission_SalesCompany(sValidationLi
     Call fSetValidationListForRange(shtFirstLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
-
-'Function fSetValidationListForshtSecondLevelCommission_SalesCompany(sValidationListAddr As String)
+ 
+'Function fSetValidationListForshtSalesManCommConfig_SalesCompany(sValidationListAddr As String)
 '    Dim sTargetCol As String
 '    Dim lMaxRow As Long
 '
-'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
+'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
 '                                            , "Column Index", "Column Tech Name=SalesCompany")
 '
-'    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
+'    lMaxRow = shtSalesManCommConfig.Columns(sTargetCol).End(xlDown).Row + 100000
 '    If lMaxRow > Rows.Count Then lMaxRow = 100000
-'    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+'    Call fSetValidationListForRange(shtSalesManCommConfig.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
 '                                    , sValidationListAddr)
 'End Function
 
-Function fSetValidationListForshtSalesManCommConfig_SalesCompany(sValidationListAddr As String)
-    Dim sTargetCol As String
-    Dim lMaxRow As Long
-    
-    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
-                                            , "Column Index", "Column Tech Name=SalesCompany")
-    
-    lMaxRow = shtSalesManCommConfig.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
-    Call fSetValidationListForRange(shtSalesManCommConfig.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-                                    , sValidationListAddr)
-End Function
-
-Function fSetValidationListForshtPromotionProduct_SalesCompany(sValidationListAddr As String)
-    Dim sTargetCol As String
-    Dim lMaxRow As Long
-    
-    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - PROMOTION_PRODUCTS_CONFIG]" _
-                                            , "Column Index", "Column Tech Name=SalesCompany")
-    
-    lMaxRow = fGetValidMaxRow(shtPromotionProduct) + 100000
-    Call fSetValidationListForRange(shtPromotionProduct.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-                                    , sValidationListAddr)
-End Function
+'Function fSetValidationListForshtPromotionProduct_SalesCompany(sValidationListAddr As String)
+'    Dim sTargetCol As String
+'    Dim lMaxRow As Long
+'
+'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - PROMOTION_PRODUCTS_CONFIG]" _
+'                                            , "Column Index", "Column Tech Name=SalesCompany")
+'
+'    lMaxRow = fGetValidMaxRow(shtPromotionProduct) + 100000
+'    Call fSetValidationListForRange(shtPromotionProduct.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+'                                    , sValidationListAddr)
+'End Function
 
 Function fSetValidationListForshtCompanyNameReplace_SalesCompany(sValidationListAddr As String)
     Dim sTargetCol As String
@@ -463,56 +451,29 @@ Function fSetValidationListForshtHospitalReplace_Hospital(sValidationListAddr As
     Call fSetValidationListForRange(shtHospitalReplace.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
-Function fSetValidationListForshtSalesManCommConfig_Hospital(sValidationListAddr As String)
-    Dim sTargetCol As String
-    Dim lMaxRow As Long
-    
-    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
-                                            , "Column Index", "Column Tech Name=Hospital")
-    
-    lMaxRow = shtSalesManCommConfig.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
-    Call fSetValidationListForRange(shtSalesManCommConfig.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-                                    , sValidationListAddr)
-End Function
-
-'Function fSetValidationListForshtFirstLevelCommission_Hospital(sValidationListAddr As String)
+'Function fSetValidationListForshtSalesManCommConfig_Hospital(sValidationListAddr As String)
 '    Dim sTargetCol As String
 '    Dim lMaxRow As Long
 '
-'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - FIRST_LEVEL_COMMISSION]" _
+'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
 '                                            , "Column Index", "Column Tech Name=Hospital")
 '
-'    lMaxRow = shtFirstLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
-'
-'    Call fSetValidationListForRange(shtFirstLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-'                                    , sValidationListAddr)
-'End Function
-'Function fSetValidationListForshtSecondLevelCommission_Hospital(sValidationListAddr As String)
-'    Dim sTargetCol As String
-'    Dim lMaxRow As Long
-'
-'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
-'                                            , "Column Index", "Column Tech Name=Hospital")
-'
-'    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
+'    lMaxRow = shtSalesManCommConfig.Columns(sTargetCol).End(xlDown).Row + 100000
 '    If lMaxRow > Rows.Count Then lMaxRow = 100000
-'    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+'    Call fSetValidationListForRange(shtSalesManCommConfig.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
 '                                    , sValidationListAddr)
 'End Function
-Function fSetValidationListForshtPromotionProduct_Hospital(sValidationListAddr As String)
-    Dim sTargetCol As String
-    Dim lMaxRow As Long
-    
-'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
-'                                            , "Column Index", "Column Tech Name=Hospital")
-    
-    sTargetCol = fNum2Letter(PromoteProduct.Hospital)
-    lMaxRow = shtPromotionProduct.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
-    Call fSetValidationListForRange(shtPromotionProduct.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-                                    , sValidationListAddr)
-End Function
+ 
+'Function fSetValidationListForshtPromotionProduct_Hospital(sValidationListAddr As String)
+'    Dim sTargetCol As String
+'    Dim lMaxRow As Long
+'
+'    sTargetCol = fNum2Letter(PromoteProduct.Hospital)
+'    lMaxRow = shtPromotionProduct.Columns(sTargetCol).End(xlDown).Row + 100000
+'    If lMaxRow > Rows.Count Then lMaxRow = 100000
+'    Call fSetValidationListForRange(shtPromotionProduct.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+'                                    , sValidationListAddr)
+'End Function
 
 '----------------------------------------------------------------------------------------
 
@@ -544,18 +505,18 @@ Function fSetValidationListForshtProductMaster_ProductName(sValidationListAddr A
 End Function
 
 
-Function fSetValidationListForshtSalesManCommConfig_ProductName(sValidationListAddr As String)
-    Dim sTargetCol As String
-    Dim lMaxRow As Long
-    
-    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
-                                            , "Column Index", "Column Tech Name=ProductName")
-    
-    lMaxRow = shtSalesManCommConfig.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
-    Call fSetValidationListForRange(shtSalesManCommConfig.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-                                    , sValidationListAddr)
-End Function
+'Function fSetValidationListForshtSalesManCommConfig_ProductName(sValidationListAddr As String)
+'    Dim sTargetCol As String
+'    Dim lMaxRow As Long
+'
+'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
+'                                            , "Column Index", "Column Tech Name=ProductName")
+'
+'    lMaxRow = shtSalesManCommConfig.Columns(sTargetCol).End(xlDown).Row + 100000
+'    If lMaxRow > Rows.Count Then lMaxRow = 100000
+'    Call fSetValidationListForRange(shtSalesManCommConfig.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+'                                    , sValidationListAddr)
+'End Function
 
 Function fSetValidationListForshtFirstLevelCommission_ProductName(sValidationListAddr As String)
     Dim sTargetCol As String
@@ -569,18 +530,6 @@ Function fSetValidationListForshtFirstLevelCommission_ProductName(sValidationLis
     Call fSetValidationListForRange(shtFirstLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
-'Function fSetValidationListForshtSecondLevelCommission_ProductName(sValidationListAddr As String)
-'    Dim sTargetCol As String
-'    Dim lMaxRow As Long
-'
-'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
-'                                            , "Column Index", "Column Tech Name=ProductName")
-'
-'    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
-'    If lMaxRow > Rows.Count Then lMaxRow = 100000
-'    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-'                                    , sValidationListAddr)
-'End Function
 
 Function fSetValidationListForshtProductNameReplace_ProductName(sValidationListAddr As String, Optional iCol As Integer = 0)
     Dim sTargetCol As String
@@ -648,18 +597,18 @@ Function fGetProductSeriesMasterColumnAddress_ProductSeries() As String
     fGetProductSeriesMasterColumnAddress_ProductSeries = sSourceAddr
 End Function
 
-Function fSetValidationListForshtSalesManCommConfig_ProductSeries(sValidationListAddr As String)
-    Dim sTargetCol As String
-    Dim lMaxRow As Long
-    
-    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
-                                            , "Column Index", "Column Tech Name=ProductSeries")
-    
-    lMaxRow = shtSalesManCommConfig.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
-    Call fSetValidationListForRange(shtSalesManCommConfig.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-                                    , sValidationListAddr)
-End Function
+'Function fSetValidationListForshtSalesManCommConfig_ProductSeries(sValidationListAddr As String)
+'    Dim sTargetCol As String
+'    Dim lMaxRow As Long
+'
+'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
+'                                            , "Column Index", "Column Tech Name=ProductSeries")
+'
+'    lMaxRow = shtSalesManCommConfig.Columns(sTargetCol).End(xlDown).Row + 100000
+'    If lMaxRow > Rows.Count Then lMaxRow = 100000
+'    Call fSetValidationListForRange(shtSalesManCommConfig.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+'                                    , sValidationListAddr)
+'End Function
 
 Function fSetValidationListForshtFirstLevelCommission_ProductSeries(sValidationListAddr As String)
     Dim sTargetCol As String
@@ -673,18 +622,6 @@ Function fSetValidationListForshtFirstLevelCommission_ProductSeries(sValidationL
     Call fSetValidationListForRange(shtFirstLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
-'Function fSetValidationListForshtSecondLevelCommission_ProductSeries(sValidationListAddr As String)
-'    Dim sTargetCol As String
-'    Dim lMaxRow As Long
-'
-'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SECOND_LEVEL_COMMISSION]" _
-'                                            , "Column Index", "Column Tech Name=ProductSeries")
-'
-'    lMaxRow = shtSecondLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
-'    If lMaxRow > Rows.Count Then lMaxRow = 100000
-'    Call fSetValidationListForRange(shtSecondLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-'                                    , sValidationListAddr)
-'End Function
 
 Function fSetValidationListForshtProductSeriesReplace_ProductSeries(sValidationListAddr As String)
     Dim sTargetCol As String
@@ -780,10 +717,9 @@ Function fGetSalesManMasterColumnAddress_SalesMan() As String
     Dim sSourceAddr As String
     
     lSalesManColMaxRow = Rows.Count
-    
-    sSalesManCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_MASTER]" _
-                                        , "Column Index", "Column Tech Name=SalesManName")
-
+'    sSalesManCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_MASTER]" _
+'                                        , "Column Index", "Column Tech Name=SalesManName")
+    sSalesManCol = fNum2Letter(enSalesMan.SalesManName)
     sSourceAddr = "=" & shtSalesManMaster.Range(sSalesManCol & 2 & ":" & sSalesManCol & lSalesManColMaxRow).Address(external:=True)
     fGetSalesManMasterColumnAddress_SalesMan = sSourceAddr
 End Function
@@ -793,24 +729,25 @@ Function fSetValidationListForshtSalesManCommConfig_SalesMan(sValidationListAddr
     Dim lMaxRow As Long
     
     '1
-    sSalesManCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
+'    sSalesManCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
                                             , "Column Index", "Column Tech Name=SalesMan1")
-    
+    sSalesManCol = fNum2Letter(SalesManComm.SalesMan1)
     lMaxRow = shtSalesManCommConfig.Columns(sSalesManCol).End(xlDown).Row + 100000
     If lMaxRow > Rows.Count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSalesManCommConfig.Range(sSalesManCol & 2 & ":" & sSalesManCol & lMaxRow), sValidationListAddr)
     
     '2
-    sSalesManCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
-                                            , "Column Index", "Column Tech Name=SalesMan2")
-    
+'    sSalesManCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
+'                                            , "Column Index", "Column Tech Name=SalesMan2")
+    sSalesManCol = fNum2Letter(SalesManComm.SalesMan2)
     lMaxRow = shtSalesManCommConfig.Columns(sSalesManCol).End(xlDown).Row + 100000
     If lMaxRow > Rows.Count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSalesManCommConfig.Range(sSalesManCol & 2 & ":" & sSalesManCol & lMaxRow), sValidationListAddr)
     
     '3
-    sSalesManCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
-                                            , "Column Index", "Column Tech Name=SalesMan3")
+'    sSalesManCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_COMMISSION_CONFIG]" _
+'                                            , "Column Index", "Column Tech Name=SalesMan3")
+    sSalesManCol = fNum2Letter(SalesManComm.SalesMan3)
     
     lMaxRow = shtSalesManCommConfig.Columns(sSalesManCol).End(xlDown).Row + 100000
     If lMaxRow > Rows.Count Then lMaxRow = 100000

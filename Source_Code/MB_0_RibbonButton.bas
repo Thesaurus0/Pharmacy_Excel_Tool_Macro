@@ -549,6 +549,7 @@ Sub Sub_DataMigration()
                             , shtSalesCompRolloverInv _
                             , shtProductTaxRate _
                             , shtPromotionProduct _
+                            , shtSellPriceInAdv _
                               )
 
     sOldFile = fSelectFileDialog(, "Macro File=*.xlsm", "Old Version With Latest User Data")
@@ -578,8 +579,8 @@ Sub Sub_DataMigration()
         
         Call fWriteArray2Sheet(shtTargetEach, arrSource)
         
-        If UBound(arrSource, 1) - LBound(arrSource, 1) + 2 <> fGetValidMaxRow(shtTargetEach) Then
-            fErr "UBound(arrSource, 1) - LBound(arrSource, 1) + 2 <> fGetValidMaxRow(shtTargetEach)"
+        If ArrLen(arrSource, 1) + 1 <> fGetValidMaxRow(shtTargetEach) Then
+            fErr "ArrLen(arrSource, 1) + 1 <> fGetValidMaxRow(shtTargetEach): " & ArrLen(arrSource, 1) + 1 & " <> " & fGetValidMaxRow(shtTargetEach)
         End If
         
         Erase arrSource
@@ -1171,9 +1172,9 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "商业公司", "医院", "药品厂家", "药品名称", "药品规格", "基础版本 配送费", "新版本中 配送费", "", "", ""), 1)
             
             '========================================
-            Set dictBase = fReadArray2DictionaryWithMultipleKeyColsSingleItemCol(arrBase, Array(1, 2, 3, 4, 5), 6, DELIMITER, True, False)
-            Set dictThis = fReadArray2DictionaryWithMultipleKeyColsSingleItemCol(arrThis, Array(1, 2, 3, 4, 5), 6, DELIMITER, True, False)
-            Set dictDiff = fCompareDictionaryKeysAndSingleItem(dictBase, dictThis)
+            Set dictBase = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrBase, Array(1, 2, 3, 4, 5), Array(6, 7), DELIMITER, True, False)
+            Set dictThis = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrThis, Array(1, 2, 3, 4, 5), Array(6, 7), DELIMITER, True, False)
+            Set dictDiff = fCompareDictionaryKeysAndMultipleItems(dictBase, dictThis)
             arrDiff = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictDiff, , False)
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
@@ -1233,7 +1234,6 @@ Sub subMain_CompareChangeWithPrevVersion()
             If dictDiff.Count > 0 Then _
             shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         End If
-        
         
         Erase arrBase
         Erase arrThis

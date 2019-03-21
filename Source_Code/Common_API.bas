@@ -14,11 +14,11 @@ Public Const MAXSIZE = 4096
         Declare PtrSafe Function GlobalUnlock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
         Declare PtrSafe Function GlobalLock Lib "kernel32" (ByVal hMem As LongPtr) As LongPtr
         Declare PtrSafe Function GlobalAlloc Lib "kernel32" (ByVal wFlags As Long, ByVal dwBytes As LongPtr) As LongPtr
-        Declare PtrSafe Function CloseClipboard Lib "user32" () As Long
-        Declare PtrSafe Function OpenClipboard Lib "user32" (ByVal hWnd As LongPtr) As LongPtr
-        Declare PtrSafe Function EmptyClipboard Lib "user32" () As Long
+        Declare PtrSafe Function CloseClipboard Lib "User32" () As Long
+        Declare PtrSafe Function OpenClipboard Lib "User32" (ByVal hwnd As LongPtr) As LongPtr
+        Declare PtrSafe Function EmptyClipboard Lib "User32" () As Long
         Declare PtrSafe Function lstrcpy Lib "kernel32" (ByVal lpString1 As Any, ByVal lpString2 As Any) As LongPtr
-        Declare PtrSafe Function SetClipboardData Lib "user32" (ByVal wFormat As Long, ByVal hMem As LongPtr) As LongPtr
+        Declare PtrSafe Function SetClipboardData Lib "User32" (ByVal wFormat As Long, ByVal hMem As LongPtr) As LongPtr
         
         Declare PtrSafe Function IsClipboardFormatAvailable Lib "user32.dll" (ByVal wFormat As LongPtr) As LongPtr
         Declare PtrSafe Function GetClipboardData Lib "user32.dll" (ByVal wFormat As LongPtr) As LongPtr
@@ -31,7 +31,7 @@ Public Const MAXSIZE = 4096
         Declare Function OpenClipboard Lib "User32" (ByVal hwnd As Long) As Long
         Declare Function EmptyClipboard Lib "User32" () As Long
         Declare Function lstrcpy Lib "kernel32" (ByVal lpString1 As Any, ByVal lpString2 As Any) As Long
-        Declare Function SetClipboardData Lib "User32" (ByVal wFormat  As Long, ByVal hMem As Long) As Long
+        Declare Function SetClipboardData Lib "User32" (ByVal wFormat As Long, ByVal hMem As Long) As Long
         Declare Function IsClipboardFormatAvailable Lib "user32.dll" (ByVal wFormat As Long) As Long
         Declare Function GetClipboardData Lib "user32.dll" (ByVal wFormat As Long) As Long
         Declare Function GlobalSize Lib "kernel32" (ByVal hMem As Long) As Long

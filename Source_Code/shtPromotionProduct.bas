@@ -21,6 +21,7 @@ Enum PromoteProduct
     PurchaseTaxRate = 8
     SalesCompany = 9
     SecLevelComm = 10
+    CommForRefund = 11
 End Enum
 
 Private Sub btnValidate_Click()
@@ -127,20 +128,21 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     Call fReadSysConfig_InputTxtSheetFile
     
     Call fRemoveFilterForSheet(Me)
-    Call fReadSheetDataByConfig("PROMOTION_PRODUCTS_CONFIG", dictColIndex, arrData, , , , , Me)
+    'Call fReadSheetDataByConfig("PROMOTION_PRODUCTS_CONFIG", dictColIndex, arrData, , , , , Me)
+    Call fCopyReadWholeSheetData2Array(Me, arrData)
     
-    Call fValidateDuplicateInArray(arrData, Array(dictColIndex("ProductProducer") _
-                                                , dictColIndex("ProductName") _
-                                                , dictColIndex("ProductSeries")) _
+    Call fValidateDuplicateInArray(arrData, Array(PromoteProduct.ProductProducer _
+                                                , PromoteProduct.ProductName _
+                                                , PromoteProduct.ProductSeries) _
                 , False, Me, 1, 1, " 厂家+名称+规格")
 
-    Call fValidateBlankInArray(arrData, dictColIndex("ProductProducer"), Me, 1, 1, "药品厂家")
-    Call fValidateBlankInArray(arrData, dictColIndex("ProductName"), Me, 1, 1, "药品名称")
-    Call fValidateBlankInArray(arrData, dictColIndex("ProductSeries"), Me, 1, 1, "药品规格")
+    Call fValidateBlankInArray(arrData, PromoteProduct.ProductProducer, Me, 1, 1, "药品厂家")
+    Call fValidateBlankInArray(arrData, PromoteProduct.ProductName, Me, 1, 1, "药品名称")
+    Call fValidateBlankInArray(arrData, PromoteProduct.ProductSeries, Me, 1, 1, "药品规格")
     
-    Call fCheckIfProducerExistsInProducerMaster(arrData, dictColIndex("ProductProducer"), , lErrRowNo, lErrColNo)
-    Call fCheckIfProductNameExistsInProductNameMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), "", lErrRowNo, lErrColNo)
-    Call fCheckIfProductExistsInProductMaster(arrData, dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), lErrRowNo, lErrColNo)
+    Call fCheckIfProducerExistsInProducerMaster(arrData, PromoteProduct.ProductProducer, , lErrRowNo, lErrColNo)
+    Call fCheckIfProductNameExistsInProductNameMaster(arrData, PromoteProduct.ProductProducer, PromoteProduct.ProductName, "", lErrRowNo, lErrColNo)
+    Call fCheckIfProductExistsInProductMaster(arrData, PromoteProduct.ProductProducer, PromoteProduct.ProductName, PromoteProduct.ProductSeries, lErrRowNo, lErrColNo)
     
     If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 保存成功", vbInformation: ThisWorkbook.Save
 exit_sub:
@@ -156,7 +158,7 @@ exit_sub:
     End If
     If lErrRowNo > 0 Then
         fShowAndActiveSheet Me
-        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
+        Application.GoTo Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
 End Function
 

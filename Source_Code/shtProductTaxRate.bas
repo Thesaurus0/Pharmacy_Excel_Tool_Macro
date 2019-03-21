@@ -145,7 +145,7 @@ exit_sub:
     End If
     If lErrRowNo > 0 Then
         fShowAndActiveSheet Me
-        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
+        Application.GoTo Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
 End Function
 

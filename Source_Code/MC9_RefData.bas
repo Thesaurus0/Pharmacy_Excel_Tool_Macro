@@ -32,7 +32,6 @@ Dim dictSalesManMaster As Dictionary
 
 Dim dictFirstLevelComm As Dictionary
 Dim dictSecondLevelComm As Dictionary
-
 Dim dictCompanyNameID As Dictionary
 
 Dim dictDefaultCommConfiged As Dictionary
@@ -44,7 +43,7 @@ Dim dictSelfSalesColIndex As Dictionary
 Dim arrSelfSales()
 
 Dim dictSalesManCommFrom As Dictionary
-Dim dictSalesManCommColIndex As Dictionary
+'Dim dictSalesManCommColIndex As Dictionary
 Dim arrSalesManComm()
 
 Dim dictExcludeProducts As Dictionary
@@ -75,7 +74,7 @@ Function fClearRefVariables()
     Set dictSelfSalesDeduct = Nothing
     Set dictSelfSalesColIndex = Nothing
     Set dictSalesManCommFrom = Nothing
-    Set dictSalesManCommColIndex = Nothing
+    'Set dictSalesManCommColIndex = Nothing
     Set dictExcludeProducts = Nothing
     Set dictProdTaxRate = Nothing
     Set dictNewRuleProducts = Nothing
@@ -451,35 +450,26 @@ End Function
 '====================== 2nd Level Commission =================================================================
 Function fReadSheetSecondLevelComm2Dictionary()
     Dim arrData()
-'    Dim dictColIndex As Dictionary
-    
-'    Call fReadSheetDataByConfig("SECOND_LEVEL_COMMISSION", dictColIndex, arrData, , , , , shtSecondLevelCommission)
-'    Set dictSecondLevelComm = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
-'            , Array(dictColIndex("SalesCompany") _
-'                  , dictColIndex("Hospital") _
-'                  , dictColIndex("ProductProducer") _
-'                  , dictColIndex("ProductName") _
-'                  , dictColIndex("ProductSeries")) _
-'            , Array(dictColIndex("Commission")), DELIMITER, DELIMITER)
-
     Call fCopyReadWholeSheetData2Array(shtSecondLevelCommission, arrData)
     Set dictSecondLevelComm = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
             , Array(SecondLevelComm.SalesCompany, SecondLevelComm.Hospital _
                   , SecondLevelComm.ProductProducer, SecondLevelComm.ProductName, SecondLevelComm.ProductSeries) _
-            , Array(SecondLevelComm.Commission), DELIMITER, DELIMITER)
+            , Array(SecondLevelComm.Commission, SecondLevelComm.CommForRefund), DELIMITER, DELIMITER)
     
     'Application.Run shtSelfSalesA.Range("D1") & shtSelfSalesA.Range("E1") & shtSelfSalesA.Range("F1") & shtSelfSalesA.Range("G1")
     'Set dictColIndex = Nothing
 End Function
-Function fGetSecondLevelComm(sSecondLevelCommKey As String, ByRef dblSecondComm As Double) As Boolean
+Function fGetSecondLevelComm(sSecondLevelCommKey As String, ByRef dblSecondComm As Double, Optional ByRef dblCommForRefund As Double) As Boolean
     If dictSecondLevelComm Is Nothing Then Call fReadSheetSecondLevelComm2Dictionary
     
     If dictSecondLevelComm.Exists(sSecondLevelCommKey) Then
-        dblSecondComm = dictSecondLevelComm(sSecondLevelCommKey)
+        dblSecondComm = Split(dictSecondLevelComm(sSecondLevelCommKey), DELIMITER)(0)
+        dblCommForRefund = Split(dictSecondLevelComm(sSecondLevelCommKey), DELIMITER)(0)
         
         fGetSecondLevelComm = True
     Else
         dblSecondComm = 0
+        dblCommForRefund = 0
         fGetSecondLevelComm = False
     End If
 End Function
@@ -1013,23 +1003,28 @@ Function fReadSalesManCommissionConfig2Dictionary()
     Dim dictSalesManCommTo As Dictionary
     Dim dblBidPrice As Double
     Dim lEachRow As Long
-
-    Call fSortDataInSheetSortSheetDataByFileSpec("SALESMAN_COMMISSION_CONFIG", Array("SalesCompany", "Hospital", "ProductProducer" _
-                                    , "ProductName" _
-                                    , "ProductSeries" _
-                                    , "BidPrice"), , shtSalesManCommConfig)
     
-    Call fReadSheetDataByConfig("SALESMAN_COMMISSION_CONFIG", dictSalesManCommColIndex, arrSalesManComm, , , , , shtSalesManCommConfig)
+    Call fSortDataInSheetSortSheetData(shtSalesManCommConfig _
+                        , Array(SalesManComm.SalesCompany, SalesManComm.Hospital _
+                              , SalesManComm.ProductProducer, SalesManComm.ProductName, SalesManComm.ProductSeries _
+                              , SalesManComm.BidPrice))
+'    Call fSortDataInSheetSortSheetDataByFileSpec("SALESMAN_COMMISSION_CONFIG", Array("SalesCompany", "Hospital", "ProductProducer" _
+'                                    , "ProductName" _
+'                                    , "ProductSeries" _
+'                                    , "BidPrice"), , shtSalesManCommConfig)
+    
+    'Call fReadSheetDataByConfig("SALESMAN_COMMISSION_CONFIG", dictSalesManCommColIndex, arrSalesManComm, , , , , shtSalesManCommConfig)
+    Call fCopyReadWholeSheetData2Array(shtSalesManCommConfig, arrSalesManComm)
     
     Set dictSalesManCommTo = New Dictionary
     Set dictSalesManCommFrom = New Dictionary
     For lEachRow = LBound(arrSalesManComm, 1) To UBound(arrSalesManComm, 1)
-        sSalesCompany = Trim(arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesCompany")))
-        sHospital = Trim(arrSalesManComm(lEachRow, dictSalesManCommColIndex("Hospital")))
-        sProducer = Trim(arrSalesManComm(lEachRow, dictSalesManCommColIndex("ProductProducer")))
-        sProductName = Trim(arrSalesManComm(lEachRow, dictSalesManCommColIndex("ProductName")))
-        sProductSeries = Trim(arrSalesManComm(lEachRow, dictSalesManCommColIndex("ProductSeries")))
-        dblBidPrice = arrSalesManComm(lEachRow, dictSalesManCommColIndex("BidPrice"))
+        sSalesCompany = Trim(arrSalesManComm(lEachRow, SalesManComm.SalesCompany))
+        sHospital = Trim(arrSalesManComm(lEachRow, SalesManComm.Hospital))
+        sProducer = Trim(arrSalesManComm(lEachRow, SalesManComm.ProductProducer))
+        sProductName = Trim(arrSalesManComm(lEachRow, SalesManComm.ProductName))
+        sProductSeries = Trim(arrSalesManComm(lEachRow, SalesManComm.ProductSeries))
+        dblBidPrice = arrSalesManComm(lEachRow, SalesManComm.BidPrice)
         
         sTmpKey = sSalesCompany & DELIMITER & sHospital & DELIMITER _
                 & sProducer & DELIMITER & sProductName & DELIMITER & sProductSeries & DELIMITER & dblBidPrice
@@ -1087,34 +1082,34 @@ Function fCalculateSalesManCommissionFromshtSalesManCommConfig(sSalesManKey As S
 '        iSalesManCnt = iSalesManCnt + 1
         
 '        If iSalesManCnt = 1 Then
-'            sSalesMan_1 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan"))
-'            dblComm_1 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission"))
+'            sSalesMan_1 = arrSalesManComm(lEachRow, SalesManComm.SalesMan"))
+'            dblComm_1 = arrSalesManComm(lEachRow, SalesManComm.Commission"))
 '        ElseIf iSalesManCnt = 2 Then
-'            sSalesMan_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan"))
-'            dblComm_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission"))
+'            sSalesMan_2 = arrSalesManComm(lEachRow, SalesManComm.SalesMan"))
+'            dblComm_2 = arrSalesManComm(lEachRow, SalesManComm.Commission"))
 '        ElseIf iSalesManCnt = 3 Then
-'            sSalesMan_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan"))
-'            dblComm_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission"))
+'            sSalesMan_3 = arrSalesManComm(lEachRow, SalesManComm.SalesMan"))
+'            dblComm_3 = arrSalesManComm(lEachRow, SalesManComm.Commission"))
 '        Else
 '            fErr "最多只能有3个业务员，请从【业务员佣金表】中删除一个。" & vbCr & sSalesManKey & vbCr & "行号：" & lEachRow + 1
 '        End If
 
-        sSalesMan_1 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan1"))
-        dblComm_1 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission1"))
-        sSalesMan_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan2"))
-        dblComm_2 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission2"))
-        sSalesMan_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan3"))
-        dblComm_3 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission3"))
+        sSalesMan_1 = arrSalesManComm(lEachRow, SalesManComm.SalesMan1)
+        dblComm_1 = arrSalesManComm(lEachRow, SalesManComm.Commission1)
+        sSalesMan_2 = arrSalesManComm(lEachRow, SalesManComm.SalesMan2)
+        dblComm_2 = arrSalesManComm(lEachRow, SalesManComm.Commission2)
+        sSalesMan_3 = arrSalesManComm(lEachRow, SalesManComm.SalesMan3)
+        dblComm_3 = arrSalesManComm(lEachRow, SalesManComm.Commission3)
         
-        sSalesMan_4 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan4"))
-        dblComm_4 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission4"))
-        sSalesMan_5 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan5"))
-        dblComm_5 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission5"))
-        sSalesMan_6 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesMan6"))
-        dblComm_6 = arrSalesManComm(lEachRow, dictSalesManCommColIndex("Commission6"))
+        sSalesMan_4 = arrSalesManComm(lEachRow, SalesManComm.SalesMan4)
+        dblComm_4 = arrSalesManComm(lEachRow, SalesManComm.Commission4)
+        sSalesMan_5 = arrSalesManComm(lEachRow, SalesManComm.SalesMan5)
+        dblComm_5 = arrSalesManComm(lEachRow, SalesManComm.Commission5)
+        sSalesMan_6 = arrSalesManComm(lEachRow, SalesManComm.SalesMan6)
+        dblComm_6 = arrSalesManComm(lEachRow, SalesManComm.Commission6)
         
-        sSalesManager = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesManager"))
-        dblSalesMgrComm = arrSalesManComm(lEachRow, dictSalesManCommColIndex("SalesManagerCommission"))
+        sSalesManager = arrSalesManComm(lEachRow, SalesManComm.SalesManager)
+        dblSalesMgrComm = arrSalesManComm(lEachRow, SalesManComm.ManagerCommRatio)
     Next
     
 exit_fun:
@@ -1237,8 +1232,9 @@ Function fReadSheetSalesManMaster2Dictionary()
     Dim arrData()
     Dim dictColIndex As Dictionary
     
-    Call fReadSheetDataByConfig("SALESMAN_MASTER_SHEET", dictColIndex, arrData, , , , , shtSalesManMaster)
-    Set dictSalesManMaster = fReadArray2DictionaryOnlyKeys(arrData, dictColIndex("SalesManName"), True, False)
+    'Call fReadSheetDataByConfig("SALESMAN_MASTER_SHEET", dictColIndex, arrData, , , , , shtSalesManMaster)
+    Call fCopyReadWholeSheetData2Array(shtSalesManMaster, arrData)
+    Set dictSalesManMaster = fReadArray2DictionaryOnlyKeys(arrData, enSalesMan.SalesManName, True, False)
     
     Set dictColIndex = Nothing
 End Function
@@ -1414,23 +1410,24 @@ Function fReadSheetPromotionProducts2Dictionary()
     Dim arrData()
     Dim dictColIndex As Dictionary
 
-    Call fReadSheetDataByConfig("PROMOTION_PRODUCTS_CONFIG", dictColIndex, arrData, , , , , shtPromotionProduct)
-    Call fValidateDuplicateInArray(arrData, Array(dictColIndex("Hospital"), dictColIndex("ProductProducer") _
-                , dictColIndex("ProductName"), dictColIndex("ProductSeries"), dictColIndex("SalesPrice")) _
+    'Call fReadSheetDataByConfigPROMOTION_PRODUCTS_CONFIG", dictColIndex, arrData, , , , , shtPromotionProduct)
+    Call fCopyReadWholeSheetData2Array(shtPromotionProduct, arrData)
+    Call fValidateDuplicateInArray(arrData, Array(PromoteProduct.Hospital, PromoteProduct.ProductProducer _
+                , PromoteProduct.ProductName, PromoteProduct.ProductSeries, PromoteProduct.SalesPrice) _
                 , False, shtPromotionProduct, 1, 1, "医院 + 药品生产厂家 + 药品名称 + 规格 + 中标价")
 '    Set dictPromotionProducts = fReadArray2DictionaryWithMultipleKeyColsSingleItemCol(arrData _
-'                                    , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName") _
-'                                    , dictColIndex("ProductSeries"), dictColIndex("SalesPrice"), dictColIndex("Hospital")) _
-'                                    , dictColIndex("Rebate"), DELIMITER)
+'                                    , Array(dictColIndexProductProducer"), dictColIndexProductName") _
+'                                    , dictColIndexProductSeries"), dictColIndexSalesPrice"), dictColIndexHospital")) _
+'                                    , dictColIndexRebate"), DELIMITER)
     Set dictPromotionProducts = fReadArray2DictionaryMultipleKeysWithMultipleColsCombined(arrData _
-                                    , Array(dictColIndex("ProductProducer"), dictColIndex("ProductName"), dictColIndex("ProductSeries"), dictColIndex("SalesPrice"), dictColIndex("Hospital"), dictColIndex("SalesCompany")) _
-                                    , Array(dictColIndex("Rebate"), dictColIndex("SalesTaxRate"), dictColIndex("PurchaseTaxRate"), dictColIndex("SecondLevelComm")) _
-                                    , DELIMITER, DELIMITER, True, True) ', dictColIndex("ProdProducerRefundRate")
+                                    , Array(PromoteProduct.ProductProducer, PromoteProduct.ProductName, PromoteProduct.ProductSeries, PromoteProduct.SalesPrice, PromoteProduct.Hospital, PromoteProduct.SalesCompany) _
+                                    , Array(PromoteProduct.Rebate, PromoteProduct.SalesTaxRate, PromoteProduct.PurchaseTaxRate, PromoteProduct.SecLevelComm, PromoteProduct.CommForRefund) _
+                                    , DELIMITER, DELIMITER, True, True) ', dictColIndexProdProducerRefundRate")
     Set dictColIndex = Nothing
 End Function
 Function fIsPromotionProduct(sHospital As String, sProductKey As String, dblSalesPrice As Double, sSalesCompany As String _
                           , ByRef dblPromPrdRebate As Double, ByRef dblSalesTaxRate As Double _
-                          , ByRef dblPurchaseTaxRate As Double, ByRef dblSecondLevelComm As Double) As Boolean  ', ByRef dblProdProducerRefundRate As Double
+                          , ByRef dblPurchaseTaxRate As Double, ByRef dblSecondLevelComm As Double, Optional ByRef dblCommForRefund As Double) As Boolean  ', ByRef dblProdProducerRefundRate As Double
     Dim sKey As String
     Dim bOut As Boolean
     
@@ -1439,6 +1436,7 @@ Function fIsPromotionProduct(sHospital As String, sProductKey As String, dblSale
     dblSalesTaxRate = 0
     dblPurchaseTaxRate = 0
     dblSecondLevelComm = 0
+    dblCommForRefund = 0
 '    dblProdProducerRefundRate = 0
     If dictPromotionProducts Is Nothing Then fReadSheetPromotionProducts2Dictionary
     
@@ -1471,6 +1469,7 @@ Got_n_Exit:
         dblSalesTaxRate = val(Split(dictPromotionProducts(sKey), DELIMITER)(1))
         dblPurchaseTaxRate = val(Split(dictPromotionProducts(sKey), DELIMITER)(2))
         dblSecondLevelComm = val(Split(dictPromotionProducts(sKey), DELIMITER)(3))
+        dblCommForRefund = val(Split(dictPromotionProducts(sKey), DELIMITER)(4))
         'dblProdProducerRefundRate = val(Split(dictPromotionProducts(sKey), DELIMITER)(4))
     End If
     fIsPromotionProduct = bOut

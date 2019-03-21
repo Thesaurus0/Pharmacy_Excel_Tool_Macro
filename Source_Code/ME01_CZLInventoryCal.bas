@@ -115,7 +115,7 @@ Sub subMain_CalCZLInventory()
 '    fBasicCosmeticFormatSheet shtCZLInventory
 '    fSetBorderLineForSheet shtCZLInventory
     fActiveVisibleSwitchSheet shtCZLInventory, , False
-    Application.Goto shtCZLInventory.Range("A2"), True
+    Application.GoTo shtCZLInventory.Range("A2"), True
     
     fSortDataInSheetSortSheetData shtCZLInventory, Array(CZLInv.ProductProducer, CZLInv.ProductName, CZLInv.ProductSeries)
     

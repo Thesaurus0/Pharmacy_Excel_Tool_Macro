@@ -53,7 +53,7 @@ Sub subMain_CompareSalesCompanyInventory()
     shtSalesCompInvDiff.Rows(1).RowHeight = 25
     shtSalesCompInvDiff.Visible = xlSheetVisible
     shtSalesCompInvDiff.Activate
-    Application.Goto shtSalesCompInvDiff.Range("A2"), True
+    Application.GoTo shtSalesCompInvDiff.Range("A2"), True
 error_handling:
     If fCheckIfGotBusinessError Then
         GoTo reset_excel_options

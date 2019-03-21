@@ -1,6 +1,6 @@
 Attribute VB_Name = "Ä£¿é2"
 Option Explicit
-Private Declare PtrSafe Function OpenClipboard Lib "user32.dll" (ByVal hWnd As Long) As Long
+Private Declare PtrSafe Function OpenClipboard Lib "user32.dll" (ByVal hwnd As Long) As Long
 Private Declare PtrSafe Function EmptyClipboard Lib "user32.dll" () As Long
 Private Declare PtrSafe Function CloseClipboard Lib "user32.dll" () As Long
 Private Declare PtrSafe Function IsClipboardFormatAvailable Lib "user32.dll" (ByVal wFormat As Long) As Long

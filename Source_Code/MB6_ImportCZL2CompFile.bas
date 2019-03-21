@@ -75,7 +75,7 @@ Sub subMain_ImportCZL2CompanySalesFile()
     
     shtCZLSales2CompRawData.Rows(1).RowHeight = 25
     fShowAndActiveSheet shtCZLSales2CompRawData
-    Application.Goto shtCZLSales2CompRawData.Range("A2"), True
+    Application.GoTo shtCZLSales2CompRawData.Range("A2"), True
     
     Call fModifyMoveActiveXButtonOnSheet(shtCZLSales2CompRawData.Cells(1, fGetValidMaxCol(shtCZLSales2CompRawData) + 1) _
                                         , "btnReplaceUnify", 1, 1, , 25, RGB(255, 20, 134), RGB(255, 255, 255))

@@ -17,8 +17,9 @@ Enum SecondLevelComm
     ProductName = 4
     ProductSeries = 5
     Commission = 6
+    CommForRefund = 7
     [_first] = SalesCompany
-    [_last] = Commission
+    [_last] = CommForRefund
 End Enum
 
 Private Sub btnShtSecondLevelValidation_Click()
@@ -160,7 +161,7 @@ exit_sub:
     End If
     If lErrRowNo > 0 Then
         fShowAndActiveSheet Me
-        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
+        Application.GoTo Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
     
     If Err.Number <> 0 And Err.Number <> gErrNum Then fMsgBox Err.Description

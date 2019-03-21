@@ -10,6 +10,11 @@ Attribute VB_Exposed = True
 Option Explicit
 Option Base 1
 
+Enum enSalesMan
+    SalesManName = 1
+    SalesManager = 2
+    Comment = 3
+End Enum
 
 Private Sub btnValidate_Click()
     Call fValidateSheet
@@ -22,15 +27,16 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
     
     
     Dim arrData()
-    Dim dictColIndex As Dictionary
+'    Dim dictColIndex As Dictionary
     
-    fInitialization
-    gsRptID = "CALCULATE_PROFIT"
-    Call fReadSysConfig_InputTxtSheetFile
+'    fInitialization
+'    gsRptID = "CALCULATE_PROFIT"
+'    Call fReadSysConfig_InputTxtSheetFile
     
-    Call fReadSheetDataByConfig("SALESMAN_MASTER_SHEET", dictColIndex, arrData, , , , , Me)
+    'Call fReadSheetDataByConfig("SALESMAN_MASTER_SHEET", dictColIndex, arrData, , , , , Me)
+    Call fCopyReadWholeSheetData2Array(Me, arrData)
     
-    Call fValidateDuplicateInArray(arrData, dictColIndex("SalesManName"), False, Me, 1, 1, "业务员姓名")
+    Call fValidateDuplicateInArray(arrData, enSalesMan.SalesManName, False, Me, 1, 1, "业务员姓名")
 '    Call fValidateBlankInArray(arrData, dictColIndex("ProductProducer"), Me, 1, 1, "药品厂家")
 '
 '    Dim lEachRow As Long
@@ -41,11 +47,11 @@ Function fValidateSheet(Optional bErrMsgBox As Boolean = True) As Boolean
 '        End If
 '    Next
     
-    Call fSortDataInSheetSortSheetData(Me, dictColIndex("SalesManName"))
+    Call fSortDataInSheetSortSheetData(Me, enSalesMan.SalesManName)
                                                 
     If bErrMsgBox Then fMsgBox "[" & Me.Name & "]表 保存成功", vbInformation: ThisWorkbook.Save
 exit_sub:
-    Set dictColIndex = Nothing
+'    Set dictColIndex = Nothing
     fEnableExcelOptionsAll
     Erase arrData
     

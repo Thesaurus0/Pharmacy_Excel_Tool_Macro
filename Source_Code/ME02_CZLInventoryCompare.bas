@@ -55,7 +55,7 @@ Sub subMain_CompareCZLInventory()
     shtCZLInvDiff.Rows(1).RowHeight = 25
     shtCZLInvDiff.Visible = xlSheetVisible
     shtCZLInvDiff.Activate
-    Application.Goto shtCZLInvDiff.Range("A" & fGetValidMaxRow(shtCZLInvDiff)), True
+    Application.GoTo shtCZLInvDiff.Range("A" & fGetValidMaxRow(shtCZLInvDiff)), True
 error_handling:
     If fCheckIfUnCapturedExceptionAbnormalError Then GoTo reset_excel_options
     
