@@ -237,7 +237,7 @@ Function fReadConfigBlockToArray(asTag As String, shtParam As Worksheet, arrCols
         End If
     End If
     
-    Set rngToFindIn = fGetRangeByStartEndPos(shtParam, lConfigStartRow, lConfigStartCol, lConfigEndRow, Columns.Count)
+    Set rngToFindIn = fGetRangeByStartEndPos(shtParam, lConfigStartRow, lConfigStartCol, lConfigEndRow, Columns.count)
     Call fFindAllColumnsIndexByColNames(rngToFindIn, arrColsName, arrColsIndex, lOutConfigHeaderAtRow)
     
     Dim lColsMinCol As Long
@@ -270,7 +270,7 @@ Function fFindRageOfFileSpecConfigBlock(sFileSpecTag As String) As Range
     Dim lConfigEndRow As Long
     
     Call fReadConfigBlockStartEnd(sFileSpecTag, shtFileSpec, lConfigStartRow, lConfigStartCol, lConfigEndRow)
-    Set fFindRageOfFileSpecConfigBlock = fGetRangeByStartEndPos(shtFileSpec, lConfigStartRow, lConfigStartCol, lConfigEndRow, Columns.Count)
+    Set fFindRageOfFileSpecConfigBlock = fGetRangeByStartEndPos(shtFileSpec, lConfigStartRow, lConfigStartCol, lConfigEndRow, Columns.count)
 End Function
 'Function fReadConfigBlockStartEnd(sFileSpecTag As String, rngToFindIn As Range
 Function fReadConfigBlockStartEnd(sFileSpecTag As String, shtParam As Worksheet _
@@ -596,7 +596,7 @@ Function fReadSysConfig_InputTxtSheetFile(Optional asReportID As String = "")
     Dim sDependantFileOrSheet As String
     Dim sFileSpec As String
     
-    For i = 0 To gDictInputFiles.Count - 1
+    For i = 0 To gDictInputFiles.count - 1
         sFileTag = gDictInputFiles.Keys(i)
         sSource = fGetInputFileSourceType(sFileTag)
         
@@ -909,7 +909,7 @@ Function fReadOutputFileSpecConfig(asTag As String _
             
             lColLetter2Num = fLetter2Num(sColLetterIndex)
             
-            If lColLetter2Num <= 0 Or lColLetter2Num > Columns.Count Then
+            If lColLetter2Num <= 0 Or lColLetter2Num > Columns.count Then
                 fErr "Col Letter Index is invalid,should be A - XFD: " & Replace(sPos, "$ACTUAL_ROW$", lActualRow) & arrColsName(3)
             End If
             
@@ -939,7 +939,7 @@ next_row:
     Dim lNextCol As Long
     lNextCol = WorksheetFunction.Max(dictColsIndex.Items)
     
-    For lEachRow = 0 To dictColAttr.Count - 1
+    For lEachRow = 0 To dictColAttr.count - 1
         If dictColAttr.Items(lEachRow) = "NOT_SHOW_UP" Then
             lNextCol = lNextCol + 1
             dictColsIndex(dictColAttr.Keys(lEachRow)) = lNextCol
@@ -959,7 +959,7 @@ Function fCrossValidateInputFileTxtSheetFile()
     Dim sDependantSheet As String
     Dim lActualRow As Long
     
-    For i = 0 To gDictInputFiles.Count - 1
+    For i = 0 To gDictInputFiles.count - 1
         sFileTag = gDictInputFiles.Keys(i)
         sSource = fGetInputFileSourceType(sFileTag)
         
@@ -978,7 +978,7 @@ Function fCrossValidateInputFileTxtSheetFile()
     Next
     
     If Not gDictTxtFileSpec Is Nothing Then
-        For i = 0 To gDictTxtFileSpec.Count - 1
+        For i = 0 To gDictTxtFileSpec.count - 1
             sFileTag = gDictTxtFileSpec.Keys(i)
             
             If Not gDictInputFiles.Exists(sFileTag) Then

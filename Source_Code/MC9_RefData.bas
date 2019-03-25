@@ -709,11 +709,11 @@ next_row:
 '                    & DELIMITER & dictReverseTo.Items(lEachRow)
 '    Next
     
-    For lEachRow = 0 To dictSelfSalesDeduct.Count - 1
+    For lEachRow = 0 To dictSelfSalesDeduct.count - 1
         dictSelfSalesDeduct(dictSelfSalesDeduct.Keys(lEachRow)) = dictSelfSalesDeduct.Items(lEachRow) _
                     & DELIMITER & dictDeductTo.Items(lEachRow)
     Next
-    For lEachRow = 0 To dictSelfSalesMinus.Count - 1
+    For lEachRow = 0 To dictSelfSalesMinus.count - 1
         dictSelfSalesMinus(dictSelfSalesMinus.Keys(lEachRow)) = dictSelfSalesMinus.Items(lEachRow) _
                     & DELIMITER & dictMinusTo.Items(lEachRow)
     Next
@@ -1038,7 +1038,7 @@ Function fReadSalesManCommissionConfig2Dictionary()
 next_row:
     Next
     
-    For lEachRow = 0 To dictSalesManCommFrom.Count - 1
+    For lEachRow = 0 To dictSalesManCommFrom.count - 1
         dictSalesManCommFrom(dictSalesManCommFrom.Keys(lEachRow)) = dictSalesManCommFrom.Items(lEachRow) _
                     & DELIMITER & dictSalesManCommTo.Items(lEachRow)
     Next

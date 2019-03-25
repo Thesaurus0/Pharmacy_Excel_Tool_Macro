@@ -25,7 +25,7 @@ Function fFindInWorksheet(rngToFindIn As Range, sWhatToFind As String _
     Dim sFirstAddress As String
     
     Set rngFound = rngToFindIn.Find(What:=sWhatToFind _
-                                    , after:=rngToFindIn.Cells(rngToFindIn.Rows.Count, rngToFindIn.Columns.Count) _
+                                    , after:=rngToFindIn.Cells(rngToFindIn.Rows.count, rngToFindIn.Columns.count) _
                                     , LookIn:=xlValues _
                                     , LookAt:=xlWhole _
                                     , SearchOrder:=xlByRows _
@@ -357,7 +357,7 @@ Function fDeleteBlankRowsFromSheet(sht As Worksheet)
     Dim lUsedRangMaxRow As Long
     Dim lValidMaxRow As Long
     
-    lUsedRangMaxRow = sht.UsedRange.Row + sht.UsedRange.Rows.Count - 1
+    lUsedRangMaxRow = sht.UsedRange.Row + sht.UsedRange.Rows.count - 1
     lValidMaxRow = fGetValidMaxRow(sht)
     
     If lUsedRangMaxRow > lValidMaxRow Then
@@ -701,27 +701,27 @@ Function fModifyMoveActiveXButtonOnSheet(rngToPlaceTheButton As Range, sBtnTechN
     
     If obj Is Nothing Then fErr "Button " & sBtnTechName & " cannot be found in sheet " & sht.Name
     
-    If dblWidth = 0 Then dblWidth = obj.Width
-    If dblHeight = 0 Then dblHeight = obj.Height
+    If dblWidth = 0 Then dblWidth = obj.width
+    If dblHeight = 0 Then dblHeight = obj.height
     
     Dim offsetLeft As Double
     If dblOffsetLeft = 0 Then
-        offsetLeft = (rngToPlaceTheButton.Width - dblWidth) / 2 - 2
+        offsetLeft = (rngToPlaceTheButton.width - dblWidth) / 2 - 2
     Else
         offsetLeft = dblOffsetLeft
     End If
     
     Dim offsetTop As Double
     If dblOffsetTop = 0 Then
-        offsetTop = (rngToPlaceTheButton.Width - dblWidth) / 2 - 2
+        offsetTop = (rngToPlaceTheButton.width - dblWidth) / 2 - 2
     Else
         offsetTop = dblOffsetTop
     End If
     
     obj.Left = rngToPlaceTheButton.Left + offsetLeft
     obj.Top = rngToPlaceTheButton.Top + offsetTop
-    obj.Width = dblWidth
-    obj.Height = dblHeight
+    obj.width = dblWidth
+    obj.height = dblHeight
     
     If lBackColor <> 0 Then obj.Object.BackColor = lBackColor
     If lForeColor <> 0 Then obj.Object.ForeColor = lForeColor
@@ -782,7 +782,7 @@ Function fIfSelectedMoreThanOneRow(rngParam As Range) As Boolean
     bOut = False
     lRowNoSaved = 0
     For Each eachArea In rngParam.Areas
-        If eachArea.Rows.Count > 1 Then
+        If eachArea.Rows.count > 1 Then
             bOut = True
             Exit For
         Else
@@ -938,7 +938,7 @@ Function fCopySingleSheet2WorkBook(shtSource As Worksheet, wbCopyTo As Workbook,
     Dim xlOrig As XlSheetVisibility
     xlOrig = shtSource.Visible
     shtSource.Visible = xlSheetVisible
-    shtSource.Copy wbCopyTo.Worksheets(wbCopyTo.Worksheets.Count)
+    shtSource.Copy wbCopyTo.Worksheets(wbCopyTo.Worksheets.count)
     shtSource.Visible = xlOrig
     
     wbCopyTo.ActiveSheet.Name = sToShtName
@@ -979,7 +979,7 @@ Function fDeleteRowsFromSheetLeaveHeader(ByRef sht As Worksheet, Optional lHeade
     
     If lMaxRow > lHeaderByRow Then
         sht.Rows(lHeaderByRow + 1 & ":" & lMaxRow).Delete shift:=xlUp
-        Application.GoTo sht.Cells(lHeaderByRow + 1, 1), True
+        Application.Goto sht.Cells(lHeaderByRow + 1, 1), True
     End If
     
     sht.Visible = iOrigVisibility
@@ -995,7 +995,7 @@ Function fGotoCell(rgGoTo As Range, Optional lScrollRow As Long = 0, Optional iS
     iOrigVisibility = rgGoTo.Parent.Visible
     rgGoTo.Parent.Visible = xlSheetVisible
     
-    Application.GoTo rgGoTo, True
+    Application.Goto rgGoTo, True
      
     If lScrollRow > 0 Then ActiveWindow.ScrollRow = lScrollRow
     If iScrollCol > 0 Then ActiveWindow.ScrollColumn = iScrollCol

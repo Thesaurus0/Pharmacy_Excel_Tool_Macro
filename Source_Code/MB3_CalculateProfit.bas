@@ -28,11 +28,11 @@ Sub subMain_CalculateProfit()
 
     Call fReadSysConfig_InputTxtSheetFile
 
-    gsRptFilePath = fReadSysConfig_Output(, gsRptType)
+    'gsRptFilePath = fReadSysConfig_Output(, gsRptType)
     
     Call fLoadFilesAndRead2Variables
 
-    Call fPrepareOutputSheetHeaderAndTextColumns(shtProfit)
+    'Call fPrepareOutputSheetHeaderAndTextColumns(shtProfit)
 
 '    ReDim arrExceptionRows(1 To UBound(arrMaster, 1) * 4)
 '    mlExcepCnt = 0
@@ -48,12 +48,12 @@ Sub subMain_CalculateProfit()
     
     'If Not shtException.Visible = xlSheetVisible Then shtException.Visible = xlSheetVeryHidden
     
-    If dictErrorRows.Count > 0 Then shtException.Visible = xlSheetVisible
+    If dictErrorRows.count > 0 Then shtException.Visible = xlSheetVisible
      
     Call fAppendArray2Sheet(shtProfit, arrOutput)
     
     Call fBasicCosmeticFormatSheet(shtProfit)
-    If dictErrorRows.Count <= 0 And dictErrorRows.Count <= 0 Then Call fSetConditionFormatForOddEvenLine(shtProfit)
+    If dictErrorRows.count <= 0 And dictErrorRows.count <= 0 Then Call fSetConditionFormatForOddEvenLine(shtProfit)
     Call fSetBorderLineForSheet(shtProfit)
     
     shtProfit.Visible = xlSheetVisible
@@ -70,7 +70,7 @@ Sub subMain_CalculateProfit()
 error_handling:
     If fCheckIfUnCapturedExceptionAbnormalError Then GoTo reset_excel_options
     
-    If dictErrorRows.Count > 0 Then
+    If dictErrorRows.count > 0 Then
         Dim lExcepMaxCol As Long
         lExcepMaxCol = fGetValidMaxCol(shtException)
         
@@ -452,7 +452,7 @@ Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary
         Dim lStartRow As Long
     'Dim arrTmp
     
-    lUniqRecCnt = dictNoValidSelfSales.Count
+    lUniqRecCnt = dictNoValidSelfSales.count
     If lUniqRecCnt > 0 Then
         lStartRow = fGetshtExceptionNewRow
         arrNewProductSeries = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNoValidSelfSales, , False)
@@ -468,7 +468,7 @@ Function fAddNoValidSelfSalesToSheetException(dictNoValidSelfSales As Dictionary
         
         lRecCount = fGetDictionayDelimiteredItemsCount(dictNoValidSelfSales)
         
-        shtException.Cells(lStartRow + 1, 4).Resize(dictNoValidSelfSales.Count, 3).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictNoValidSelfSales, , False)
+        shtException.Cells(lStartRow + 1, 4).Resize(dictNoValidSelfSales.count, 3).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictNoValidSelfSales, , False)
         Erase arrNewProductSeries
         If lStartRow = 2 Then Call fFreezeSheet(shtException, , 2)
         
@@ -493,7 +493,7 @@ Function fAddNoPriceRecInAdvToSheetException(dictNoPriceRecInAdv As Dictionary)
     Dim j As Integer
     Dim lStartRow As Long
             
-    lUniqRecCnt = dictNoPriceRecInAdv.Count
+    lUniqRecCnt = dictNoPriceRecInAdv.count
     If lUniqRecCnt > 0 Then
         lStartRow = fGetshtExceptionNewRow
         
@@ -525,7 +525,7 @@ Function fAddNoSalesManConfToSheetException(dictNoSalesManConf As Dictionary)
     Dim j As Integer
     Dim lStartRow As Long
             
-    lUniqRecCnt = dictNoSalesManConf.Count
+    lUniqRecCnt = dictNoSalesManConf.count
     If lUniqRecCnt > 0 Then
         lStartRow = fGetshtExceptionNewRow
         
@@ -634,7 +634,7 @@ Function fComposeFirstLevelColumnsStryByConfig(sSalesCompName As String, sProduc
     Dim i As Integer
     Dim arr() As String
     
-    ReDim arr(1 To dictFirstCommColIndex.Count)
+    ReDim arr(1 To dictFirstCommColIndex.count)
     arr(dictFirstCommColIndex("SalesCompany")) = sSalesCompName
     arr(dictFirstCommColIndex("ProductProducer")) = sProducer
     arr(dictFirstCommColIndex("ProductName")) = sProductName

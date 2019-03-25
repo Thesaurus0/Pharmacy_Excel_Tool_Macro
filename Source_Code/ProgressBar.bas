@@ -38,7 +38,7 @@ Private Sub Class_Initialize()
     '需要每次启动的时候，创建一个新名称的窗体
     t = Timer
     ms = t - Int(t)                                       '计算毫秒
-    BarLength = frmProgressBar.Width
+    BarLength = frmProgressBar.width
     'FormName = "FORM" & format(Now, "ddhhmmss") & Replace(ms, ".", "")
 End Sub
 
@@ -58,7 +58,7 @@ End Sub
 '设置进度条进度
 Public Sub ChangeProcessBarValue(Value As Double, Optional Message As String = "")
     On Error Resume Next
-    lbl1.Width = Int(Value * BarLength)                   '显示进度条
+    lbl1.width = Int(Value * BarLength)                   '显示进度条
     lbl2.Caption = IIf(Message = "", Format(Value, "已经完成 0.00%"), Message)
     DoEvents                                              '转让控制权给操作系统
 End Sub
@@ -104,8 +104,8 @@ Private Sub CreateProgressBar()
         With lbl1
             .Left = 0
             .Top = 0
-            .Height = frmProgressBar.Width  'uForm
-            .Width = 0
+            .height = frmProgressBar.width  'uForm
+            .width = 0
             .Caption = ""
             .BackColor = RGB(128, 128, 255)
             .BorderStyle = fmBorderStyleNone
@@ -119,11 +119,11 @@ Private Sub CreateProgressBar()
         With lbl2
             .Left = 0
             .Top = 9
-            .Height = 12
-            .Width = BarLength
+            .height = 12
+            .width = BarLength
             .Caption = ""
             .TextAlign = fmTextAlignLeft
-            .Font.Size = 10
+            .Font.size = 10
             .Font.Bold = False
             .Font.Italic = False
             .Font.Name = "宋体"

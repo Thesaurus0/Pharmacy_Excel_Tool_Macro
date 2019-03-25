@@ -130,6 +130,7 @@ Function ClipBoard_GetData()
       RetVal = GlobalUnlock(hClipMemory)
        
       ' Peel off the null terminating character.
+      'MyString = Mid(MyString, 1, InStr(1, MyString, Chr$(0), 0) - 1)
       MyString = Mid(MyString, 1, InStr(1, MyString, Chr$(0), 0) - 1)
    Else
       MsgBox "Could not lock memory to copy string from."

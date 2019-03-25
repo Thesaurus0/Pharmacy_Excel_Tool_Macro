@@ -55,7 +55,7 @@ Sub subMain_CompareCZLInventory()
     shtCZLInvDiff.Rows(1).RowHeight = 25
     shtCZLInvDiff.Visible = xlSheetVisible
     shtCZLInvDiff.Activate
-    Application.GoTo shtCZLInvDiff.Range("A" & fGetValidMaxRow(shtCZLInvDiff)), True
+    Application.Goto shtCZLInvDiff.Range("A" & fGetValidMaxRow(shtCZLInvDiff)), True
 error_handling:
     If fCheckIfUnCapturedExceptionAbnormalError Then GoTo reset_excel_options
     
@@ -87,7 +87,7 @@ Private Function fCompare2Inventory(dictCZLInformedInv As Dictionary, dictCZLCal
     
     Set dictOut = New Dictionary
     
-    For i = 0 To dictCZLInformedInv.Count - 1
+    For i = 0 To dictCZLInformedInv.count - 1
         sProdLotKey = dictCZLInformedInv.Keys(i)
         dblInformedInv = CDbl(Split(dictCZLInformedInv.Items(i), DELIMITER)(0))
         
@@ -100,7 +100,7 @@ Private Function fCompare2Inventory(dictCZLInformedInv As Dictionary, dictCZLCal
     Next
     
     
-    For i = 0 To dictCZLCalInv.Count - 1
+    For i = 0 To dictCZLCalInv.count - 1
         sProdLotKey = dictCZLCalInv.Keys(i)
         dblCalculatedInv = CDbl(dictCZLCalInv.Items(i))
         

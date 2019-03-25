@@ -12,7 +12,7 @@ Function fSetBackToConfigSheetAndUpdategDict_UserTicket()
     Dim sCompanyID As String
     Dim sTickValue As String
     
-    For i = 0 To dictCompList.Count - 1
+    For i = 0 To dictCompList.count - 1
         sCompanyID = dictCompList.Keys(i)
          
         If Not fActiveXControlExistsInSheet(shtCurrMenu, fGetCompany_CheckBoxName(sCompanyID), ckb) Then GoTo next_company
@@ -31,7 +31,7 @@ Function fSetBackToConfigSheetAndUpdategDict_InputFiles()
     Dim sFilePathRange As String
     Dim sEachFilePath  As String
     
-    For i = 0 To dictCompList.Count - 1
+    For i = 0 To dictCompList.count - 1
         sEachCompanyID = dictCompList.Keys(i)
         'sFilePathRange = "rngSalesFilePath_" & sEachCompanyID
         

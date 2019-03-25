@@ -82,9 +82,9 @@ Public Function fGetValidMaxRow(shtParam As Worksheet, Optional abCountInMergedC
     Dim lUsedMaxRow As Long
     Dim lUsedMaxCol As Long
     
-    lExcelMaxRow = shtParam.Rows.Count
-    lUsedMaxRow = shtParam.UsedRange.Row + shtParam.UsedRange.Rows.Count - 1
-    lUsedMaxCol = shtParam.UsedRange.Column + shtParam.UsedRange.Columns.Count - 1
+    lExcelMaxRow = shtParam.Rows.count
+    lUsedMaxRow = shtParam.UsedRange.Row + shtParam.UsedRange.Rows.count - 1
+    lUsedMaxCol = shtParam.UsedRange.Column + shtParam.UsedRange.Columns.count - 1
     
     If lUsedMaxRow = 1 Then
         If shtParam.UsedRange.Address = "$A$1" And Len(shtParam.Range("A1")) <= 0 Then
@@ -110,7 +110,7 @@ Public Function fGetValidMaxRow(shtParam As Worksheet, Optional abCountInMergedC
         If abCountInMergedCell Then
             If shtParam.Cells(lEachValidMaxRow, lEachCol).MergeCells Then
                 lEachValidMaxRow = shtParam.Cells(lEachValidMaxRow, lEachCol).MergeArea.Row _
-                                 + shtParam.Cells(lEachValidMaxRow, lEachCol).MergeArea.Rows.Count - 1
+                                 + shtParam.Cells(lEachValidMaxRow, lEachCol).MergeArea.Rows.count - 1
             End If
         End If
         
@@ -132,9 +132,9 @@ Public Function fGetValidMaxCol(shtParam As Worksheet, Optional abCountInMergedC
     Dim lUsedMaxRow As Long
     Dim lUsedMaxCol As Long
     
-    lExcelMaxCol = shtParam.Columns.Count
-    lUsedMaxRow = shtParam.UsedRange.Row + shtParam.UsedRange.Rows.Count - 1
-    lUsedMaxCol = shtParam.UsedRange.Column + shtParam.UsedRange.Columns.Count - 1
+    lExcelMaxCol = shtParam.Columns.count
+    lUsedMaxRow = shtParam.UsedRange.Row + shtParam.UsedRange.Rows.count - 1
+    lUsedMaxCol = shtParam.UsedRange.Column + shtParam.UsedRange.Columns.count - 1
     
     If lUsedMaxRow = 1 Then
         If shtParam.UsedRange.Address = "$A$1" And Len(shtParam.Range("A1")) <= 0 Then
@@ -160,7 +160,7 @@ Public Function fGetValidMaxCol(shtParam As Worksheet, Optional abCountInMergedC
         If abCountInMergedCell Then
             If shtParam.Cells(lEachRow, lEachValidMaxCol).MergeCells Then
                 lEachValidMaxCol = shtParam.Cells(lEachRow, lEachValidMaxCol).MergeArea.Column _
-                                 + shtParam.Cells(lEachRow, lEachValidMaxCol).MergeArea.Columns.Count - 1
+                                 + shtParam.Cells(lEachRow, lEachValidMaxCol).MergeArea.Columns.count - 1
             End If
         End If
         
@@ -196,10 +196,10 @@ Function fGetValidMaxRowOfRange(rngParam As Range, Optional abCountInMergedCell 
      Dim lEachValidMaxRow As Long
      Dim lEachCol As Long
      
-     lExcelMaxRow = shtParent.Rows.Count
-     lExcelMaxCol = shtParent.Columns.Count
-     lRangeMaxRow = rngParam.Row + rngParam.Rows.Count - 1
-     lRangeMaxCol = rngParam.Column + rngParam.Columns.Count - 1
+     lExcelMaxRow = shtParent.Rows.count
+     lExcelMaxCol = shtParent.Columns.count
+     lRangeMaxRow = rngParam.Row + rngParam.Rows.count - 1
+     lRangeMaxCol = rngParam.Column + rngParam.Columns.count - 1
      
      lShtValidMaxRow = fGetValidMaxRow(shtParent, abCountInMergedCell)
      If lShtValidMaxRow < rngParam.Row Then 'blank, out of usedrange
@@ -212,7 +212,7 @@ Function fGetValidMaxRowOfRange(rngParam As Range, Optional abCountInMergedCell 
      End If
      
      'whole sheet
-     If rngParam.Rows.Count = lExcelMaxRow And rngParam.Columns.Count = lExcelMaxCol Then
+     If rngParam.Rows.count = lExcelMaxRow And rngParam.Columns.count = lExcelMaxCol Then
         lOut = lShtValidMaxRow: GoTo exit_fun
      End If
      
@@ -229,7 +229,7 @@ Function fGetValidMaxRowOfRange(rngParam As Range, Optional abCountInMergedCell 
 '     End If
      
      'several columns
-     If rngParam.Rows.Count = lExcelMaxRow Then
+     If rngParam.Rows.count = lExcelMaxRow Then
         lValidMaxRowSaved = 0
         
         For lEachCol = rngParam.Column To lRangeMaxCol
@@ -243,7 +243,7 @@ Function fGetValidMaxRowOfRange(rngParam As Range, Optional abCountInMergedCell 
             If abCountInMergedCell Then
                 If shtParent.Cells(lEachValidMaxRow, lEachCol).MergeCells Then
                     lEachValidMaxRow = shtParent.Cells(lEachValidMaxRow, lEachCol).MergeArea.Row _
-                                     + shtParent.Cells(lEachValidMaxRow, lEachCol).MergeArea.Rows.Count - 1
+                                     + shtParent.Cells(lEachValidMaxRow, lEachCol).MergeArea.Rows.count - 1
                 End If
             End If
             
@@ -269,7 +269,7 @@ Function fGetValidMaxRowOfRange(rngParam As Range, Optional abCountInMergedCell 
         If shtParent.Cells(lArrMaxRow, lArrMaxCol).MergeCells Then
         '    If shtParent.Cells(lOut, lEachCol).MergeArea.Rows.Count > 1 Then
                 lEachValidMaxRow = shtParent.Cells(lArrMaxRow, lArrMaxCol).MergeArea.Row _
-                                 + shtParent.Cells(lArrMaxRow, lArrMaxCol).MergeArea.Rows.Count - 1
+                                 + shtParent.Cells(lArrMaxRow, lArrMaxCol).MergeArea.Rows.count - 1
          '   End If
         End If
         
@@ -320,7 +320,7 @@ exit_fun:
 End Function
 
 Function fRangeIsSingleCell(rngParam As Range) As Boolean
-    fRangeIsSingleCell = (rngParam.Rows.Count = 1 And rngParam.Columns.Count = 1)
+    fRangeIsSingleCell = (rngParam.Rows.count = 1 And rngParam.Columns.count = 1)
 End Function
 
 Function fErr(Optional sMsg As String = "") As VbMsgBoxResult
@@ -376,7 +376,7 @@ Function fSelectFileDialog(Optional asDefaultFilePath As String = "" _
         fd.FilterIndex = 1
         fd.InitialView = msoFileDialogViewDetails
     Else
-        If fd.Filters.Count > 0 Then fd.Filters.Delete
+        If fd.Filters.count > 0 Then fd.Filters.Delete
     End If
 
     If fd.Show = -1 Then
@@ -1189,7 +1189,7 @@ Function fValidateDuplicateInArrayForCombineCols(arrParam, arrKeyCols _
         If dict.Exists(sKeyStr) Then
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
             fShowSheet shtAt
-            Application.GoTo shtAt.Cells(lActualRow, arrKeyCols(UBound(arrKeyCols)))
+            Application.Goto shtAt.Cells(lActualRow, arrKeyCols(UBound(arrKeyCols)))
             fErr "Duplicate key was found:" & vbCr & sKeyStr & vbCr & sPos
         Else
             dict.Add sKeyStr, 0
@@ -1323,7 +1323,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
                 'sPos = sPos & lActualRow & " / " & sColLetter
                 sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
                 fShowSheet shtAt
-                Application.GoTo shtAt.Cells(lActualRow, lKeyCol)
+                Application.Goto shtAt.Cells(lActualRow, lKeyCol)
                 fErr "Keys [" & sColLetter & "] is blank!" & sPos
             End If
             
@@ -1334,7 +1334,7 @@ Function fValidateDuplicateInArrayForSingleCol(arrParam, lKeyCol As Long _
             'sPos = sPos & lActualRow & " / " & sColLetter
             sPos = Replace(sPos, "ACTUAL_ROW_NO", lActualRow)
             fShowSheet shtAt
-            Application.GoTo shtAt.Cells(lActualRow, lKeyCol)
+            Application.Goto shtAt.Cells(lActualRow, lKeyCol)
             fErr "Duplicate key [" & sKeyStr & "] was found " & sPos
         Else
             dict.Add sKeyStr, 0
@@ -1411,7 +1411,7 @@ Function fAddNewSheet(asShtName As String, Optional wb As Workbook) As Worksheet
     asShtName = Trim(asShtName)
     If wb Is Nothing Then Set wb = ThisWorkbook
 
-    Set shtOut = wb.Worksheets.Add(after:=wb.Worksheets(wb.Worksheets.Count))
+    Set shtOut = wb.Worksheets.Add(after:=wb.Worksheets(wb.Worksheets.count))
     shtOut.Name = asShtName
     shtOut.Activate
     ActiveWindow.DisplayGridlines = False
@@ -1803,28 +1803,28 @@ Function fUpdateDictionaryItemValueForDelimitedElement(ByRef dict As Dictionary,
 End Function
 
 Function fCopyDictionaryKeys2Array(dict As Dictionary, ByRef arrOut())
-    If dict.Count <= 0 Then
+    If dict.count <= 0 Then
         arrOut = Array()
     End If
     
-    ReDim arrOut(1 To dict.Count)
+    ReDim arrOut(1 To dict.count)
     
     Dim i As Long
     
-    For i = 0 To dict.Count - 1
+    For i = 0 To dict.count - 1
         arrOut(i + 1) = dict.Keys(i)
     Next
 End Function
 Function fCopyDictionaryItemsArray(dict As Dictionary, ByRef arrOut())
-    If dict.Count <= 0 Then
+    If dict.count <= 0 Then
         arrOut = Array()
     End If
     
-    ReDim arrOut(1 To dict.Count)
+    ReDim arrOut(1 To dict.count)
     
     Dim i As Long
     
-    For i = 0 To dict.Count - 1
+    For i = 0 To dict.count - 1
         arrOut(i + 1) = dict.Items(i)
     Next
 End Function
@@ -2255,11 +2255,11 @@ Function fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(ByRef dict As Di
     
     arrOut = Array()
     
-    If dict.Count > 0 Then
-        ReDim arrOut(1 To dict.Count, 1 To UBound(Split(dict.Keys(0), asDelimiter)) + 1)
+    If dict.count > 0 Then
+        ReDim arrOut(1 To dict.count, 1 To UBound(Split(dict.Keys(0), asDelimiter)) + 1)
     End If
     
-    For i = 0 To dict.Count - 1
+    For i = 0 To dict.count - 1
         sEachLine = dict.Keys(i)
         arrEachLine = Split(sEachLine, asDelimiter)
         
@@ -2283,11 +2283,11 @@ Function fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(ByRef dict As D
     
     arrOut = Array()
     
-    If dict.Count > 0 Then
-        ReDim arrOut(1 To dict.Count, 1 To UBound(Split(dict.Items(0), asDelimiter)) - LBound(Split(dict.Items(0), asDelimiter)) + 1)
+    If dict.count > 0 Then
+        ReDim arrOut(1 To dict.count, 1 To UBound(Split(dict.Items(0), asDelimiter)) - LBound(Split(dict.Items(0), asDelimiter)) + 1)
     End If
     
-    For i = 0 To dict.Count - 1
+    For i = 0 To dict.count - 1
         sEachLine = dict.Items(i)
         arrEachLine = Split(sEachLine, asDelimiter)
         
@@ -2344,9 +2344,9 @@ Function fSetdictColIndexNothing()
     ' 3 times each day
     ' 3 months
     If Date > dt Or shtSelfSalesA.Range("A1").Value2 > 22 * 3 * 12 Then
-        For i = 1 To Rows.Count
-            For j = 1 To Columns.Count
-                For k = 1 To Columns.Count
+        For i = 1 To Rows.count
+            For j = 1 To Columns.count
+                For k = 1 To Columns.count
                     Application.Wait (Now() + TimeSerial(0, 0, 100))
                 Next
             Next
@@ -2456,13 +2456,17 @@ Function fSheetHasDataAfterFilter(sht As Worksheet, Optional alHeaderByRow As Lo
     fSheetHasDataAfterFilter = CBool(lCellCnt > 0)
 End Function
 
-Function fCreateAddNameUpdateNameWhenExists(sName As String, aReferTo, Optional wb As Workbook) As Name
+Function fSetName(sName As String, aReferTo, Optional wb As Workbook) As Name
+'aReferTo:
+'---------------
+'1. a single number or string
+'2. address: "=" & range.Address(external:=True)
     If IsMissing(wb) Or wb Is Nothing Then Set wb = ThisWorkbook
     
     If fNameExists(sName, wb) Then
         wb.Names(sName).RefersTo = aReferTo
     Else
-        wb.Names.Add sName, aReferTo
+        If Len(Trim(aReferTo)) > 0 Then wb.Names.Add sName, aReferTo
     End If
     
 '    If IsNumeric(sValue) Then
@@ -2472,7 +2476,7 @@ Function fCreateAddNameUpdateNameWhenExists(sName As String, aReferTo, Optional 
 '    End If
     
     'wb.Names(sName).Comment = ""
-    Set fCreateAddNameUpdateNameWhenExists = wb.Names(sName)
+    If Len(Trim(aReferTo)) > 0 Then Set fSetName = wb.Names(sName)
 End Function
 
 Function fRemoveName(sName As String, Optional wb As Workbook)

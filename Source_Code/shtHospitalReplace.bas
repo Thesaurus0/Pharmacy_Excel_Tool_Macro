@@ -10,6 +10,10 @@ Attribute VB_Exposed = True
 Option Explicit
 Option Base 1
 
+Enum enHospitalReplace
+    FromHospital = 1
+    ToHospital = 2
+End Enum
 Private Sub btnValidate_Click()
     Call fValidateSheet
 End Sub
@@ -53,7 +57,7 @@ exit_sub:
     
     If lErrRowNo > 0 Then
         fShowAndActiveSheet Me
-        Application.GoTo Me.Cells(lErrRowNo, lErrColNo) ', True
+        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
 End Function
 

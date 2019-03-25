@@ -29,8 +29,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Set rgIntersect = Intersect(Target, Me.Columns(ProdNameReplace.ProductName))
     
     If Not rgIntersect Is Nothing Then
-        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+        If rgIntersect.Areas.count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+        If rgIntersect.Rows.count <> 1 Then GoTo exit_sub
             
         Dim sProducer As String
         Dim sValidationListAddr As String
@@ -95,7 +95,7 @@ exit_sub:
     End If
     If lErrRowNo > 0 Then
         fShowAndActiveSheet Me
-        Application.GoTo Me.Cells(lErrRowNo, lErrColNo) ', True
+        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
 
 End Function

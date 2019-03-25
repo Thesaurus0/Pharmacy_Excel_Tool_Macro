@@ -85,7 +85,8 @@ Function fSetValidationListForAllSheets()
     Dim sHospitalAddr As String
     sHospitalAddr = fGetHospitalMasterColumnAddress_Hospital
 
-    Call fSetValidationListForshtHospitalReplace_Hospital(sHospitalAddr)
+    'Call fSetValidationListForshtHospitalReplace_Hospital(sHospitalAddr)
+    Call fSetValidationList(shtHospitalReplace, enHospitalReplace.ToHospital, sHospitalAddr)
 '    Call fSetValidationListForshtSalesManCommConfig_Hospital(sHospitalAddr)
     Call fSetValidationList(shtSalesManCommConfig, SalesManComm.Hospital, sHospitalAddr)
     'Call fSetValidationListForshtSecondLevelCommission_Hospital(sHospitalAddr)
@@ -183,7 +184,7 @@ Function fSetValidationListForshtProductNameMaster_Producer(sValidationListAddr 
                                             , "Column Index", "Column Tech Name=ProductProducer")
     
     lMaxRow = shtProductNameMaster.Columns(sProducerCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtProductNameMaster.Range(sProducerCol & 2 & ":" & sProducerCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -197,7 +198,7 @@ Function fSetValidationListForshtProductMaster_Producer(sValidationListAddr As S
                                             , "Column Tech Name=ProductProducer")
     
     lMaxRow = shtProductMaster.Columns(sProducerCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtProductMaster.Range(sProducerCol & 2 & ":" & sProducerCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -224,7 +225,7 @@ Function fSetValidationListForshtFirstLevelCommission_Producer(sValidationListAd
                                             , "Column Index", "Column Tech Name=ProductProducer")
 
     lMaxRow = shtFirstLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtFirstLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -237,7 +238,7 @@ Function fSetValidationListForshtProductProducerReplace_Producer(sValidationList
                                             , "Column Index", "Column Tech Name=ToProducer")
     
     lMaxRow = shtProductProducerReplace.Columns(sProducerCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtProductProducerReplace.Range(sProducerCol & 2 & ":" & sProducerCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -249,7 +250,7 @@ Function fSetValidationListForshtProductNameReplace_Producer(sValidationListAddr
                                             , "Column Index", "Column Tech Name=ProductProducer")
     
     lMaxRow = shtProductNameReplace.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtProductNameReplace.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -261,7 +262,7 @@ Function fSetValidationListForshtProductSeriesReplace_Producer(sValidationListAd
                                             , "Column Index", "Column Tech Name=ProductProducer")
     
     lMaxRow = shtProductSeriesReplace.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtProductSeriesReplace.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -273,7 +274,7 @@ Function fSetValidationListForshtProductUnitRatio_Producer(sValidationListAddr A
                                             , "Column Index", "Column Tech Name=ProductProducer")
     
     lMaxRow = shtProductUnitRatio.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtProductUnitRatio.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -293,7 +294,7 @@ Function fSetValidationListForshtSelfSalesOrder_Producer(sValidationListAddr As 
                                             , "Column Index", "Column Tech Name=ProductProducer")
     
     lMaxRow = shtSelfSalesOrder.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSelfSalesOrder.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -305,7 +306,7 @@ Function fSetValidationListForshtSelfPurchaseOrder_Producer(sValidationListAddr 
                                             , "Column Index", "Column Tech Name=ProductProducer")
     
     lMaxRow = shtSelfPurchaseOrder.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSelfPurchaseOrder.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -316,7 +317,7 @@ Function fSetValidationListForshtSelfInventory_Producer(sValidationListAddr As S
     sTargetCol = "A"
     
     lMaxRow = shtSelfInventory.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSelfInventory.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -328,7 +329,7 @@ Function fSetValidationListForshtSalesCompRolloverInv_Producer(sValidationListAd
     sTargetCol = fNum2Letter(SCompRollover.ProductProducer)
     
     lMaxRow = shtSalesCompRolloverInv.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSalesCompRolloverInv.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -340,7 +341,7 @@ Function fSetValidationListForshtSalesCompInvCalcd_Producer(sValidationListAddr 
     sTargetCol = fNum2Letter(SCompInvCalcd.ProductProducer)
     
     lMaxRow = shtSalesCompInvCalcd.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSalesCompInvCalcd.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -357,7 +358,7 @@ Function fSetValidationListForshtFirstLevelCommission_SalesCompany(sValidationLi
                                             , "Column Index", "Column Tech Name=SalesCompany")
     
     lMaxRow = shtFirstLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtFirstLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -395,7 +396,7 @@ Function fSetValidationListForshtCompanyNameReplace_SalesCompany(sValidationList
                                             , "Column Index", "Column Tech Name=ToCompanyName")
     
     lMaxRow = shtCompanyNameReplace.Columns(sTargetCol).End(xlDown).Row + 10000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtCompanyNameReplace.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -408,7 +409,7 @@ Function fSetValidationListForshtSalesCompRolloverInv_SalesCompany(sValidationLi
 '                                            , "Column Index", "Column Tech Name=ToCompanyName")
     sTargetCol = fNum2Letter(SCompRollover.SalesCompany)
     lMaxRow = shtSalesCompRolloverInv.Columns(sTargetCol).End(xlDown).Row + 10000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSalesCompRolloverInv.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -421,7 +422,7 @@ Function fSetValidationListForshtSalesCompInvCalcd_SalesCompany(sValidationListA
 '                                            , "Column Index", "Column Tech Name=ToCompanyName")
     sTargetCol = fNum2Letter(SCompInvCalcd.SalesCompany)
     lMaxRow = shtSalesCompInvCalcd.Columns(sTargetCol).End(xlDown).Row + 10000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSalesCompInvCalcd.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -439,18 +440,18 @@ Function fGetHospitalMasterColumnAddress_Hospital() As String
     fGetHospitalMasterColumnAddress_Hospital = sSourceAddr
 End Function
 
-Function fSetValidationListForshtHospitalReplace_Hospital(sValidationListAddr As String)
-    Dim sTargetCol As String
-    Dim lMaxRow As Long
-    
-    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - HOSPITAL_REPLACE_SHEET]" _
-                                            , "Column Index", "Column Tech Name=ToHospital")
-    
-    lMaxRow = shtHospitalReplace.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
-    Call fSetValidationListForRange(shtHospitalReplace.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
-                                    , sValidationListAddr)
-End Function
+'Function fSetValidationListForshtHospitalReplace_Hospital(sValidationListAddr As String)
+'    Dim sTargetCol As String
+'    Dim lMaxRow As Long
+'
+'    sTargetCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - HOSPITAL_REPLACE_SHEET]" _
+'                                            , "Column Index", "Column Tech Name=ToHospital")
+'
+'    lMaxRow = shtHospitalReplace.Columns(sTargetCol).End(xlDown).Row + 100000
+'    If lMaxRow > Rows.Count Then lMaxRow = 100000
+'    Call fSetValidationListForRange(shtHospitalReplace.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
+'                                    , sValidationListAddr)
+'End Function
 'Function fSetValidationListForshtSalesManCommConfig_Hospital(sValidationListAddr As String)
 '    Dim sTargetCol As String
 '    Dim lMaxRow As Long
@@ -499,7 +500,7 @@ Function fSetValidationListForshtProductMaster_ProductName(sValidationListAddr A
                                             , "Column Tech Name=ProductName")
     
     lMaxRow = shtProductMaster.Columns(sProducerCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtProductMaster.Range(sProducerCol & 2 & ":" & sProducerCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -526,7 +527,7 @@ Function fSetValidationListForshtFirstLevelCommission_ProductName(sValidationLis
                                             , "Column Index", "Column Tech Name=ProductName")
 
     lMaxRow = shtFirstLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtFirstLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -543,7 +544,7 @@ Function fSetValidationListForshtProductNameReplace_ProductName(sValidationListA
     End If
     
     lMaxRow = shtProductNameReplace.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtProductNameReplace.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -555,7 +556,7 @@ Function fSetValidationListForshtProductSeriesReplace_ProductName(sValidationLis
                                             , "Column Index", "Column Tech Name=ProductName")
     
     lMaxRow = shtProductSeriesReplace.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtProductSeriesReplace.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -567,7 +568,7 @@ Function fSetValidationListForshtProductUnitRatio_ProductName(sValidationListAdd
                                             , "Column Index", "Column Tech Name=ProductName")
     
     lMaxRow = shtProductUnitRatio.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtProductUnitRatio.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -579,7 +580,7 @@ Function fSetValidationListForshtSelfSalesOrder_ProductName(sValidationListAddr 
                                             , "Column Index", "Column Tech Name=ProductName")
     
     lMaxRow = shtSelfSalesOrder.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSelfSalesOrder.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -618,7 +619,7 @@ Function fSetValidationListForshtFirstLevelCommission_ProductSeries(sValidationL
                                             , "Column Index", "Column Tech Name=ProductSeries")
 
     lMaxRow = shtFirstLevelCommission.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtFirstLevelCommission.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -631,7 +632,7 @@ Function fSetValidationListForshtProductSeriesReplace_ProductSeries(sValidationL
                                             , "Column Index", "Column Tech Name=ToProductSeries")
     
     lMaxRow = shtProductSeriesReplace.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtProductSeriesReplace.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -643,7 +644,7 @@ Function fSetValidationListForshtProductUnitRatio_ProductSeries(sValidationListA
                                             , "Column Index", "Column Tech Name=ProductSeries")
     
     lMaxRow = shtProductUnitRatio.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtProductUnitRatio.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -655,7 +656,7 @@ Function fSetValidationListForshtSelfSalesOrder_ProductSeries(sValidationListAdd
                                             , "Column Index", "Column Tech Name=ProductSeries")
     
     lMaxRow = shtSelfSalesOrder.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSelfSalesOrder.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -669,7 +670,7 @@ Function fGetProductUnitMasterColumnAddress_ProductUnit() As String
     Dim lColMaxRow As Long
     Dim sSourceAddr As String
     
-    lColMaxRow = Rows.Count
+    lColMaxRow = Rows.count
     sSourceCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - PRODUCT_MASTER]" _
                                         , "Column Index", "Column Tech Name=ProductUnit")
 
@@ -685,7 +686,7 @@ Function fSetValidationListForshtProductUnitRatio_ProductUnit(sValidationListAdd
                                             , "Column Index", "Column Tech Name=ProductUnit")
     
     lMaxRow = shtProductUnitRatio.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtProductUnitRatio.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -697,7 +698,7 @@ Function fSetValidationListForshtSelfSalesOrder_ProductUnit(sValidationListAddr 
                                             , "Column Index", "Column Tech Name=ProductUnit")
     
     lMaxRow = shtSelfSalesOrder.Columns(sTargetCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSelfSalesOrder.Range(sTargetCol & 2 & ":" & sTargetCol & lMaxRow) _
                                     , sValidationListAddr)
 End Function
@@ -716,7 +717,7 @@ Function fGetSalesManMasterColumnAddress_SalesMan() As String
     Dim lSalesManColMaxRow As Long
     Dim sSourceAddr As String
     
-    lSalesManColMaxRow = Rows.Count
+    lSalesManColMaxRow = Rows.count
 '    sSalesManCol = fGetSpecifiedConfigCellValue(shtFileSpec, "[Input File - SALESMAN_MASTER]" _
 '                                        , "Column Index", "Column Tech Name=SalesManName")
     sSalesManCol = fNum2Letter(enSalesMan.SalesManName)
@@ -733,7 +734,7 @@ Function fSetValidationListForshtSalesManCommConfig_SalesMan(sValidationListAddr
                                             , "Column Index", "Column Tech Name=SalesMan1")
     sSalesManCol = fNum2Letter(SalesManComm.SalesMan1)
     lMaxRow = shtSalesManCommConfig.Columns(sSalesManCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSalesManCommConfig.Range(sSalesManCol & 2 & ":" & sSalesManCol & lMaxRow), sValidationListAddr)
     
     '2
@@ -741,7 +742,7 @@ Function fSetValidationListForshtSalesManCommConfig_SalesMan(sValidationListAddr
 '                                            , "Column Index", "Column Tech Name=SalesMan2")
     sSalesManCol = fNum2Letter(SalesManComm.SalesMan2)
     lMaxRow = shtSalesManCommConfig.Columns(sSalesManCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSalesManCommConfig.Range(sSalesManCol & 2 & ":" & sSalesManCol & lMaxRow), sValidationListAddr)
     
     '3
@@ -750,7 +751,7 @@ Function fSetValidationListForshtSalesManCommConfig_SalesMan(sValidationListAddr
     sSalesManCol = fNum2Letter(SalesManComm.SalesMan3)
     
     lMaxRow = shtSalesManCommConfig.Columns(sSalesManCol).End(xlDown).Row + 100000
-    If lMaxRow > Rows.Count Then lMaxRow = 100000
+    If lMaxRow > Rows.count Then lMaxRow = 100000
     Call fSetValidationListForRange(shtSalesManCommConfig.Range(sSalesManCol & 2 & ":" & sSalesManCol & lMaxRow), sValidationListAddr)
 End Function
 

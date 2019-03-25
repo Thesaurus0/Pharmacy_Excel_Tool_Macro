@@ -37,20 +37,20 @@ Option Explicit
 #End If
 
 Function GetData(ByVal Format&, abData() As Byte) As Boolean
-    Dim hwnd&, Size&, Ptr&
+    Dim hwnd&, size&, Ptr&
     If OpenClipboard(0&) Then
         ' Get memory handle to the data
         hwnd = GetClipboardData(Format)
         ' Get size of this memory block
-        If hwnd Then Size = GlobalSize(hwnd)
+        If hwnd Then size = GlobalSize(hwnd)
             ' Get pointer to the locked memory
-        If Size Then Ptr = GlobalLock(hwnd)
+        If size Then Ptr = GlobalLock(hwnd)
         
         If Ptr Then
             ' Resize the byte array to hold the data
-            ReDim abData(0 To Size - 1) As Byte
+            ReDim abData(0 To size - 1) As Byte
             ' Copy from the pointer into the array
-            CopyMem abData(0), ByVal Ptr, Size
+            CopyMem abData(0), ByVal Ptr, size
             ' Unlock the memory
             Call GlobalUnlock(hwnd)
             GetData = True

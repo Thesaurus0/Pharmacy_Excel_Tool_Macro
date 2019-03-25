@@ -289,12 +289,12 @@ Function fShowActivateSheet(shtToSwitch As Worksheet, Optional sRngAddrToSelect 
     Dim shtCurr As Worksheet
     Set shtCurr = ActiveSheet
 
-    On Error Resume Next
+    'On Error Resume Next
     
     If shtToSwitch.Visible <> xlSheetVisible Then shtToSwitch.Visible = xlSheetVisible
     
     shtToSwitch.Activate
-    Range(sRngAddrToSelect).Select
+    'Range(sRngAddrToSelect).Select
 
     If bHidePreviousActiveSheet Then
         If Not shtCurr Is shtToSwitch Then shtCurr.Visible = xlSheetVeryHidden
@@ -414,7 +414,7 @@ Sub subMain_BackToLastPosition()
     Dim shtLast As Worksheet
     Dim lEachRow As Long
     
-    lLastMaxRow = shtDataStage.Cells(Rows.Count, LAST_COL).End(xlUp).Row
+    lLastMaxRow = shtDataStage.Cells(Rows.count, LAST_COL).End(xlUp).Row
     
     For lEachRow = lLastMaxRow To 1 Step -1
         sLastSheetName = Trim(shtDataStage.Cells(lEachRow, LAST_COL).Value)
@@ -465,7 +465,7 @@ Sub subMain_BackToPreviousPosition()
     Dim shtPrev As Worksheet
     Dim lEachRow As Long
     
-    lPrevMaxRow = shtDataStage.Cells(Rows.Count, PREV_COL).End(xlUp).Row
+    lPrevMaxRow = shtDataStage.Cells(Rows.count, PREV_COL).End(xlUp).Row
     
     For lEachRow = lPrevMaxRow To 1 Step -1
         sPrevSheetName = Trim(shtDataStage.Cells(lEachRow, PREV_COL).Value)
@@ -503,7 +503,7 @@ End Sub
 
 Function fAppendDataToLastCellOfColumn(ByRef sht As Worksheet, alCol As Long, aValue)
     Dim lMaxRow As Long
-    lMaxRow = sht.Cells(Rows.Count, alCol).End(xlUp).Row
+    lMaxRow = sht.Cells(Rows.count, alCol).End(xlUp).Row
     
     If lMaxRow <= 1 Then
         If fZero(sht.Cells(lMaxRow, alCol).Value) Then
@@ -611,7 +611,7 @@ Function fCompareDictionaryKeys(dictBase As Dictionary, dictThis As Dictionary) 
     Set dictOut = New Dictionary
     
     'missed from right one
-    For i = 0 To dictBase.Count - 1
+    For i = 0 To dictBase.count - 1
         sKey = dictBase.Keys(i)
         
         If Not dictThis.Exists(sKey) Then
@@ -627,7 +627,7 @@ Function fCompareDictionaryKeys(dictBase As Dictionary, dictThis As Dictionary) 
 '    If dictThis <= 0 And dictThis.Count > 0 Then iBlankColNum = UBound(Split(dictThis.Keys(0), DELIMITER)) - LBound(Split(dictThis.Keys(0), DELIMITER)) + 1
     
     'missed from LEFT one
-    For i = 0 To dictThis.Count - 1
+    For i = 0 To dictThis.count - 1
         sKey = dictThis.Keys(i)
         
         'If Not dictBase.Exists(sKey) Then
@@ -649,7 +649,7 @@ Function fCompareDictionaryKeysAndSingleItem(dictBase As Dictionary, dictThis As
     Set dictOut = New Dictionary
     
     'missed from right one
-    For i = 0 To dictBase.Count - 1
+    For i = 0 To dictBase.count - 1
         sKey = dictBase.Keys(i)
         
         If Not dictThis.Exists(sKey) Then
@@ -666,7 +666,7 @@ Function fCompareDictionaryKeysAndSingleItem(dictBase As Dictionary, dictThis As
     Next
     
     'missed from LEFT one
-    For i = 0 To dictThis.Count - 1
+    For i = 0 To dictThis.count - 1
         sKey = dictThis.Keys(i)
         
         'If Not dictBase.Exists(sKey) Then
@@ -687,7 +687,7 @@ Function fCompareDictionaryKeysAndMultipleItems(ByRef dictBase As Dictionary, By
     Set dictOut = New Dictionary
     
     'missed from right one
-    For i = 0 To dictBase.Count - 1
+    For i = 0 To dictBase.count - 1
         sKey = dictBase.Keys(i)
         
         If Not dictThis.Exists(sKey) Then
@@ -703,7 +703,7 @@ Function fCompareDictionaryKeysAndMultipleItems(ByRef dictBase As Dictionary, By
     Next
     
     'missed from LEFT one
-    For i = 0 To dictThis.Count - 1
+    For i = 0 To dictThis.count - 1
         sKey = dictThis.Keys(i)
         
         'If Not dictBase.Exists(sKey) Then
@@ -948,13 +948,13 @@ Sub subMain_CompareChangeWithPrevVersion()
         If wbOutput Is Nothing Then
             Application.SheetsInNewWorkbook = 1
             Set wbOutput = Workbooks.Add(xlWBATWorksheet)
-            wbOutput.Worksheets(wbOutput.Worksheets.Count).Name = "Temp"
+            wbOutput.Worksheets(wbOutput.Worksheets.count).Name = "Temp"
         Else
             'wbOutput.Worksheets.Add after:=wbOutput.Worksheets(wbOutput.Worksheets.Count)
         End If
             
-        wbOutput.Worksheets.Add after:=wbOutput.Worksheets(wbOutput.Worksheets.Count)
-        Set shtOutput = wbOutput.Worksheets(wbOutput.Worksheets.Count)
+        wbOutput.Worksheets.Add after:=wbOutput.Worksheets(wbOutput.Worksheets.count)
+        Set shtOutput = wbOutput.Worksheets(wbOutput.Worksheets.count)
         shtOutput.Name = shtBase.Name & "_比较结果"
             
         Call fCopyReadWholeSheetData2Array(shtBase, arrBase)
@@ -971,8 +971,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictDiff, False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictDiff, False)
         ElseIf shtTargetEach.CodeName = "shtSalesManMaster" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "业务员名称", "基础版本 经理", " 新版本中经理", "", "", ""), 1)
             
@@ -984,8 +984,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
             
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         ElseIf shtTargetEach.CodeName = "shtProductProducerMaster" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "药品厂家", "基础版本中行号", "", "", "新版本中行号"), 1)
             
@@ -997,8 +997,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictDiff, False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictDiff, False)
         ElseIf shtTargetEach.CodeName = "shtProductNameMaster" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "药品厂家", "药品名称", "基础版本中行号", "", "", "新版本中行号"), 1)
             
@@ -1010,8 +1010,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictDiff, False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictDiff, False)
         ElseIf shtTargetEach.CodeName = "shtHospitalReplace" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "医院名称", "基础版本 替换为", "新版本中 替换为", "", "", ""), 1)
             
@@ -1023,8 +1023,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         ElseIf shtTargetEach.CodeName = "shtCompanyNameReplace" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "原始文件商业公司名称", "基础版本 替换为", "新版本中 替换为", "", "", ""), 1)
             
@@ -1036,8 +1036,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         ElseIf shtTargetEach.CodeName = "shtProductMaster" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "药品厂家", "药品名称", "药品规格", "基础版本中行号", "", "", "新版本中行号"), 1)
             
@@ -1049,8 +1049,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictDiff, False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictDiff, False)
         ElseIf shtTargetEach.CodeName = "shtProductProducerReplace" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "原始药品厂家", "基础版本 替换为", "新版本中 替换为", "", "", ""), 1)
             
@@ -1062,8 +1062,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         ElseIf shtTargetEach.CodeName = "shtProductNameReplace" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "药品厂家", "原始药品名称", "基础版本 替换为", "新版本中 替换为", "", "", ""), 1)
             
@@ -1075,8 +1075,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         ElseIf shtTargetEach.CodeName = "shtProductSeriesReplace" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "药品厂家", "药品名称", "原始药品规格", "基础版本 替换为", "新版本中 替换为", "", "", ""), 1)
             
@@ -1088,8 +1088,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         ElseIf shtTargetEach.CodeName = "shtProductUnitRatio" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "药品厂家", "药品名称", "药品规格", "统一单位", "原始单位", "基础版本 倍数", "新版本中 倍数", "", "", ""), 1)
             
@@ -1101,8 +1101,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         ElseIf shtTargetEach.CodeName = "shtProductTaxRate" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "药品厂家", "药品名称", "药品规格", "基础版本 税点", "新版本中 税点", "", "", ""), 1)
             
@@ -1114,8 +1114,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
             
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         ElseIf shtTargetEach.CodeName = "shtSalesManCommConfig" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "商业公司", "医院", "药品生产厂家", "药品名称", "规格", "中标价", "业务员1|佣金1|业务员2|佣金2|业务员3|佣金3|负责人名称|负责人提成比例", "", "", ""), 1)
             
@@ -1127,8 +1127,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 1).Value = fTranspose1DimenArrayTo2DimenArrayVertically(dictDiff.Items) 'fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, vbLf, False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 1).Value = fTranspose1DimenArrayTo2DimenArrayVertically(dictDiff.Items) 'fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, vbLf, False)
         ElseIf shtTargetEach.CodeName = "shtSelfPurchaseOrder" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "药品生产厂家", "药品名称", "规格", "单位", "进货日期", "批号", "进货数量|进货单价", "", "", ""), 1)
             
@@ -1140,8 +1140,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 1).Value = fTranspose1DimenArrayTo2DimenArrayVertically(dictDiff.Items) 'fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, vbLf, False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 1).Value = fTranspose1DimenArrayTo2DimenArrayVertically(dictDiff.Items) 'fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, vbLf, False)
         ElseIf shtTargetEach.CodeName = "shtSelfSalesOrder" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "药品生产厂家", "药品名称", "规格", "单位", "进货日期", "批号", "进货数量|进货单价|医院销售抵消数量", "", "", ""), 1)
             
@@ -1153,8 +1153,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 1).Value = fTranspose1DimenArrayTo2DimenArrayVertically(dictDiff.Items) 'fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, vbLf, False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 1).Value = fTranspose1DimenArrayTo2DimenArrayVertically(dictDiff.Items) 'fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, vbLf, False)
         ElseIf shtTargetEach.CodeName = "shtFirstLevelCommission" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "商业公司", "药品厂家", "药品名称", "药品规格", "基础版本 配送费", "新版本中 配送费", "", "", ""), 1)
             
@@ -1166,8 +1166,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         ElseIf shtTargetEach.CodeName = "shtSecondLevelCommission" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "商业公司", "医院", "药品厂家", "药品名称", "药品规格", "基础版本 配送费", "新版本中 配送费", "", "", ""), 1)
             
@@ -1179,8 +1179,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         ElseIf shtTargetEach.CodeName = "shtNewRuleProducts" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "药品生产厂家", "药品名称", "规格", "销售税金率 | 进项税金率", "", "", ""), 1)
             
@@ -1192,8 +1192,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 1).Value = fTranspose1DimenArrayTo2DimenArrayVertically(dictDiff.Items) 'fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, vbLf, False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 1).Value = fTranspose1DimenArrayTo2DimenArrayVertically(dictDiff.Items) 'fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, vbLf, False)
         ElseIf shtTargetEach.CodeName = "shtPromotionProduct" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "医院", "药品厂家", "药品名称", "药品规格", "中标价", "基础版本 返点", "新版本中 返点", "", "", ""), 1)
             
@@ -1205,8 +1205,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         ElseIf shtTargetEach.CodeName = "shtCZLRolloverInv" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "药品厂家", "药品名称", "药品规格", "单位", "批号", "基础版本 期初库存数量", "新版本中 期初库存数量", "", "", ""), 1)
             
@@ -1218,8 +1218,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         ElseIf shtTargetEach.CodeName = "shtSalesCompRolloverInv" Then
             Call fPrepareHeaderToSheet(shtOutput, Array("数据标志", "商业公司", "药品厂家", "药品名称", "药品规格", "单位", "批号", "基础版本 期初库存数量", "新版本中 期初库存数量", "", "", ""), 1)
             
@@ -1231,8 +1231,8 @@ Sub subMain_CompareChangeWithPrevVersion()
             Call fAppendArray2Sheet(shtOutput, arrDiff, , False)
             '========================================
 
-            If dictDiff.Count > 0 Then _
-            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.Count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
+            If dictDiff.count > 0 Then _
+            shtOutput.Cells(2, UBound(arrDiff, 2) + 1).Resize(dictDiff.count, 2).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictDiff, , False)
         End If
         
         Erase arrBase
@@ -1240,7 +1240,7 @@ Sub subMain_CompareChangeWithPrevVersion()
         Set dictBase = Nothing: Set dictThis = Nothing
         Erase arrDiff
         
-        If dictDiff.Count <= 0 Then
+        If dictDiff.count <= 0 Then
             fDeleteSheet shtOutput.Name, wbOutput
         Else
             shtOutput.Rows(1).Font.Color = RGB(255, 0, 0)
@@ -1267,7 +1267,7 @@ error_handling:
     If fCheckIfGotBusinessError Then Err.Clear
     If fCheckIfUnCapturedExceptionAbnormalError Then End
     
-    If wbOutput.Worksheets.Count > 1 Then
+    If wbOutput.Worksheets.count > 1 Then
         fDeleteSheet "Temp", wbOutput
         MsgBox "对比结束，请查看结果。"
     Else

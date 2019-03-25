@@ -36,8 +36,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Set rgIntersect = Intersect(Target, Me.Columns(SellPriceInAdv.ProductName))
     
     If Not rgIntersect Is Nothing Then
-        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+        If rgIntersect.Areas.count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+        If rgIntersect.Rows.count <> 1 Then GoTo exit_sub
 
         sProducer = Me.Cells(rgIntersect.Row, SellPriceInAdv.ProductProducer).Value
         Call fGetProductNameValidationListAndSetToCell(rgIntersect, sProducer)
@@ -46,8 +46,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Set rgIntersect = Intersect(Target, Me.Columns(SellPriceInAdv.ProductSeries))
         
         If Not rgIntersect Is Nothing Then
-            If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-            If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+            If rgIntersect.Areas.count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+            If rgIntersect.Rows.count <> 1 Then GoTo exit_sub
             
             sProducer = Me.Cells(rgIntersect.Row, SellPriceInAdv.ProductProducer).Value
             sProductName = Me.Cells(rgIntersect.Row, SellPriceInAdv.ProductName).Value
@@ -123,7 +123,7 @@ exit_sub:
     End If
     If lErrRowNo > 0 Then
         fShowAndActiveSheet Me
-        Application.GoTo Me.Cells(lErrRowNo, lErrColNo) ', True
+        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
     
     If Err.Number <> 0 And Err.Number <> gErrNum Then fMsgBox Err.Description

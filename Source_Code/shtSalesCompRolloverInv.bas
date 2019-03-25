@@ -43,8 +43,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
 
     'product name
     If Not rgIntersect Is Nothing Then
-        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+        If rgIntersect.Areas.count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+        If rgIntersect.Rows.count <> 1 Then GoTo exit_sub
 
         Dim sProducer As String
         Dim sValidationListAddr As String
@@ -65,8 +65,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Set rgIntersect = Intersect(Target, Me.Columns(ProductSeriesCol))
 
         If Not rgIntersect Is Nothing Then
-            If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-            If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+            If rgIntersect.Areas.count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+            If rgIntersect.Rows.count <> 1 Then GoTo exit_sub
 
             sProducer = rgIntersect.Offset(0, ProducerCol - ProductSeriesCol).Value
             sProductName = rgIntersect.Offset(0, ProductNameCol - ProductSeriesCol).Value
@@ -85,8 +85,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
             Set rgIntersect = Intersect(Target, Me.Columns(ProductUnitCol))
 
             If Not rgIntersect Is Nothing Then
-                If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-                If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+                If rgIntersect.Areas.count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+                If rgIntersect.Rows.count <> 1 Then GoTo exit_sub
 
                 sProducer = rgIntersect.Offset(0, ProducerCol - ProductUnitCol).Value
                 sProductName = rgIntersect.Offset(0, ProductNameCol - ProductUnitCol).Value
@@ -105,8 +105,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
                 Set rgIntersect = Intersect(Target, Me.Columns(LotNumCol))
 
                 If Not rgIntersect Is Nothing Then
-                    If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-                    If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+                    If rgIntersect.Areas.count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+                    If rgIntersect.Rows.count <> 1 Then GoTo exit_sub
 
                     sProducer = rgIntersect.Offset(0, ProducerCol - LotNumCol).Value
                     sProductName = rgIntersect.Offset(0, ProductNameCol - LotNumCol).Value
@@ -248,7 +248,7 @@ exit_sub:
     
     If lErrRowNo > 0 Then
         fShowAndActiveSheet Me
-        Application.GoTo Me.Cells(lErrRowNo, lErrColNo) ', True
+        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
 '    If Err.Number <> 0 Then
 '        fShowAndActiveSheet Me

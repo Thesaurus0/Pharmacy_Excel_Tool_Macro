@@ -81,7 +81,7 @@ Private Function fCalculateSalesCompanyInventory()
 '    Dim dictMissedLot As Dictionary
 '    Set dictMissedLot = New Dictionary
     
-    For i = 0 To dictSCompSales2Hospital.Count - 1
+    For i = 0 To dictSCompSales2Hospital.count - 1
         sKey = dictSCompSales2Hospital.Keys(i)
         
         If Not dictCZLSales2SalesComp.Exists(sKey) Then
@@ -91,7 +91,7 @@ Private Function fCalculateSalesCompanyInventory()
     Next
     
     'rollover
-    For i = 0 To dictSCompRolloverInv.Count - 1
+    For i = 0 To dictSCompRolloverInv.count - 1
         sKey = dictSCompRolloverInv.Keys(i)
         
         If Not dictCZLSales2SalesComp.Exists(sKey) Then
@@ -107,9 +107,9 @@ Private Function fCalculateSalesCompanyInventory()
     '---------------------------------------------------------------
     
     '================= calculate inventory of this month  ========================================
-    ReDim arrOut(1 To dictCZLSales2SalesComp.Count, 7) 'CZL sales 2 comp = purchase
+    ReDim arrOut(1 To dictCZLSales2SalesComp.count, 7) 'CZL sales 2 comp = purchase
     
-    For i = 0 To dictCZLSales2SalesComp.Count - 1  'CZL sales 2 comp = purchase
+    For i = 0 To dictCZLSales2SalesComp.count - 1  'CZL sales 2 comp = purchase
         sKey = dictCZLSales2SalesComp.Keys(i)
         
         dblPurchaseQty = CDbl(Split(dictCZLSales2SalesComp(sKey), DELIMITER)(0))
@@ -198,7 +198,7 @@ next_row:
     Next
     
     Dim i As Long
-    For i = 0 To dictSCompSales2Hospital.Count - 1
+    For i = 0 To dictSCompSales2Hospital.count - 1
         sKey = dictSCompSales2Hospital.Keys(i)
         
         dictSCompSales2Hospital(sKey) = dictSCompSales2Hospital(sKey) & DELIMITER & dictRowNoTmp(sKey)

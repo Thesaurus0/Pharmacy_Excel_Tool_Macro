@@ -165,20 +165,27 @@ Private Sub Workbook_SheetActivate(ByVal Sh As Object)
    ' fGetRibbonReference.Invalidate
 End Sub
 
-'Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)
-'    Application.EnableEvents = False
-'
-'    On Error GoTo exit_function
-'
-'    If Sh Is shtSysConf Then
-'        Call fShtSysConf_SheetChange_DevProdChange(Target)
-'        'Call shtSysConf_SheetChange_CommandBarConfig(Target)
-'    End If
-'
-'exit_function:
-'    Application.EnableEvents = True
-'End Sub
-'
+Private Sub Workbook_SheetBeforeRightClick(ByVal Sh As Object, ByVal Target As Range, Cancel As Boolean)
+    Dim btn As CommandBarButton
+    Dim cmdbar As CommandBar
+    
+    Set cmdbar = Application.CommandBars("cell")
+    cmdbar.Reset
+    
+    Set btn = cmdbar.Controls.Add(msoControlButton)
+    btn.Caption = "Active Sheet Code Pane"
+    btn.OnAction = "subMain_ActiveSheetInfo"
+    Set btn = Nothing
+    
+    
+    Set btn = cmdbar.Controls.Add(msoControlButton)
+    btn.Caption = "获取当前行业务信息"
+    btn.OnAction = "subMain_GetCurrentRowBusinessInfo"
+    Set btn = Nothing
+    
+    Set cmdbar = Nothing
+End Sub
+  
 
 Private Sub Workbook_SheetDeactivate(ByVal Sh As Object)
     'If Sh.Parent Is ThisWorkbook Then
@@ -188,10 +195,10 @@ Private Sub Workbook_SheetDeactivate(ByVal Sh As Object)
 End Sub
 
 Private Sub Workbook_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)
-    'fReGetValue_tgSearchBy
-'    If tgSearchBy_Val Then
-'        'fGetRibbonReference.InvalidateControl "tgSearchBy"
-'        fPresstgSearchBy (tgSearchBy_Val)
+    'fReGetValue_tgGetSearchBy
+'    If tgGetSearchBy_Val Then
+'        'fGetRibbonReference.InvalidateControl "tgGetSearchBy"
+'        fPresstgGetSearchBy (tgGetSearchBy_Val)
 '    End If
 End Sub
 
@@ -217,12 +224,12 @@ Function fUpdateRangeAddressForName_rngStaticSalesCompanyNames_Comm()
         fErr "No data is configured under tag " & asTag & " in sheet " & shtStaticData.Name & vbCr & "You must leave at least one blank line after the tag."
     End If
      
-    Set rngToFindIn = fGetRangeByStartEndPos(shtStaticData, lConfigStartRow, lConfigStartCol, lConfigEndRow, Columns.Count)
+    Set rngToFindIn = fGetRangeByStartEndPos(shtStaticData, lConfigStartRow, lConfigStartCol, lConfigEndRow, Columns.count)
     Call fFindAllColumnsIndexByColNames(rngToFindIn, arrColsName, arrColsIndex, lConfigHeaderAtRow)
     
     Dim lCol As Long
     lCol = arrColsIndex(1)
-    Call fCreateAddNameUpdateNameWhenExists("rngStaticSalesCompanyNames_Comm" _
+    Call fSetName("rngStaticSalesCompanyNames_Comm" _
                 , "=" & fGetRangeByStartEndPos(shtStaticData, lConfigHeaderAtRow + 1, lCol, lConfigEndRow, lCol).Address(external:=True))
 End Function
 

@@ -45,7 +45,7 @@ Sub subMain_ReplaceSalesInfos()
 '        arrWarningRows = Array()
 '    End If
     
-    If dictErrorRows.Count > 0 Or dictErrorRows.Count > 0 Then shtException.Visible = xlSheetVisible
+    If dictErrorRows.count > 0 Or dictErrorRows.count > 0 Then shtException.Visible = xlSheetVisible
     
 error_handling:
     
@@ -72,7 +72,7 @@ error_handling:
             
             Call fSetFormatForExceptionCells(shtSalesInfos, dictErrorRows, "REPORT_ERROR_COLOR")
             Call fSetFormatForExceptionCells(shtSalesInfos, dictWarningRows, "REPORT_WARNING_COLOR")
-            Call fSetReplaceUnifyErrorRowCount_SCompSalesInfo(dictErrorRows.Count)
+            Call fSetReplaceUnifyErrorRowCount_SCompSalesInfo(dictErrorRows.count)
         
             shtSalesInfos.Visible = xlSheetVisible
             shtSalesInfos.Activate
@@ -340,8 +340,8 @@ Function fAddNewFoundMissedHospitalToSheet(dictNewHospital As Dictionary, Option
     Call fAppendArray2Sheet(shtHospital, arrNewHospital)
     
     'If fUbound(arrNewHospital, 1) > 0 Then
-    If dictNewHospital.Count > 0 Then
-        fMsgBox dictNewHospital.Count & "个医院找不到，" & vbCr & "他们被自动加入到了表【" & shtHospital.Name & "】中了." _
+    If dictNewHospital.count > 0 Then
+        fMsgBox dictNewHospital.count & "个医院找不到，" & vbCr & "他们被自动加入到了表【" & shtHospital.Name & "】中了." _
                 & vbCr & "该表的最后面的数据为本次新加的。" & vbCr _
                 & ""
     End If
@@ -374,7 +374,7 @@ Function fAddNewFoundHospitalToSheetException(ByRef dictNewHospital As Dictionar
         shtException.Rows(lStartRow).Font.Bold = True
         
         Call fAppendArray2Sheet(shtException, arrNewHospital)
-        shtException.Cells(lStartRow + 1, 2).Resize(dictNewHospital.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewHospital, False)
+        shtException.Cells(lStartRow + 1, 2).Resize(dictNewHospital.count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewHospital, False)
 
         Call fFreezeSheet(shtException)
         
@@ -418,7 +418,7 @@ Function fAddNewFoundMissedProducerToSheetException(dictNewProducer As Dictionar
         
         Call fAppendArray2Sheet(shtException, arrNewProducer)
         'sErr = fUbound(arrNewProducer)
-        shtException.Cells(lStartRow + 1, 2).Resize(dictNewProducer.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProducer, False)
+        shtException.Cells(lStartRow + 1, 2).Resize(dictNewProducer.count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProducer, False)
        ' Erase arrNewProducer
         Call fFreezeSheet(shtException)
         
@@ -462,7 +462,7 @@ Function fAddNewFoundMissedProductNameToSheetException(dictNewProductName As Dic
         shtException.Rows(lStartRow).Font.Bold = True
         Call fAppendArray2Sheet(shtException, arrNewProductName)
         'sErr = fUbound(arrNewProductName)
-        shtException.Cells(lStartRow + 1, 3).Resize(dictNewProductName.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductName, False)
+        shtException.Cells(lStartRow + 1, 3).Resize(dictNewProductName.count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductName, False)
         'Erase arrNewProductName
         Call fFreezeSheet(shtException)
         
@@ -499,7 +499,7 @@ Private Function fAddNewFoundMissedProductSeriesToSheetException(dictNewProductS
         Call fAppendArray2Sheet(shtException, arrNewProductSeries)
         'sErr = fUbound(arrNewProductSeries)
         
-        shtException.Cells(lStartRow + 1, 4).Resize(dictNewProductSeries.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductSeries, False)
+        shtException.Cells(lStartRow + 1, 4).Resize(dictNewProductSeries.count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductSeries, False)
        ' Erase arrNewProductSeries
         Call fFreezeSheet(shtException)
         
@@ -543,8 +543,8 @@ Function fAddNewFoundMissedProductUnitToSheetException(dictNewProductUnit As Dic
         Call fAppendArray2Sheet(shtException, arrNewProductUnit)
         'sErr = fUbound(arrNewProductUnit)
             
-        shtException.Cells(lStartRow + 1, 5).Resize(dictNewProductUnitOrig.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductUnitOrig, False)
-        shtException.Cells(lStartRow + 1, 6).Resize(dictNewProductUnit.Count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductUnit, False)
+        shtException.Cells(lStartRow + 1, 5).Resize(dictNewProductUnitOrig.count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductUnitOrig, False)
+        shtException.Cells(lStartRow + 1, 6).Resize(dictNewProductUnit.count, 1).Value = fConvertDictionaryItemsTo2DimenArrayForPaste(dictNewProductUnit, False)
        ' Erase arrNewProductUnit
         Call fFreezeSheet(shtException)
         

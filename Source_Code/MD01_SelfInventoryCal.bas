@@ -66,7 +66,7 @@ Private Function fCalculateSelfInventory()
     Dim dblSellQty As Double
     Dim arrOut()
     
-    For i = 0 To dictSelfSalesOD.Count - 1
+    For i = 0 To dictSelfSalesOD.count - 1
         sKey = dictSelfSalesOD.Keys(i)
         
         If Not dictSelfPurchaseOD.Exists(sKey) Then
@@ -74,9 +74,9 @@ Private Function fCalculateSelfInventory()
         End If
     Next
     
-    ReDim arrOut(1 To dictSelfPurchaseOD.Count, 7)
+    ReDim arrOut(1 To dictSelfPurchaseOD.count, 7)
     
-    For i = 0 To dictSelfPurchaseOD.Count - 1
+    For i = 0 To dictSelfPurchaseOD.count - 1
         sKey = dictSelfPurchaseOD.Keys(i)
         
         dblPurchaseQty = CDbl(Split(dictSelfPurchaseOD(sKey), DELIMITER)(0))
@@ -144,7 +144,7 @@ Private Function fReadSheetSelfPurchaseOrder2Dictionary()
     Next
     
     Dim i As Long
-    For i = 0 To dictSelfPurchaseOD.Count - 1
+    For i = 0 To dictSelfPurchaseOD.count - 1
         sKey = dictSelfPurchaseOD.Keys(i)
         
         dictSelfPurchaseOD(sKey) = dictSelfPurchaseOD(sKey) & DELIMITER & dictRowNoTmp(sKey)
@@ -199,7 +199,7 @@ Private Function fReadSheetSelfSalesOrder2Dictionary()
     Next
     
     Dim i As Long
-    For i = 0 To dictSelfSalesOD.Count - 1
+    For i = 0 To dictSelfSalesOD.count - 1
         sKey = dictSelfSalesOD.Keys(i)
         
         dictSelfSalesOD(sKey) = dictSelfSalesOD(sKey) & DELIMITER & dictRowNoTmp(sKey)
@@ -261,7 +261,7 @@ Function fReadSheetSelfSalesOrderByYearMonth(adYearMonth As String) As Dictionar
     Next
     
     Dim i As Long
-    For i = 0 To dictOut.Count - 1
+    For i = 0 To dictOut.count - 1
         sKey = dictOut.Keys(i)
         
         dictOut(sKey) = dictOut(sKey) & DELIMITER & dictRowNoTmp(sKey)
@@ -285,7 +285,7 @@ Function fCheckIfSelfSellAmountIsGreaterThanPurchaseByLotNumber(arrData, iColPro
     If dictSelfPurchaseOD Is Nothing Then Call fReadSheetSelfPurchaseOrder2Dictionary
     If dictSelfSalesOD Is Nothing Then Call fReadSheetSelfSalesOrder2Dictionary
     
-    For i = 0 To dictSelfSalesOD.Count - 1
+    For i = 0 To dictSelfSalesOD.count - 1
         sKey = dictSelfSalesOD.Keys(i)
         
         If Not dictSelfPurchaseOD.Exists(sKey) Then

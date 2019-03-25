@@ -115,7 +115,7 @@ Sub subMain_CalCZLInventory()
 '    fBasicCosmeticFormatSheet shtCZLInventory
 '    fSetBorderLineForSheet shtCZLInventory
     fActiveVisibleSwitchSheet shtCZLInventory, , False
-    Application.GoTo shtCZLInventory.Range("A2"), True
+    Application.Goto shtCZLInventory.Range("A2"), True
     
     fSortDataInSheetSortSheetData shtCZLInventory, Array(CZLInv.ProductProducer, CZLInv.ProductName, CZLInv.ProductSeries)
     
@@ -179,7 +179,7 @@ Private Function fCalculateCZLInventory()
 '    Dim dictMissedLot As Dictionary
 '    Set dictMissedLot = New Dictionary
     
-    For i = 0 To dictCZLSales2Hospital.Count - 1
+    For i = 0 To dictCZLSales2Hospital.count - 1
         sKey = dictCZLSales2Hospital.Keys(i)
         
         If Not dictSelfSalesOD.Exists(sKey) Then
@@ -187,7 +187,7 @@ Private Function fCalculateCZLInventory()
             dictSelfSalesOD.Add sKey, "0|0|0"     'add for output
         End If
     Next
-    For i = 0 To dictCZLSales2Companies.Count - 1
+    For i = 0 To dictCZLSales2Companies.count - 1
         sKey = dictCZLSales2Companies.Keys(i)
         
         If Not dictSelfSalesOD.Exists(sKey) Then
@@ -197,7 +197,7 @@ Private Function fCalculateCZLInventory()
     Next
     
     'rollover
-    For i = 0 To dictCZLRolloverInv.Count - 1
+    For i = 0 To dictCZLRolloverInv.count - 1
         sKey = dictCZLRolloverInv.Keys(i)
         
         If Not dictSelfSalesOD.Exists(sKey) Then
@@ -215,9 +215,9 @@ Private Function fCalculateCZLInventory()
     '---------------------------------------------------------------
     
     '================= calculate inventory of this month  ========================================
-    ReDim arrOut(1 To dictSelfSalesOD.Count, 7) 'SelfSales = purchase
+    ReDim arrOut(1 To dictSelfSalesOD.count, 7) 'SelfSales = purchase
     
-    For i = 0 To dictSelfSalesOD.Count - 1  'SelfSales = purchase
+    For i = 0 To dictSelfSalesOD.count - 1  'SelfSales = purchase
         sKey = dictSelfSalesOD.Keys(i)
         
         dblPurchaseQty = CDbl(Split(dictSelfSalesOD(sKey), DELIMITER)(0))
@@ -301,7 +301,7 @@ Function fReadSheetCZLSalesToCompanies2Dictionary()
     Next
     
     Dim i As Long
-    For i = 0 To dictCZLSales2Companies.Count - 1
+    For i = 0 To dictCZLSales2Companies.count - 1
         sKey = dictCZLSales2Companies.Keys(i)
         
         dictCZLSales2Companies(sKey) = dictCZLSales2Companies(sKey) & DELIMITER & dictRowNoTmp(sKey)
@@ -356,7 +356,7 @@ Function fReadSheetCZLSalesToHospital2Dictionary()
     Next
     
     Dim i As Long
-    For i = 0 To dictCZLSales2Hospital.Count - 1
+    For i = 0 To dictCZLSales2Hospital.count - 1
         sKey = dictCZLSales2Hospital.Keys(i)
         
         dictCZLSales2Hospital(sKey) = dictCZLSales2Hospital(sKey) & DELIMITER & dictRowNoTmp(sKey)
@@ -471,7 +471,7 @@ next_row:
     Next
     
     Dim i As Long
-    For i = 0 To dictOut.Count - 1
+    For i = 0 To dictOut.count - 1
         sKey = dictOut.Keys(i)
         
         dictOut(sKey) = dictOut(sKey) & DELIMITER & dictRowNoTmp(sKey)

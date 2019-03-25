@@ -31,7 +31,7 @@ Sub subMain_ImportSalesInfoFiles()
     Dim i As Integer
     Dim iCnt As Integer
     iCnt = 0
-    For i = 0 To dictCompList.Count - 1
+    For i = 0 To dictCompList.count - 1
         gsCompanyID = dictCompList.Keys(i)
         
         If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
@@ -49,7 +49,7 @@ Sub subMain_ImportSalesInfoFiles()
     fClearContentLeaveHeader shtSalesInfos
     Call fSetReplaceUnifyErrorRowCount_SCompSalesInfo(100)
     
-    For i = 0 To dictCompList.Count - 1
+    For i = 0 To dictCompList.count - 1
         gsCompanyID = dictCompList.Keys(i)
         
         If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
@@ -110,7 +110,7 @@ error_handling:
      
     fMsgBox "成功整合在工作表：[" & shtSalesRawDataRpt.Name & "] 中，请检查！", vbInformation
     
-    Application.GoTo shtSalesRawDataRpt.Range("A" & fGetValidMaxRow(shtSalesRawDataRpt)), True
+    Application.Goto shtSalesRawDataRpt.Range("A" & fGetValidMaxRow(shtSalesRawDataRpt)), True
 reset_excel_options:
     Err.Clear
     fClearRefVariables
@@ -132,7 +132,7 @@ Private Function fValidateUserInputAndSetToConfigSheet()
     Dim sFilePathRange As String
     Dim sEachFilePath  As String
     
-    For i = 0 To dictCompList.Count - 1
+    For i = 0 To dictCompList.count - 1
         sEachCompanyID = dictCompList.Keys(i)
         'sFilePathRange = "rngSalesFilePath_" & sEachCompanyID
         

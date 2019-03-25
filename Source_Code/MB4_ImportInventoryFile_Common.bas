@@ -132,7 +132,7 @@ error_handling:
      
     fMsgBox "成功整合在工作表：[" & shtInventoryRawDataRpt.Name & "] 中，请检查！", vbInformation
     
-    Application.GoTo shtInventoryRawDataRpt.Range("A" & fGetValidMaxRow(shtInventoryRawDataRpt)), True
+    Application.Goto shtInventoryRawDataRpt.Range("A" & fGetValidMaxRow(shtInventoryRawDataRpt)), True
 reset_excel_options:
     Err.Clear
     fClearRefVariables

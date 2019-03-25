@@ -48,7 +48,7 @@ Sub subMain_CalculateRefundOrSupplement()
     Call fAppendArray2Sheet(shtRefund, arrOutput)
     
     Call fBasicCosmeticFormatSheet(shtRefund, Refund.[_last])
-    If dictErrorRows.Count <= 0 And dictErrorRows.Count <= 0 Then
+    If dictErrorRows.count <= 0 And dictErrorRows.count <= 0 Then
         Call fSetConditionFormatForOddEvenLine(shtRefund, Refund.[_last])
     Else
         Call fDeleteAllConditionFormatFromSheet(shtRefund)
@@ -62,7 +62,7 @@ Sub subMain_CalculateRefundOrSupplement()
 error_handling:
     If fCheckIfUnCapturedExceptionAbnormalError Then GoTo reset_excel_options
     
-    If dictErrorRows.Count > 0 Or dictErrorRows.Count > 0 Then
+    If dictErrorRows.count > 0 Or dictErrorRows.count > 0 Then
         shtException.Visible = xlSheetVisible
         
         Dim lExcepMaxCol As Long
@@ -229,11 +229,11 @@ next_row:
 '                    & DELIMITER & dictReverseTo.Items(lEachRow)
 '    Next
     
-    For lEachRow = 0 To dictCZLSalesDeduct.Count - 1
+    For lEachRow = 0 To dictCZLSalesDeduct.count - 1
         dictCZLSalesDeduct(dictCZLSalesDeduct.Keys(lEachRow)) = dictCZLSalesDeduct.Items(lEachRow) _
                     & DELIMITER & dictDeductTo.Items(lEachRow)
     Next
-    For lEachRow = 0 To dictCZLSalesMinus.Count - 1
+    For lEachRow = 0 To dictCZLSalesMinus.count - 1
         dictCZLSalesMinus(dictCZLSalesMinus.Keys(lEachRow)) = dictCZLSalesMinus.Items(lEachRow) _
                     & DELIMITER & dictMinusTo.Items(lEachRow)
     Next
@@ -672,7 +672,7 @@ Private Function fAddNoValidCZLSalesToSheetException(dictNoValidCZLSales As Dict
     Dim j As Integer
     Dim lStartRow As Long
     
-    lUniqRecCnt = dictNoValidCZLSales.Count
+    lUniqRecCnt = dictNoValidCZLSales.count
     If lUniqRecCnt > 0 Then
         lStartRow = fGetshtExceptionNewRow
         arrLeftPart = fConvertDictionaryDelimiteredKeysTo2DimenArrayForPaste(dictNoValidCZLSales, , False)
@@ -687,7 +687,7 @@ Private Function fAddNoValidCZLSalesToSheetException(dictNoValidCZLSales As Dict
         
         lRecCount = fGetDictionayDelimiteredItemsCount(dictNoValidCZLSales)
         
-        shtException.Cells(lStartRow + 1, UBound(arrLeftPart, 2) + 1).Resize(dictNoValidCZLSales.Count, 3).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictNoValidCZLSales, , True)
+        shtException.Cells(lStartRow + 1, UBound(arrLeftPart, 2) + 1).Resize(dictNoValidCZLSales.count, 3).Value = fConvertDictionaryDelimiteredItemsTo2DimenArrayForPaste(dictNoValidCZLSales, , True)
         Erase arrLeftPart
         If lStartRow = 2 Then Call fFreezeSheet(shtException, , 2)
         
@@ -696,7 +696,7 @@ Private Function fAddNoValidCZLSalesToSheetException(dictNoValidCZLSales As Dict
         
         If fNzero(gsBusinessErrorMsg) Then gsBusinessErrorMsg = gsBusinessErrorMsg & vbCr & vbCr & vbCr & "===============================" & vbCr & vbCr
 
-        gsBusinessErrorMsg = gsBusinessErrorMsg & dictNoValidCZLSales.Count & "个销售流向的实际供货价找不到，因为采芝林没有发过这样的贷给那些商业公司，" _
+        gsBusinessErrorMsg = gsBusinessErrorMsg & dictNoValidCZLSales.count & "个销售流向的实际供货价找不到，因为采芝林没有发过这样的贷给那些商业公司，" _
                         & "或者所发过的货已被完全扣除，请确认您是否忘记导入了采芝林某些月份的销售流向，或者采芝林本身的销售流向中有遗漏数据。"
     End If
 End Function

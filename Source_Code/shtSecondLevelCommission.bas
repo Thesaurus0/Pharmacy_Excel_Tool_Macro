@@ -27,7 +27,7 @@ Private Sub btnShtSecondLevelValidation_Click()
 End Sub
 
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
-    On Error GoTo exit_sub
+    'On Error GoTo exit_sub
     Application.ScreenUpdating = False
     
     Const ProducerCol = 3
@@ -40,8 +40,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Set rgIntersect = Intersect(Target, Me.Columns(ProductNameCol))
     
     If Not rgIntersect Is Nothing Then
-        If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-        If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+        If rgIntersect.Areas.count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+        If rgIntersect.Rows.count <> 1 Then GoTo exit_sub
             
         Dim sProducer As String
         Dim sValidationListAddr As String
@@ -62,8 +62,8 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         Set rgIntersect = Intersect(Target, Me.Columns(ProductSeriesCol))
         
         If Not rgIntersect Is Nothing Then
-            If rgIntersect.Areas.Count > 1 Then GoTo exit_sub    'fErr "不能选多个"
-            If rgIntersect.Rows.Count <> 1 Then GoTo exit_sub
+            If rgIntersect.Areas.count > 1 Then GoTo exit_sub    'fErr "不能选多个"
+            If rgIntersect.Rows.count <> 1 Then GoTo exit_sub
             
             sProducer = Me.Cells(rgIntersect.Row, SecondLevelComm.ProductProducer).Value
             sProductName = Me.Cells(rgIntersect.Row, SecondLevelComm.ProductName).Value
@@ -161,7 +161,7 @@ exit_sub:
     End If
     If lErrRowNo > 0 Then
         fShowAndActiveSheet Me
-        Application.GoTo Me.Cells(lErrRowNo, lErrColNo) ', True
+        Application.Goto Me.Cells(lErrRowNo, lErrColNo) ', True
     End If
     
     If Err.Number <> 0 And Err.Number <> gErrNum Then fMsgBox Err.Description

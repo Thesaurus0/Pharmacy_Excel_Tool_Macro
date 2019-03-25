@@ -43,6 +43,7 @@ Public dictRptColAttr As Dictionary
 Public gFSO As FileSystemObject
 Public gRegExp As VBScript_RegExp_55.RegExp
 Public Const PW_PROTECT_SHEET = "abcd1234"
+Public Const RANGE_PASTE_START_CELL = "G1"
 
 Public gProBar As ProgressBar
 

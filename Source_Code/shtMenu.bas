@@ -99,7 +99,7 @@ Sub sub_Initialize_CompanyListCombobox_SalesInfo()
     Set dictComp = fGetCompanyListCommon
     
     Dim i As Integer
-    For i = 0 To dictComp.Count - 1
+    For i = 0 To dictComp.count - 1
         Me.cbbCompanyList.AddItem dictComp.Keys(i)
     Next
     

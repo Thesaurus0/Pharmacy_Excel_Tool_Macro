@@ -159,34 +159,34 @@ Sub subAddNewButtonToBarWhenBarNotExistsCreateIt(asBarName As String, asBtnCapti
 
     If fZero(asBarName) Or fZero(asBtnCaption) Or fZero(asOnAction) Then fErr "Wron param"
     
-    Dim cmdBar As CommandBar
+    Dim cmdbar As CommandBar
     
-    If fCommandBarExists(asBarName, cmdBar) Then
+    If fCommandBarExists(asBarName, cmdbar) Then
     Else
-        Set cmdBar = fAddNewCommandBar(asBarName)
+        Set cmdbar = fAddNewCommandBar(asBarName)
     End If
     
-    Call fAddNewButtonToBarWhenExistsUpdateIt(cmdBar, asBtnCaption, asOnAction, aiFaceId, asTipText)
+    Call fAddNewButtonToBarWhenExistsUpdateIt(cmdbar, asBtnCaption, asOnAction, aiFaceId, asTipText)
 End Sub
 
-Function fCommandBarExists(asBarName As String, ByRef cmdBar As CommandBar) As Boolean
+Function fCommandBarExists(asBarName As String, ByRef cmdbar As CommandBar) As Boolean
     'Dim cmdBar As CommandBar
     
     On Error Resume Next
-    Set cmdBar = Application.CommandBars(asBarName)
-    fCommandBarExists = (Not cmdBar Is Nothing)
+    Set cmdbar = Application.CommandBars(asBarName)
+    fCommandBarExists = (Not cmdbar Is Nothing)
     Err.Clear
 End Function
 
 Function fAddNewCommandBar(asBarName As String) As CommandBar
-    Dim cmdBar As CommandBar
+    Dim cmdbar As CommandBar
     
     Call sub_RemoveCommandBar(asBarName)
-    Set cmdBar = Application.CommandBars.Add(asBarName, msoBarTop)
-    cmdBar.Visible = True
+    Set cmdbar = Application.CommandBars.Add(asBarName, msoBarTop)
+    cmdbar.Visible = True
     
-    Set fAddNewCommandBar = cmdBar
-    Set cmdBar = Nothing
+    Set fAddNewCommandBar = cmdbar
+    Set cmdbar = Nothing
 End Function
 
 Sub sub_RemoveCommandBar(ByVal asBarName As String)
@@ -195,7 +195,7 @@ Sub sub_RemoveCommandBar(ByVal asBarName As String)
     Err.Clear
 End Sub
 
-Function fAddNewButtonToBarWhenExistsUpdateIt(cmdBar As CommandBar, asBtnCaption As String _
+Function fAddNewButtonToBarWhenExistsUpdateIt(cmdbar As CommandBar, asBtnCaption As String _
                                             , asOnAction As String, aiFaceId As Long _
                                             , Optional asTipText As String)
     'Dim cmdBar As CommandBar
@@ -203,9 +203,9 @@ Function fAddNewButtonToBarWhenExistsUpdateIt(cmdBar As CommandBar, asBtnCaption
  
     'Set cmdBar = Application.CommandBars(asBarName)
     
-    If fButtonExistsInCommandBar(cmdBar, asBtnCaption, btn) Then
+    If fButtonExistsInCommandBar(cmdbar, asBtnCaption, btn) Then
     Else
-        Set btn = cmdBar.Controls.Add(msoControlButton)
+        Set btn = cmdbar.Controls.Add(msoControlButton)
     End If
  
     btn.Caption = asBtnCaption
@@ -215,13 +215,13 @@ Function fAddNewButtonToBarWhenExistsUpdateIt(cmdBar As CommandBar, asBtnCaption
     btn.TooltipText = IIf(Len(asTipText) <= 0, asBtnCaption, asTipText)
     btn.BeginGroup = True
     
-    Set cmdBar = Nothing
+    Set cmdbar = Nothing
     Set btn = Nothing
 End Function
 
-Function fButtonExistsInCommandBar(cmdBar As CommandBar, asBtnCaption As String, ByRef btn As CommandBarButton) As Boolean
+Function fButtonExistsInCommandBar(cmdbar As CommandBar, asBtnCaption As String, ByRef btn As CommandBarButton) As Boolean
     On Error Resume Next
-    Set btn = cmdBar.Controls(asBtnCaption)
+    Set btn = cmdbar.Controls(asBtnCaption)
     
     fButtonExistsInCommandBar = (Not btn Is Nothing)
     Err.Clear
@@ -364,3 +364,27 @@ End Function
 Function fGetProgressBar()
     If gProBar Is Nothing Then Set gProBar = New ProgressBar
 End Function
+
+Sub subMain_ActiveSheetInfo()
+    Dim str As String
+    Dim vbcomp As VBIDE.VBComponent
+    Dim vbprj As VBIDE.VBProject
+    
+    On Error Resume Next
+    
+    If Workbooks.count <= 0 Then Exit Sub
+     
+    str = ActiveSheet.CodeName
+    ClipBoard_SetData str
+    'MsgBox str, vbInformation
+    
+    Set vbprj = ActiveWorkbook.VBProject
+    
+    Application.VBE.MainWindow.Visible = True
+    Set vbcomp = vbprj.VBComponents(str)
+    vbcomp.Activate
+    vbcomp.CodeModule.CodePane.Show
+    
+    Set vbcomp = Nothing
+    Set vbprj = Nothing
+End Sub

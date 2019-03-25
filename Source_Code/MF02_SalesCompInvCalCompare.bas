@@ -53,7 +53,7 @@ Sub subMain_CompareSalesCompanyInventory()
     shtSalesCompInvDiff.Rows(1).RowHeight = 25
     shtSalesCompInvDiff.Visible = xlSheetVisible
     shtSalesCompInvDiff.Activate
-    Application.GoTo shtSalesCompInvDiff.Range("A2"), True
+    Application.Goto shtSalesCompInvDiff.Range("A2"), True
 error_handling:
     If fCheckIfGotBusinessError Then
         GoTo reset_excel_options
@@ -81,7 +81,7 @@ Private Function fCompare2Inventory(dictSCompInformedInv As Dictionary, dictSCom
     
     Set dictOut = New Dictionary
     
-    For i = 0 To dictSCompInformedInv.Count - 1
+    For i = 0 To dictSCompInformedInv.count - 1
         sProdLotKey = dictSCompInformedInv.Keys(i)
         dblInformedInv = CDbl(dictSCompInformedInv.Items(i))
         
@@ -94,7 +94,7 @@ Private Function fCompare2Inventory(dictSCompInformedInv As Dictionary, dictSCom
     Next
     
     
-    For i = 0 To dictSCompCalInv.Count - 1
+    For i = 0 To dictSCompCalInv.count - 1
         sProdLotKey = dictSCompCalInv.Keys(i)
         dblCalculatedInv = CDbl(dictSCompCalInv.Items(i))
         

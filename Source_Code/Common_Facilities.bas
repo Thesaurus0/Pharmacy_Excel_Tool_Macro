@@ -15,9 +15,8 @@ Function fHowLong(Optional ByVal asPrefix As String = "")
 End Function
 
 Function fKeepCopyContent()
-    Dim myData As DataObject
+    'Dim myData As DataObject
     Dim sCopiedStr As String
-    Const PASTE_START_CELL = "G1"
     
     Dim shtActiveOrig As Worksheet
     
@@ -28,11 +27,23 @@ Function fKeepCopyContent()
         Set shtActiveOrig = ActiveSheet
         bCopyType = "CUT_RANGE"
     Else
-        Set myData = New DataObject
-        myData.GetFromClipboard
+'        Set myData = New DataObject
+'        myData.GetFromClipboard
+'
+'        On Error Resume Next
+'        sCopiedStr = myData.GetText()
+'
+'        If Err.Number <> 0 Then
+'            bCopyType = "NOTHING"
+'        Else
+'            bCopyType = "COPY_OTHERS"
+'        End If
+'        On Error GoTo 0
+'
+'        Set myData = Nothing
         
         On Error Resume Next
-        sCopiedStr = myData.GetText()
+        sCopiedStr = ClipBoard_GetData
         
         If Err.Number <> 0 Then
             bCopyType = "NOTHING"
@@ -40,28 +51,26 @@ Function fKeepCopyContent()
             bCopyType = "COPY_OTHERS"
         End If
         On Error GoTo 0
-        
-        Set myData = Nothing
     End If
     
     If bCopyType = "COPY_RANGE" Or bCopyType = "CUT_RANGE" Then
         shtDataStage.Activate
         
-        shtDataStage.Range(PASTE_START_CELL).PasteSpecial xlPasteAll
+        shtDataStage.Range(RANGE_PASTE_START_CELL).PasteSpecial xlPasteAll
         sCopyStageRangeAddr = Selection.Address(external:=True)
         fHideSheet shtDataStage
         
         shtActiveOrig.Activate
     ElseIf bCopyType = "COPY_OTHERS" Then
-        shtDataStage.Range(PASTE_START_CELL).Value = sCopiedStr
+        shtDataStage.Range(RANGE_PASTE_START_CELL).Value = sCopiedStr
         sCopyStageRangeAddr = ""
     ElseIf bCopyType = "NOTHING" Then
-        shtDataStage.Range(PASTE_START_CELL).ClearComments
-        shtDataStage.Range(PASTE_START_CELL).ClearContents
-        shtDataStage.Range(PASTE_START_CELL).ClearFormats
-        'shtDataStage.Range(PASTE_START_CELL).ClearHyperlinks
-        shtDataStage.Range(PASTE_START_CELL).ClearNotes
-        shtDataStage.Range(PASTE_START_CELL).ClearOutline
+        shtDataStage.Range(RANGE_PASTE_START_CELL).ClearComments
+        shtDataStage.Range(RANGE_PASTE_START_CELL).ClearContents
+        shtDataStage.Range(RANGE_PASTE_START_CELL).ClearFormats
+        'shtDataStage.Range(RANGE_PASTE_START_CELL).ClearHyperlinks
+        shtDataStage.Range(RANGE_PASTE_START_CELL).ClearNotes
+        shtDataStage.Range(RANGE_PASTE_START_CELL).ClearOutline
         sCopyStageRangeAddr = ""
     Else
         fErr "bCopyType"
@@ -72,17 +81,17 @@ End Function
 
 Function fCopyFromKept()
     Dim myData As DataObject
-    Const PASTE_START_CELL = "G1"
     
     If bCopyType = "COPY_RANGE" Then
         shtDataStage.Range(sCopyStageRangeAddr).Copy
     ElseIf bCopyType = "CUT_RANGE" Then
         shtDataStage.Range(sCopyStageRangeAddr).Cut
     ElseIf bCopyType = "COPY_OTHERS" Then
-        Set myData = New DataObject
-        myData.SetText CStr(shtDataStage.Range(PASTE_START_CELL).Value)
-        myData.PutInClipboard
-        Set myData = Nothing
+'        Set myData = New DataObject
+'        myData.SetText CStr(shtDataStage.Range(RANGE_PASTE_START_CELL).Value)
+'        myData.PutInClipboard
+'        Set myData = Nothing
+        ClipBoard_SetData CStr(shtDataStage.Range(RANGE_PASTE_START_CELL).Value)
     ElseIf bCopyType = "NOTHING" Then
     Else
         fErr "bCopyType"
@@ -118,11 +127,11 @@ Sub sub_ExportModulesSourceCodeToFolder()
     Dim i As Integer
     Dim iCnt As Long
     Dim vbProj As VBIDE.VBProject
-    Dim vbComp As VBIDE.VBComponent
+    Dim vbcomp As VBIDE.VBComponent
     
     Set vbProj = ThisWorkbook.VBProject
     
-    iCnt = vbProj.VBComponents.Count
+    iCnt = vbProj.VBComponents.count
     
     fGetFSO
         
@@ -140,10 +149,10 @@ Sub sub_ExportModulesSourceCodeToFolder()
         fDeleteAllFilesInFolder (sFolder)
         
         iCnt = 0
-        For Each vbComp In vbProj.VBComponents
-            If UCase(vbComp.Name) Like "SHEET*" Then GoTo Next_mod
-            If vbComp.Type = 1 Or vbComp.Type = 3 Or vbComp.Type = 100 Then
-                vbComp.Export sFolder & "\" & vbComp.Name & ".bas"
+        For Each vbcomp In vbProj.VBComponents
+            If UCase(vbcomp.Name) Like "SHEET*" Then GoTo Next_mod
+            If vbcomp.Type = 1 Or vbcomp.Type = 3 Or vbcomp.Type = 100 Then
+                vbcomp.Export sFolder & "\" & vbcomp.Name & ".bas"
             End If
             
 Next_mod:
@@ -269,12 +278,12 @@ Function fSetDEVUATPRODNotificationInSheetMenu()
     End If
     
     shtMenu.Range("A1").Value = sNotifi
-    shtMenu.Range("A1").Font.Size = iFontSize
+    shtMenu.Range("A1").Font.size = iFontSize
     shtMenu.Range("A1").Font.Color = iColor
     shtMenu.Range("A1").Font.Bold = bBold
     
     shtMenuCompInvt.Range("A1").Value = sNotifi
-    shtMenuCompInvt.Range("A1").Font.Size = iFontSize
+    shtMenuCompInvt.Range("A1").Font.size = iFontSize
     shtMenuCompInvt.Range("A1").Font.Color = iColor
     shtMenuCompInvt.Range("A1").Font.Bold = bBold
 End Function
@@ -285,19 +294,19 @@ Function fGetListAllModulesOfThisWorkbook() As Variant
     Dim arrOut()
     Dim iCnt As Long
     Dim vbProj As VBIDE.VBProject
-    Dim vbComp As VBIDE.VBComponent
+    Dim vbcomp As VBIDE.VBComponent
     
     Set vbProj = ThisWorkbook.VBProject
     
-    iCnt = vbProj.VBComponents.Count
+    iCnt = vbProj.VBComponents.count
     ReDim arrOut(1 To iCnt, 3)
     
     iCnt = 0
-    For Each vbComp In vbProj.VBComponents
+    For Each vbcomp In vbProj.VBComponents
         iCnt = iCnt + 1
         arrOut(iCnt, 1) = "Modules"
-        arrOut(iCnt, 2) = fVBEComponentTypeToString(vbComp.Type)
-        arrOut(iCnt, 3) = vbComp.Name
+        arrOut(iCnt, 2) = fVBEComponentTypeToString(vbcomp.Type)
+        arrOut(iCnt, 3) = vbcomp.Name
     Next
     
     fGetListAllModulesOfThisWorkbook = arrOut
@@ -332,7 +341,7 @@ Function fGetListAllSubFunctionsInThisWorkbook(arrModules()) As Variant
     Dim sMod As String
     Dim lineNo As Long
     Dim vbProj As VBIDE.VBProject
-    Dim vbComp As VBIDE.VBComponent
+    Dim vbcomp As VBIDE.VBComponent
     Dim codeMod As VBIDE.CodeModule
     Dim procKind As VBIDE.vbext_ProcKind
     Dim funcName As String
@@ -345,8 +354,8 @@ Function fGetListAllSubFunctionsInThisWorkbook(arrModules()) As Variant
     For i = LBound(arrModules, 1) To UBound(arrModules, 1)
         sMod = arrModules(i, 3)
         
-        Set vbComp = vbProj.VBComponents(sMod)
-        Set codeMod = vbComp.CodeModule
+        Set vbcomp = vbProj.VBComponents(sMod)
+        Set codeMod = vbcomp.CodeModule
         
         lineNo = codeMod.CountOfDeclarationLines + 1
         
@@ -424,7 +433,7 @@ Function fShtSysConf_SheetChange_DevProdChange(Target As Range)
     Set rgIntersect = Intersect(Target, rgAimed)
     
     If Not rgIntersect Is Nothing Then
-        If rgIntersect.Areas.Count > 1 Then fErr "Please select only one cell."
+        If rgIntersect.Areas.count > 1 Then fErr "Please select only one cell."
         
         gsEnv = rgIntersect.Value
         
@@ -448,8 +457,8 @@ Sub sub_GenAlpabetList()
     
     If Not fPromptToOverWrite() Then Exit Sub
     
-    If Selection.Rows.Count > 1 Then
-        maxNum = Selection.Rows.Count
+    If Selection.Rows.count > 1 Then
+        maxNum = Selection.Rows.count
     Else
         maxNum = InputBox("How many letters to you want to generate? (either number or letter is ok, e.g., 20 or AF)", "Max Number letter")
     End If
@@ -479,7 +488,7 @@ Sub sub_GenAlpabetList()
         arrList(i, 1) = fNum2Letter(i)
     Next
     
-    If Selection.Rows.Count > 1 Then
+    If Selection.Rows.count > 1 Then
         Selection.Value = arrList
     Else
         ActiveCell.Resize(UBound(arrList, 1), 1).Value = arrList
@@ -495,8 +504,8 @@ Sub sub_GenNumberList()
     
     If Not fPromptToOverWrite() Then Exit Sub
     
-    If Selection.Rows.Count > 1 Then
-        maxNum = Selection.Rows.Count
+    If Selection.Rows.count > 1 Then
+        maxNum = Selection.Rows.count
     Else
         maxNum = InputBox("How many letters to you want to generate? ( e.g., 20 , 100)", "Max Number")
     End If
@@ -520,7 +529,7 @@ Sub sub_GenNumberList()
         arrList(i, 1) = i
     Next
     
-    If Selection.Rows.Count > 1 Then
+    If Selection.Rows.count > 1 Then
         Selection.Value = arrList
     Else
         ActiveCell.Resize(UBound(arrList, 1), 1).Value = arrList
@@ -704,7 +713,7 @@ Sub sub_SortBySelectedCells()
     
     i = 0
     For Each rngEachArea In rngSelected.Areas
-        For j = rngEachArea.Column To rngEachArea.Column + rngEachArea.Columns.Count - 1
+        For j = rngEachArea.Column To rngEachArea.Column + rngEachArea.Columns.count - 1
             If j > lMaxCol Then Exit For
             
             i = i + 1
@@ -737,16 +746,7 @@ Function fSetFilterForSheet(sht As Worksheet, aColToFilter, aFilterValue)
         fErr "param aColToFilter and aFilterValue must be array or non-array at the same time."
     End If
     
-'    Dim myData As DataObject
-'    Dim sOriginText As String
-'
-'    Set myData = New DataObject
-'    myData.GetFromClipboard
-'    On Error Resume Next
-'    sOriginText = myData.GetText()
-'    On Error GoTo 0
-
-    fKeepCopyContent
+    'fKeepCopyContent
     
     Dim lMaxRow As Long
     Dim lMaxCol As Long
@@ -771,36 +771,10 @@ Function fSetFilterForSheet(sht As Worksheet, aColToFilter, aFilterValue)
                 Field:=aColToFilter, Criteria1:="=*" & aFilterValue & "*", Operator:=xlAnd
     End If
     
-    'Call fGotoCell(sht.Range("A2"), True)
-'    On Error Resume Next
-'    myData.SetText sOriginText
-'    'If fNzero(sOriginText) Then myData.SetText sOriginText
-'    myData.PutInClipboard
-'    On Error GoTo 0
-'    Set myData = Nothing
-
-    fCopyFromKept
-    
-'            If IsNumeric(eachCell.Value) Then
-'                rgData.AutoFilter Field:=eachCell.Column _
-'                                , Criteria1:=">=" & eachCell.Value _
-'                                , Operator:=xlAnd
-'            Else
-'                rgData.AutoFilter Field:=eachCell.Column _
-'                                , Criteria1:="=*" & eachCell.Value & "*" _
-'                                , Operator:=xlAnd
-'            End If
+    'fCopyFromKept
 End Function
 
 Function fCopyFilteredDataToRange(sht As Worksheet, colFiltered As Integer)
-'    Dim myData As DataObject
-'    Dim sOriginText As String
-'    Set myData = New DataObject
-'    myData.GetFromClipboard
-'    On Error Resume Next
-'    sOriginText = myData.GetText()
-'    On Error GoTo 0
-    
     fKeepCopyContent
     
     shtDataStage.Columns("A").ClearContents
@@ -810,16 +784,9 @@ Function fCopyFilteredDataToRange(sht As Worksheet, colFiltered As Integer)
     If lMaxRow < 2 Then Exit Function
     
     fGetRangeByStartEndPos(sht, 2, CLng(colFiltered), lMaxRow, CLng(colFiltered)).Copy
-    shtDataStage.Range("A1").PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
-        :=False, Transpose:=False
+    shtDataStage.Range("A1").PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
     Application.CutCopyMode = False
-    
-'    On Error Resume Next
-'    myData.SetText sOriginText
-'    myData.PutInClipboard
-'    On Error GoTo 0
-'
-'    Set myData = Nothing
+     
     fCopyFromKept
 End Function
 

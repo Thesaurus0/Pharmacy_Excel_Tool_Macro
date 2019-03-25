@@ -86,13 +86,13 @@ Function fImportSingleSheetExcelFileToThisWorkbook(sExcelFileFullPath As String,
     asShtToImport = Trim(asShtToImport)
     
     If Len(asShtToImport) <= 0 Then
-        wbSource.Worksheets(1).Copy after:=wb.Worksheets(wb.Worksheets.Count)
+        wbSource.Worksheets(1).Copy after:=wb.Worksheets(wb.Worksheets.count)
     Else
         If Not fSheetExists(asShtToImport, , wbSource) Then
             fErr "There is no sheet named """ & asShtToImport & """ in workbook " & sExcelFileFullPath
         End If
         
-        wbSource.Worksheets(asShtToImport).Copy after:=wb.Worksheets(wb.Worksheets.Count)
+        wbSource.Worksheets(asShtToImport).Copy after:=wb.Worksheets(wb.Worksheets.count)
     End If
     
     wb.ActiveSheet.Name = sNewSheet
@@ -210,7 +210,7 @@ next_row:
     lMaxCol = WorksheetFunction.Max(dict.Keys)
     
     ReDim arrOut(1 To lMaxCol)
-    For lEachRow = 0 To dict.Count - 1
+    For lEachRow = 0 To dict.count - 1
         lColindex = dict.Keys(lEachRow)
         arrOut(lColindex) = dict.Items(lEachRow)
     Next
@@ -293,7 +293,7 @@ End Function
 Function fDeleteRemoveConnections(wb As Workbook)
     Dim i As Long
     
-    For i = wb.Connections.Count To 1 Step -1
+    For i = wb.Connections.count To 1 Step -1
         wb.Connections(i).Delete
     Next
 End Function
@@ -348,7 +348,7 @@ Function fFileSpecTemplateHasAdditionalHeader(rngConfigBlock As Range, arrHeader
     Dim i As Integer
     
     lHeaderAtLine = fFindHeaderAtLineInFileSpec(rngConfigBlock, arrColsName)
-    Set rngHeader = fGetRangeByStartEndPos(shtFileSpec, lHeaderAtLine, rngConfigBlock.Column, lHeaderAtLine, Columns.Count)
+    Set rngHeader = fGetRangeByStartEndPos(shtFileSpec, lHeaderAtLine, rngConfigBlock.Column, lHeaderAtLine, Columns.count)
     
     If IsArray(arrHeadersToFind) Then
         For i = LBound(arrHeadersToFind) To UBound(arrHeadersToFind)
@@ -534,7 +534,7 @@ Function fReadInputFileSpecConfig(sFileSpecTag As String, ByRef dictLetterIndex 
             'If Len(sLetterIndex) > 0 Then
                 lColLetter2Num = fLetter2Num(sLetterIndex)
                 
-                If lColLetter2Num <= 0 Or lColLetter2Num > Columns.Count Then
+                If lColLetter2Num <= 0 Or lColLetter2Num > Columns.count Then
                     fErr "Col Letter Index is invalid,should be A - XFD: " & Replace(sErrPos, "$ACTUAL_ROW$", lActualRow) & arrColsName(LETTER_INDEX)
                 End If
                 dictLetterIndex.Add sColTechName, lColLetter2Num
@@ -547,8 +547,8 @@ Function fReadInputFileSpecConfig(sFileSpecTag As String, ByRef dictLetterIndex 
                 End If
                 lColArray2Num = CLng(sArrayIndex)
                 
-                If lColArray2Num <= 0 Or lColArray2Num > Columns.Count Then
-                    fErr "Col Array Index is invalid,should be 1 - " & Columns.Count & ": " & Replace(sErrPos, "$ACTUAL_ROW$", lActualRow) & arrColsName(ARRAY_INDEX)
+                If lColArray2Num <= 0 Or lColArray2Num > Columns.count Then
+                    fErr "Col Array Index is invalid,should be 1 - " & Columns.count & ": " & Replace(sErrPos, "$ACTUAL_ROW$", lActualRow) & arrColsName(ARRAY_INDEX)
                 End If
                 dictArrayIndex.Add sColTechName, lColArray2Num
             End If
@@ -562,7 +562,7 @@ Function fReadInputFileSpecConfig(sFileSpecTag As String, ByRef dictLetterIndex 
 next_row:
     Next
     
-    If dictActualRow.Count <= 0 Then fErr "Cxxxxxxxxxxx"
+    If dictActualRow.count <= 0 Then fErr "Cxxxxxxxxxxx"
     
     Dim lTxtMaxCol As Long
     Dim iTxt As Long
@@ -580,7 +580,7 @@ next_row:
     End If
     
     If Not bReadWholeSheetData Then
-        If dictArrayIndex.Count <= 0 Then
+        If dictArrayIndex.count <= 0 Then
             fErr "READ_SPECIFIED_COLUMNS is specified, but no array index is not specified"
         End If
     End If
@@ -588,7 +588,7 @@ next_row:
     If bTxtTemplate Then
         fGetRangeByStartEndPos(shtFileSpec, lConfigHeaderAtRow + 1, lConfigStartCol + arrColsIndex(LETTER_INDEX), lConfigEndRow, lConfigStartCol + arrColsIndex(LETTER_INDEX)).ClearContents
         If fRecalculateColumnIndexByRemoveNonImportTxtCol(dictLetterIndex, arrTxtNonImportCol) Then
-            For lEachRow = 0 To dictActualRow.Count - 1
+            For lEachRow = 0 To dictActualRow.count - 1
                 shtFileSpec.Cells(dictActualRow.Items(lEachRow), lConfigStartCol + arrColsIndex(LETTER_INDEX)) = _
                     fNum2Letter(dictLetterIndex.Items(lEachRow)) 'this is for reference
             Next
@@ -605,7 +605,7 @@ next_row:
         For lEachRow = LBound(arrDynamicColIndex) To UBound(arrDynamicColIndex)
             dictLetterIndex.Add dictDisplayName.Keys(lEachRow), arrDynamicColIndex(lEachRow)
         Next
-        For lEachRow = 0 To dictActualRow.Count - 1
+        For lEachRow = 0 To dictActualRow.count - 1
             shtFileSpec.Cells(dictActualRow.Items(lEachRow), lConfigStartCol + arrColsIndex(LETTER_INDEX) - 1) = _
                     fNum2Letter(dictLetterIndex.Items(lEachRow))
         Next
@@ -636,7 +636,7 @@ Function fRecalculateColumnIndexByRemoveNonImportTxtCol(ByRef dictLetterIndex As
     For iArrayIndex = LBound(arrTxtNonImportCol) To UBound(arrTxtNonImportCol)
         iColIndex = arrTxtNonImportCol(iArrayIndex)
         
-        For iDictIndex = 0 To dictLetterIndex.Count - 1
+        For iDictIndex = 0 To dictLetterIndex.count - 1
             If dictLetterIndex.Items(iDictIndex) > iColIndex Then
                 dictLetterIndex(dictLetterIndex.Keys(iDictIndex)) = dictLetterIndex.Items(iDictIndex) - 1
             ElseIf dictLetterIndex.Items(iDictIndex) = iColIndex Then
@@ -785,7 +785,7 @@ Function fReadSpecifiedColsToArrayByConfig(shtData As Worksheet, dictLetterIndex
     Dim sColType As String
     Dim arrEachCol()
     Dim lEachRow As Long
-    For i = 0 To dictArrayIndex.Count - 1
+    For i = 0 To dictArrayIndex.count - 1
         sTechName = dictArrayIndex.Keys(i)
         
         lColCopyFrom = dictLetterIndex(sTechName)
@@ -814,7 +814,7 @@ Function fConvertDataToTheirRawDataType(ByRef arrData(), dictLetterIndex As Dict
     Dim sTechName As String
     Dim sColType As String
     
-    For i = 0 To dictLetterIndex.Count - 1
+    For i = 0 To dictLetterIndex.count - 1
         sTechName = dictLetterIndex.Keys(i)
         sColType = UCase(dictRawType(sTechName))
         
@@ -1014,7 +1014,7 @@ Function fPrepareOutputSheetHeaderAndTextColumns(shtOutput As Worksheet)
     
     Dim lEachCol As Long
     For lEachCol = 1 To lMaxCol
-        For i = 0 To dictRptColIndex.Count - 1
+        For i = 0 To dictRptColIndex.count - 1
             If dictRptColIndex.Items(i) = lEachCol Then
                 arrHeader(1, lEachCol) = dictRptDisplayName(dictRptColIndex.Keys(i))
                 Exit For
@@ -1042,14 +1042,14 @@ Function fPrepareOutputSheetHeaderAndTextColumns(shtOutput As Worksheet)
 End Function
 
 Function fPresetColsNumberFormat2TextForOuputSheet(shtOutput As Worksheet, Optional lMaxRow As Long = 0)
-    If lMaxRow = 0 Then lMaxRow = Rows.Count - 1
+    If lMaxRow = 0 Then lMaxRow = Rows.count - 1
     
     Dim i As Long
     Dim iColIndex As Long
     Dim sColTech  As String
     Dim sColType As String
     
-    For i = 0 To dictRptRawType.Count - 1
+    For i = 0 To dictRptRawType.count - 1
         sColTech = dictRptRawType.Keys(i)
         
         If dictRptColAttr(sColTech) = "NOT_SHOW_UP" Then GoTo next_col
@@ -1081,7 +1081,7 @@ Function fDeleteNotShowUpColumns(ByRef shtOutput As Worksheet)
     
     If dictRptColIndex Is Nothing Then fErr "dictRptColIndex is even empty , pls call fReadSysConfig_Output first"
     
-    For i = dictRptColIndex.Count - 1 To 0 Step -1
+    For i = dictRptColIndex.count - 1 To 0 Step -1
         sColTech = dictRptColIndex.Keys(i)
         sColType = dictRptColAttr(sColTech)
         
@@ -1168,7 +1168,7 @@ End Function
 Function fSetColumnWidthForOutputSheetByConfig(ByRef shtOutput As Worksheet)
     Dim i As Long
     
-    For i = 0 To dictRptColWidth.Count - 1
+    For i = 0 To dictRptColWidth.count - 1
         If dictRptColWidth.Items(i) <> 0 Then
             shtOutput.Columns(dictRptColIndex(dictRptColWidth.Keys(i))).ColumnWidth = CDbl(dictRptColWidth.Items(i))
         End If
@@ -1214,7 +1214,7 @@ Function fFormatReportByConfigByCopyFormat(ByRef shtOutput As Worksheet, Optiona
     If dictColIndex Is Nothing Then Set dictColIndex = dictRptColIndex
     If dictColCellFormat Is Nothing Then Set dictColCellFormat = dictRptCellFormat
     
-    For i = 0 To dictColIndex.Count - 1
+    For i = 0 To dictColIndex.count - 1
         sColTech = dictColIndex.Keys(i)
         lEachCol = CLng(dictColIndex.Items(i))
         
@@ -1307,7 +1307,7 @@ Function fSetNumberFormatForOutputSheetByConfigExceptTextCol(ByRef shtOutput As 
     Dim sFormat As String
     Dim sColType As String
     
-    For i = 0 To dictRptRawType.Count - 1
+    For i = 0 To dictRptRawType.count - 1
         sColTech = dictRptRawType.Keys(i)
         
         If dictRptColAttr(sColTech) = "NOT_SHOW_UP" Then GoTo next_col
@@ -1346,7 +1346,7 @@ Function fSetBackNumberFormat2TextForCols(ByRef shtOutput As Worksheet _
     Dim sColType As String
     Dim arrData()
     
-    For i = 0 To dictRptRawType.Count - 1
+    For i = 0 To dictRptRawType.count - 1
         sColTech = dictRptRawType.Keys(i)
         
         If dictRptColAttr(sColTech) = "NOT_SHOW_UP" Then GoTo next_col
@@ -1697,7 +1697,7 @@ Function fSetFormatForExceptionCells(shtOutput As Worksheet, dErrOrWarningRows A
     Dim lColor  As Long
     
     If dErrOrWarningRows Is Nothing Then Exit Function
-    If dErrOrWarningRows.Count <= 0 Then Exit Function
+    If dErrOrWarningRows.count <= 0 Then Exit Function
     
     sColorAddr = fGetSysMiscConfig(asColorTag)
     lColor = fGetRangeFromExternalAddress(sColorAddr).Interior.Color
@@ -1710,7 +1710,7 @@ Function fSetFormatForExceptionCells(shtOutput As Worksheet, dErrOrWarningRows A
     Dim lEachCol As Long
     Dim arrExceptionCols
     
-    For i = 0 To dErrOrWarningRows.Count - 1
+    For i = 0 To dErrOrWarningRows.count - 1
         lEachRow = dErrOrWarningRows.Keys(i)
         
         arrExceptionCols = Split(dErrOrWarningRows.Items(i), DELIMITER)
@@ -1735,7 +1735,7 @@ Function fGetDictionayDelimiteredItemsCount(ByRef dict As Dictionary, Optional s
     Dim i As Long
     
     lCount = 0
-    For i = 0 To dict.Count - 1
+    For i = 0 To dict.count - 1
         lCount = lCount + UBound(Split(dict.Items(i), sDelimiter)) + 1
     Next
     

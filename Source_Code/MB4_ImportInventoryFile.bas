@@ -27,7 +27,7 @@ Sub subMain_ImportInventoryFiles()
     Dim i As Integer
     Dim iCnt As Integer
     iCnt = 0
-    For i = 0 To dictCompList.Count - 1
+    For i = 0 To dictCompList.count - 1
         gsCompanyID = dictCompList.Keys(i)
         
         If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
@@ -45,7 +45,7 @@ Sub subMain_ImportInventoryFiles()
     fClearContentLeaveHeader shtSalesCompInvUnified
     Call fSetReplaceUnifyErrorRowCount_SCompInventory(100)
     
-    For i = 0 To dictCompList.Count - 1
+    For i = 0 To dictCompList.count - 1
         gsCompanyID = dictCompList.Keys(i)
         
         If fGetCompany_UserTicked(gsCompanyID) = "Y" Then
@@ -124,7 +124,7 @@ Private Function fValidateUserInputAndSetToConfigSheet()
     Dim sFilePathRange As String
     Dim sEachFilePath  As String
     
-    For i = 0 To dictCompList.Count - 1
+    For i = 0 To dictCompList.count - 1
         sEachCompanyID = dictCompList.Keys(i)
         'sFilePathRange = "rngSalesFilePath_" & sEachCompanyID
         
